@@ -11,19 +11,18 @@ from rest_framework import serializers, status
 from rest_framework.response import Response
 
 from pulpcore.plugin.models import Artifact, Repository, RepositoryVersion
+from pulpcore.plugin.tasking import enqueue_with_reservation
 
 from pulpcore.plugin.viewsets import (
     ContentViewSet,
-    RemoteViewSet,
     OperationPostponedResponse,
     PublisherViewSet)
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 
 from . import tasks
-from .models import CookbookPackageContent, CookbookRemote, CookbookPublisher
+from .models import CookbookPackageContent, CookbookPublisher
 from .serializers import (
     CookbookPackageContentSerializer,
-    CookbookRemoteSerializer,
     CookbookPublisherSerializer)
 
 from pulp_cookbook.metadata import CookbookMetadata
@@ -137,7 +136,8 @@ class CookbookPublisherViewSet(PublisherViewSet):
         serializer.is_valid(raise_exception=True)
         repository_version = serializer.validated_data.get('repository_version')
 
-        result = tasks.publish.apply_async_with_reservation(
+        result = enqueue_with_reservation(
+            tasks.publish,
             [repository_version.repository, publisher],
             kwargs={
                 'publisher_pk': str(publisher.pk),

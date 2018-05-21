@@ -132,12 +132,12 @@ Create ``cookbook`` content from an Artifact
 
 Create a content unit for ubuntu 2.0.1:
 
-``$ http POST http://localhost:8000/pulp/api/v3/content/cookbook/ name="ubuntu" artifact="$UBUNTU_ARTIFACT_HREF"``
+``$ http POST http://localhost:8000/pulp/api/v3/content/cookbook/cookbooks/ name="ubuntu" artifact="$UBUNTU_ARTIFACT_HREF"``
 
 .. code:: json
 
     {
-        "_href": "http://localhost:8000/pulp/api/v3/content/cookbook/9c20888c-6a34-40da-88f7-428c6f04f273/",
+        "_href": "http://localhost:8000/pulp/api/v3/content/cookbook/cookbooks/9c20888c-6a34-40da-88f7-428c6f04f273/",
         "artifact": "http://localhost:8000/pulp/api/v3/artifacts/df361637-d606-41db-b7dd-d8e773e8c0a2/",
         "created": "2018-05-10T15:09:28.575190Z",
         "dependencies": {
@@ -150,16 +150,16 @@ Create a content unit for ubuntu 2.0.1:
         "version": "2.0.1"
     }
 
-``$ export UBUNTU_CONTENT_HREF=$(http :8000/pulp/api/v3/content/cookbook/?name=ubuntu | jq -r '.results[0]._href')``
+``$ export UBUNTU_CONTENT_HREF=$(http :8000/pulp/api/v3/content/cookbook/cookbooks/?name=ubuntu | jq -r '.results[0]._href')``
 
 Create a content unit for apt 7.0.0:
 
-``$ http POST http://localhost:8000/pulp/api/v3/content/cookbook/ name="apt" artifact="$APT_ARTIFACT_HREF"``
+``$ http POST http://localhost:8000/pulp/api/v3/content/cookbook/cookbooks/ name="apt" artifact="$APT_ARTIFACT_HREF"``
 
 .. code:: json
 
     {
-        "_href": "http://localhost:8000/pulp/api/v3/content/cookbook/b3f28b18-9279-446f-8ddd-50a8e9f5fb1a/",
+        "_href": "http://localhost:8000/pulp/api/v3/content/cookbook/cookbooks/b3f28b18-9279-446f-8ddd-50a8e9f5fb1a/",
         "artifact": "http://localhost:8000/pulp/api/v3/artifacts/2ac8857f-93e0-48d8-9046-2ea0d53b9d30/",
         "created": "2018-05-10T15:09:31.563556Z",
         "dependencies": {},
@@ -170,7 +170,7 @@ Create a content unit for apt 7.0.0:
         "version": "7.0.0"
     }
 
-``$ export APT_CONTENT_HREF=$(http :8000/pulp/api/v3/content/cookbook/?name=apt | jq -r '.results[0]._href')``
+``$ export APT_CONTENT_HREF=$(http :8000/pulp/api/v3/content/cookbook/cookbooks/?name=apt | jq -r '.results[0]._href')``
 
 
 Add content to repository ``foo``

@@ -82,7 +82,7 @@ class _RepositoryPublishURLSerializer(serializers.Serializer):
 
 
 class CookbookPackageContentViewSet(ContentViewSet):
-    endpoint_name = 'cookbook'
+    endpoint_name = 'cookbook/cookbooks'
     queryset = CookbookPackageContent.objects.all()
     serializer_class = CookbookPackageContentSerializer
     filter_class = CookbookPackageContentFilter

@@ -53,17 +53,31 @@ provided with pulpcore.
 Install ``pulp_cookbook`` from source
 -------------------------------------
 
-1)  ``sudo -u pulp -i``
-2)  ``source ~/pulpvenv/bin/activate``
-3)  ``git clone https://github.com/pulp/pulp_cookbook.git``
-4)  ``cd pulp_cookbook``
-5)  ``python setup.py develop``
-6)  ``pulp-manager makemigrations pulp_cookbook``
-7)  ``pulp-manager migrate pulp_cookbook``
-8)  ``django-admin runserver``
-9)  ``sudo systemctl restart pulp_resource_manager``
-10) ``sudo systemctl restart pulp_worker@1``
-11) ``sudo systemctl restart pulp_worker@2``
+.. code-block:: bash
+
+   sudo -u pulp -i
+   source ~/pulpvenv/bin/activate
+   git clone https://github.com/gmbnomis/pulp_cookbook.git
+   cd pulp_cookbook
+   pip install -e .
+
+Make and Run Migrations
+-----------------------
+
+.. code-block:: bash
+
+   pulp-manager makemigrations pulp_cookbook
+   pulp-manager migrate pulp_cookbook
+
+Run Services
+------------
+
+.. code-block:: bash
+
+   pulp-manager runserver
+   sudo systemctl restart pulp_resource_manager
+   sudo systemctl restart pulp_worker@1
+   sudo systemctl restart pulp_worker@2
 
 Create a repository ``foo``
 ---------------------------
@@ -73,12 +87,12 @@ Create a repository ``foo``
 .. code:: json
 
     {
-        "_href": "http://localhost:8000/pulp/api/v3/repositories/012ddb4b-2a5c-438b-8a2c-8e860fc7ff70/",
+        "_href": "http://localhost:8000/pulp/api/v3/repositories/1/",
         "_latest_version_href": null,
-        "_versions_href": "http://localhost:8000/pulp/api/v3/repositories/012ddb4b-2a5c-438b-8a2c-8e860fc7ff70/versions/",
-        "created": "2018-05-10T15:09:25.598418Z",
+        "_versions_href": "http://localhost:8000/pulp/api/v3/repositories/1/versions/",
+        "created": "2018-08-07T04:53:51.437359Z",
         "description": "",
-        "id": "012ddb4b-2a5c-438b-8a2c-8e860fc7ff70",
+        "id": 1,
         "name": "foo",
         "notes": {}
     }
@@ -111,12 +125,17 @@ Create artifacts by uploading the cookbooks to Pulp. First, the artifact for the
 .. code:: json
 
     {
-    "id": "df361637-d606-41db-b7dd-d8e773e8c0a2",
-    "_href": "http://localhost:8000/pulp/api/v3/artifacts/df361637-d606-41db-b7dd-d8e773e8c0a2/",
-    "created": "2018-05-10T15:09:28.041601Z",
+    "id": 1,
+    "_href": "http://localhost:8000/pulp/api/v3/artifacts/1/",
+    "created": "2018-08-07T04:53:53.622664Z",
     "file": "/var/lib/pulp/artifact/32/a7d3de4ff8f769eeab4ffc982eb8df845d91d49c01548d6f993b10e52b6f69",
     "size": 3712,
-    ...
+    "md5": "36b2b6e59dfd4ce8185042e384d73498",
+    "sha1": "e66700968de9441266e48178acfe63f605d04101",
+    "sha224": "60807a9415be340a0eaab792c85c0b143f48d18ee82a9e3774c82d18",
+    "sha256": "32a7d3de4ff8f769eeab4ffc982eb8df845d91d49c01548d6f993b10e52b6f69",
+    "sha384": "2c5ce13bce99a1f9321d52b7cd9e8a8f4388c7def8b6f977ba6a095bf68e723c4053b5b8687609fb26c8e5e06ec88f84",
+    "sha512": "b9311176f3cad3aad486717f96ed6a87e520fceb03f389dc5980499ebcef0388acea2106fe964a2e411f39abfbf194d56b96825d7befaef7d3ebbeeb0f5b4c6c"
     }
 
 And then, the "apt" cookbook:
@@ -137,13 +156,13 @@ Create a content unit for ubuntu 2.0.1:
 .. code:: json
 
     {
-        "_href": "http://localhost:8000/pulp/api/v3/content/cookbook/cookbooks/9c20888c-6a34-40da-88f7-428c6f04f273/",
-        "artifact": "http://localhost:8000/pulp/api/v3/artifacts/df361637-d606-41db-b7dd-d8e773e8c0a2/",
-        "created": "2018-05-10T15:09:28.575190Z",
+        "_href": "http://localhost:8000/pulp/api/v3/content/cookbook/cookbooks/1/",
+        "artifact": "http://localhost:8000/pulp/api/v3/artifacts/1/",
+        "created": "2018-08-07T04:53:54.054808Z",
         "dependencies": {
             "apt": ">= 0.0.0"
         },
-        "id": "9c20888c-6a34-40da-88f7-428c6f04f273",
+        "id": 1,
         "name": "ubuntu",
         "notes": {},
         "type": "cookbook",
@@ -159,11 +178,11 @@ Create a content unit for apt 7.0.0:
 .. code:: json
 
     {
-        "_href": "http://localhost:8000/pulp/api/v3/content/cookbook/cookbooks/b3f28b18-9279-446f-8ddd-50a8e9f5fb1a/",
-        "artifact": "http://localhost:8000/pulp/api/v3/artifacts/2ac8857f-93e0-48d8-9046-2ea0d53b9d30/",
-        "created": "2018-05-10T15:09:31.563556Z",
+        "_href": "http://localhost:8000/pulp/api/v3/content/cookbook/cookbooks/2/",
+        "artifact": "http://localhost:8000/pulp/api/v3/artifacts/2/",
+        "created": "2018-08-07T04:53:56.680435Z",
         "dependencies": {},
-        "id": "b3f28b18-9279-446f-8ddd-50a8e9f5fb1a",
+        "id": 2,
         "name": "apt",
         "notes": {},
         "type": "cookbook",
@@ -188,12 +207,12 @@ Create a ``cookbook`` Publisher
 .. code:: json
 
     {
-        "_href": "http://localhost:8000/pulp/api/v3/publishers/cookbook/d51f31df-5758-47ba-95e2-016eae4bb611/",
-        "created": "2018-05-10T15:09:33.191839Z",
+        "_href": "http://localhost:8000/pulp/api/v3/publishers/cookbook/1/",
+        "created": "2018-08-07T04:53:58.078906Z",
         "distributions": [],
-        "id": "d51f31df-5758-47ba-95e2-016eae4bb611",
+        "id": 1,
         "last_published": null,
-        "last_updated": "2018-05-10T15:09:33.191857Z",
+        "last_updated": "2018-08-07T04:53:58.078929Z",
         "name": "publisher",
         "type": "cookbook"
     }
@@ -223,17 +242,16 @@ Create a Distribution at 'foo' for the Publication
 .. code:: json
 
     {
-        "_href": "http://localhost:8000/pulp/api/v3/distributions/92acec58-e579-4647-94e2-4801f5b71595/",
+        "_href": "http://localhost:8000/pulp/api/v3/distributions/1/",
         "base_path": "foo",
         "base_url": "localhost:8000/pulp/content/foo",
-        "created": "2018-05-10T15:09:35.390266Z",
-        "id": "92acec58-e579-4647-94e2-4801f5b71595",
+        "created": "2018-08-07T04:54:00.015113Z",
+        "id": 1,
         "name": "baz",
-        "publication": "http://localhost:8000/pulp/api/v3/publications/bf30ed42-719f-42ef-bd87-a8557d57584c/",
+        "publication": "http://localhost:8000/pulp/api/v3/publications/1/",
         "publisher": null,
         "repository": null
     }
-
 
 You can have a look at the published "universe" metadata now:
 
@@ -284,4 +302,3 @@ Create a Berksfile with the following content:
    Fetching cookbook index from http://localhost:8000/pulp_cookbook/market/foo...
    Installing apt (7.0.0) from http://localhost:8000/pulp_cookbook/market/foo ([uri] http://localhost:8000/pulp/content/foo/cookbook_files/apt/7_0_0/apt-7.0.0.tar.gz)
    Installing ubuntu (2.0.1) from http://localhost:8000/pulp_cookbook/market/foo ([uri] http://localhost:8000/pulp/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz)
-

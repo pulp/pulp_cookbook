@@ -20,6 +20,15 @@ setup(
     install_requires=requirements,
     include_package_data=True,
     packages=find_packages(exclude=['test']),
+    classifiers=(
+        'License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)',
+        'Operating System :: POSIX :: Linux',
+        'Development Status :: 3 - Alpha',
+        'Framework :: Django',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+    ),
     entry_points={
         'pulpcore.plugin': [
             'pulp_cookbook = pulp_cookbook:default_app_config',

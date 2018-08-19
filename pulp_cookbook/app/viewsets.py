@@ -13,21 +13,24 @@ from rest_framework.response import Response
 from pulpcore.plugin.models import Artifact
 from pulpcore.plugin.serializers import (
     AsyncOperationResponseSerializer,
-    RepositoryPublishURLSerializer
+    RepositoryPublishURLSerializer,
+    RepositorySyncURLSerializer
 )
 
 from pulpcore.plugin.tasking import enqueue_with_reservation
 
 from pulpcore.plugin.viewsets import (
     ContentViewSet,
+    RemoteViewSet,
     OperationPostponedResponse,
     PublisherViewSet,
     BaseFilterSet)
 
 from . import tasks
-from .models import CookbookPackageContent, CookbookPublisher
+from .models import CookbookPackageContent, CookbookRemote, CookbookPublisher
 from .serializers import (
     CookbookPackageContentSerializer,
+    CookbookRemoteSerializer,
     CookbookPublisherSerializer)
 
 from pulp_cookbook.metadata import CookbookMetadata
@@ -78,6 +81,36 @@ class CookbookPackageContentViewSet(ContentViewSet):
 
         headers = self.get_success_headers(request.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class CookbookRemoteViewSet(RemoteViewSet):
+    endpoint_name = 'cookbook'
+    queryset = CookbookRemote.objects.all()
+    serializer_class = CookbookRemoteSerializer
+
+    @swagger_auto_schema(operation_description="Trigger an asynchronous task to sync cookbook "
+                                               "content.",
+                         responses={202: AsyncOperationResponseSerializer})
+    @detail_route(methods=('post',), serializer_class=RepositorySyncURLSerializer)
+    def sync(self, request, pk):
+        """
+        Synchronizes a repository. The ``repository`` field has to be provided.
+        """
+        remote = self.get_object()
+        serializer = RepositorySyncURLSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        repository = serializer.validated_data.get('repository')
+        mirror = serializer.validated_data.get('mirror', True)
+        result = enqueue_with_reservation(
+            tasks.synchronize,
+            [repository, remote],
+            kwargs={
+                'remote_pk': remote.pk,
+                'repository_pk': repository.pk,
+                'mirror': mirror
+            }
+        )
+        return OperationPostponedResponse(result, request)
 
 
 class CookbookPublisherViewSet(PublisherViewSet):

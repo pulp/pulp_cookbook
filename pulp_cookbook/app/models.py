@@ -4,7 +4,7 @@
 
 from django.db import models
 
-from pulpcore.plugin.models import Content, ContentArtifact, Remote, Publisher
+from pulpcore.plugin.models import Content, ContentArtifact, Publisher, Remote
 from pulpcore.plugin.fields import JSONField
 
 
@@ -36,8 +36,11 @@ class CookbookPackageContent(Content):
         if self.pk:
             ca = ContentArtifact(artifact=artifact,
                                  content=self,
-                                 relative_path="{}-{}.tar.gz".format(self.name, self.version))
+                                 relative_path=self.relative_path())
             ca.save()
+
+    def relative_path(self):
+        return "{}-{}.tar.gz".format(self.name, self.version)
 
     class Meta:
         unique_together = (
@@ -51,6 +54,14 @@ class CookbookRemote(Remote):
     Remote for "cookbook" content.
     """
     TYPE = 'cookbook'
+
+    cookbooks = JSONField(blank=True)
+
+    def specifier_cookbook_names(self):
+        if self.cookbooks == '':  # blank JSON field
+            return None
+        else:
+            return set(self.cookbooks.keys())
 
 
 class CookbookPublisher(Publisher):

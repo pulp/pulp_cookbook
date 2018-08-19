@@ -98,6 +98,19 @@ class Universe:
         """
         self.relative_path = relative_path
 
+    def read(self):
+        """
+        Read the universe file at `relative_path` and yield cookbook entries.
+
+        Yields: Entry: for each cookbook.
+        """
+        with open(self.relative_path) as fp:
+            universe = json.load(fp)
+        for cookbook_name, cookbook_versions in universe.items():
+            for cookbook_version, cookbook_meta in cookbook_versions.items():
+                yield Entry(cookbook_name, cookbook_version,
+                            cookbook_meta['download_url'], cookbook_meta['dependencies'])
+
     def write(self, entries):
         """
         Write the universe JSON file.

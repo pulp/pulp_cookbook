@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 requirements = [
-    'pulpcore-plugin>=0.1.0b2',
+    'pulpcore-plugin>=0.1.0b4',
 ]
 
 with open('README.rst') as f:
@@ -28,6 +28,7 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ),
     entry_points={
         'pulpcore.plugin': [

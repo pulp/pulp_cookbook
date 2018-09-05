@@ -4,6 +4,7 @@
 *.pyo
 .project
 .pydevproject
+.pytest_cache
 *.swp
 *.swo
 build
@@ -29,6 +30,9 @@ tags
 # Sublime
 .codeintel
 
+# VSCode
+.vscode/
+
 # Rope
 .ropeproject
 
@@ -39,6 +43,7 @@ Vagrantfile
 # Built documentation
 docs/_build
 docs/_diagrams
+_build
 
 # Django migrations
 # Ignored during early development to prevent accidental commits;

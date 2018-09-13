@@ -49,7 +49,7 @@ class UniverseView(views.APIView):
         return HttpResponse(content, content_type='application/json; charset=utf-8')
 
     def _get_content_base_url(self, request):
-        if settings.CONTENT['host']:
+        if settings.CONTENT.get('host'):
             host = settings.CONTENT['host']
         else:
             host = request.get_host()

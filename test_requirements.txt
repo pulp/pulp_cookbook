@@ -1,0 +1,7 @@
+asynctest
+coverage
+flake8
+mock
+git+https://github.com/PulpQE/pulp-smash.git#egg=pulp-smash
+pytest
+pytest-django

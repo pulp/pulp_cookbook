@@ -5,30 +5,38 @@
 from gettext import gettext as _
 
 from django.db import transaction
-from django_filters.rest_framework import filterset
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import detail_route
 from rest_framework import serializers, status
 from rest_framework.response import Response
 
-from pulpcore.plugin.models import Artifact, Repository, RepositoryVersion
+from pulpcore.plugin.models import Artifact
+from pulpcore.plugin.serializers import (
+    AsyncOperationResponseSerializer,
+    RepositoryPublishURLSerializer,
+    RepositorySyncURLSerializer
+)
+
 from pulpcore.plugin.tasking import enqueue_with_reservation
 
 from pulpcore.plugin.viewsets import (
     ContentViewSet,
+    RemoteViewSet,
     OperationPostponedResponse,
-    PublisherViewSet)
-from rest_framework_nested.relations import NestedHyperlinkedRelatedField
+    PublisherViewSet,
+    BaseFilterSet)
 
 from . import tasks
-from .models import CookbookPackageContent, CookbookPublisher
+from .models import CookbookPackageContent, CookbookRemote, CookbookPublisher
 from .serializers import (
     CookbookPackageContentSerializer,
+    CookbookRemoteSerializer,
     CookbookPublisherSerializer)
 
 from pulp_cookbook.metadata import CookbookMetadata
 
 
-class CookbookPackageContentFilter(filterset.FilterSet):
+class CookbookPackageContentFilter(BaseFilterSet):
     class Meta:
         model = CookbookPackageContent
         fields = [
@@ -37,55 +45,11 @@ class CookbookPackageContentFilter(filterset.FilterSet):
         ]
 
 
-class _RepositoryPublishURLSerializer(serializers.Serializer):
-
-    repository = serializers.HyperlinkedRelatedField(
-        help_text=_('A URI of the repository to be published.'),
-        required=False,
-        label=_('Repository'),
-        queryset=Repository.objects.all(),
-        view_name='repositories-detail',
-    )
-
-    repository_version = NestedHyperlinkedRelatedField(
-        help_text=_('A URI of the repository version to be published.'),
-        required=False,
-        label=_('Repository Version'),
-        queryset=RepositoryVersion.objects.all(),
-        view_name='versions-detail',
-        lookup_field='number',
-        parent_lookup_kwargs={'repository_pk': 'repository__pk'},
-    )
-
-    def validate(self, data):
-        repository = data.get('repository')
-        repository_version = data.get('repository_version')
-
-        if not repository and not repository_version:
-            raise serializers.ValidationError(
-                _("Either the 'repository' or 'repository_version' need to be specified"))
-        elif not repository and repository_version:
-            return data
-        elif repository and not repository_version:
-            version = RepositoryVersion.latest(repository)
-            if version:
-                new_data = {'repository_version': version}
-                new_data.update(data)
-                return new_data
-            else:
-                raise serializers.ValidationError(
-                    detail=_('Repository has no version available to publish'))
-        raise serializers.ValidationError(
-            _("Either the 'repository' or 'repository_version' need to be specified "
-              "but not both.")
-        )
-
-
 class CookbookPackageContentViewSet(ContentViewSet):
     endpoint_name = 'cookbook/cookbooks'
     queryset = CookbookPackageContent.objects.all()
     serializer_class = CookbookPackageContentSerializer
-    filter_class = CookbookPackageContentFilter
+    filterset_class = CookbookPackageContentFilter
 
     @transaction.atomic
     def create(self, request):
@@ -119,20 +83,53 @@ class CookbookPackageContentViewSet(ContentViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
+class CookbookRemoteViewSet(RemoteViewSet):
+    endpoint_name = 'cookbook'
+    queryset = CookbookRemote.objects.all()
+    serializer_class = CookbookRemoteSerializer
+
+    @swagger_auto_schema(operation_description="Trigger an asynchronous task to sync cookbook "
+                                               "content.",
+                         responses={202: AsyncOperationResponseSerializer})
+    @detail_route(methods=('post',), serializer_class=RepositorySyncURLSerializer)
+    def sync(self, request, pk):
+        """
+        Synchronizes a repository. The ``repository`` field has to be provided.
+        """
+        remote = self.get_object()
+        serializer = RepositorySyncURLSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        repository = serializer.validated_data.get('repository')
+        mirror = serializer.validated_data.get('mirror', True)
+        result = enqueue_with_reservation(
+            tasks.synchronize,
+            [repository, remote],
+            kwargs={
+                'remote_pk': remote.pk,
+                'repository_pk': repository.pk,
+                'mirror': mirror
+            }
+        )
+        return OperationPostponedResponse(result, request)
+
+
 class CookbookPublisherViewSet(PublisherViewSet):
     endpoint_name = 'cookbook'
     queryset = CookbookPublisher.objects.all()
     serializer_class = CookbookPublisherSerializer
 
-    @detail_route(methods=('post',), serializer_class=_RepositoryPublishURLSerializer)
+    @swagger_auto_schema(operation_description="Trigger an asynchronous task to publish "
+                                               "cookbook content.",
+                         responses={202: AsyncOperationResponseSerializer})
+    @detail_route(methods=('post',), serializer_class=RepositoryPublishURLSerializer)
     def publish(self, request, pk):
         """
         Publishes a repository. Either the ``repository`` or the ``repository_version`` fields can
         be provided but not both at the same time.
         """
         publisher = self.get_object()
-        serializer = _RepositoryPublishURLSerializer(data=request.data,
-                                                     context={'request': request})
+        serializer = RepositoryPublishURLSerializer(data=request.data,
+                                                    context={'request': request})
         serializer.is_valid(raise_exception=True)
         repository_version = serializer.validated_data.get('repository_version')
 

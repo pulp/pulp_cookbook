@@ -125,7 +125,7 @@ class CookbookFirstStage(StageBase):
             out_q (asyncio.Queue): The out_q to send `DeclarativeContent` objects to
         """
         with ProgressBar(message='Downloading Metadata', total=1) as pb:
-            downloader = self.remote.get_downloader(urljoin(self.remote.url, 'universe'))
+            downloader = self.remote.get_downloader(urljoin(self.remote.url + '/', 'universe'))
             result = await downloader.run()
             pb.increment()
 

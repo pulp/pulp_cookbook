@@ -327,6 +327,7 @@ Let's mirror the ``pulp`` and ``qpid`` cookbooks into our existing repo. First, 
 ``$ http POST http://localhost:8000/pulp/api/v3/remotes/cookbook/ name='supermarket' url='https://supermarket.chef.io/' cookbooks:='{"pulp": "", "qpid": ""}'``
 
 .. code:: json
+
     {
         "_href": "/pulp/api/v3/remotes/cookbook/1/",
         "cookbooks": {

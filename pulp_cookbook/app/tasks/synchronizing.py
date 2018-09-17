@@ -20,61 +20,7 @@ from pulp_cookbook.metadata import Universe
 log = logging.getLogger(__name__)
 
 
-class StageBase(Stage):
-
-    @staticmethod
-    async def batches(in_q):
-        """
-        Asynchronous iterator yielding batches of :class:`DeclarativeContent` from `in_q`.
-
-        Args:
-            in_q (:class:`asyncio.Queue`): The queue to receive
-                :class:`~pulpcore.plugin.stages.DeclarativeContent` objects from.
-
-        Yields:
-            A list of :class:`DeclarativeContent` instances
-
-        Examples:
-            Used in stages to get large chunks of declarative_content instances from the
-            `in_q`::
-
-                async for batch in self.batches(in_q):
-                    # process the batch and queue the result to out_q
-                await out_q.put(None) # stage is finished
-        """
-        batch = []
-        shutdown = False
-
-        def add_to_batch(batch, content):
-            if content is None:
-                return True
-            batch.append(content)
-            return False
-
-        while not shutdown:
-            content = await in_q.get()
-            shutdown = add_to_batch(batch, content)
-            while not shutdown:
-                try:
-                    content = in_q.get_nowait()
-                except asyncio.QueueEmpty:
-                    break
-                else:
-                    shutdown = add_to_batch(batch, content)
-            if batch:
-                yield batch
-            batch = []
-
-    @staticmethod
-    async def greedy_put(out_q, declarative_content):
-        """queue.put() that only reschedules when queue is full"""
-        try:
-            out_q.put_nowait(declarative_content)
-        except asyncio.QueueFull:
-            await out_q.put(declarative_content)
-
-
-class ExistingContentNeedsNoArtifacts(StageBase):
+class ExistingContentNeedsNoArtifacts(Stage):
     """
     A Stages API stage that removes all
     :class:`~pulpcore.plugin.stages.DeclarativeArtifact` instances from
@@ -99,11 +45,11 @@ class ExistingContentNeedsNoArtifacts(StageBase):
             for declarative_content in batch:
                 if declarative_content.content.pk is not None:
                     declarative_content.d_artifacts = []
-                await self.greedy_put(out_q, declarative_content)
+                await out_q.put(declarative_content)
         await out_q.put(None)
 
 
-class CookbookFirstStage(StageBase):
+class CookbookFirstStage(Stage):
 
     def __init__(self, remote):
         """
@@ -143,7 +89,7 @@ class CookbookFirstStage(StageBase):
                                          cookbook.relative_path(), self.remote)
                 dc = DeclarativeContent(content=cookbook, d_artifacts=[da])
                 pb.increment()
-                await self.greedy_put(out_q, dc)
+                await out_q.put(dc)
         await out_q.put(None)
 
 
@@ -159,7 +105,7 @@ class CookbookDeclarativeVersion(DeclarativeVersion):
                 stages = [
                     self.first_stage,
                     QueryExistingContentUnits(), ExistingContentNeedsNoArtifacts(),
-                    ArtifactDownloader(), ArtifactSaver(),
+                    ArtifactDownloader(max_concurrent_downloads=4), ArtifactSaver(),
                     ContentUnitSaver(),
                     ContentUnitAssociation(new_version)
                 ]

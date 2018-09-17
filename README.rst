@@ -1,3 +1,14 @@
+.. image:: https://travis-ci.org/gmbnomis/pulp_cookbook.svg?branch=master
+   :target: https://travis-ci.org/gmbnomis/pulp_cookbook
+   :alt: Travis (.org)
+.. image:: https://img.shields.io/pypi/v/pulp-cookbook.svg
+   :target: https://pypi.python.org/pypi/pulp-cookbook
+   :alt: PyPI
+.. image:: https://img.shields.io/pypi/pyversions/pulp-cookbook.svg
+   :target: https://pypi.python.org/pypi/pulp-cookbook
+   :alt: PyPI - Python Version
+
+
 ``pulp_cookbook`` Plugin
 ========================
 

@@ -5,6 +5,7 @@ from random import randint
 from urllib.parse import urlsplit
 
 from pulp_smash import api, config
+from pulp_smash.exceptions import TaskReportError
 from pulp_smash.pulp3.constants import REPO_PATH
 from pulp_smash.pulp3.utils import (
     delete_orphans,
@@ -131,41 +132,30 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
                            0)
 
 
-class SyncChangeRepoVersionTestCase(unittest.TestCase):
-    """Verify whether sync of repository updates repository version."""
+class SyncInvalidTestCase(unittest.TestCase):
+    """Sync a repository with an invalid given url on the remote."""
 
-    def test_all(self):
-        """Verify whether the sync of a repository updates its version.
+    @classmethod
+    def setUpClass(cls):
+        """Create class-wide variables."""
+        cls.cfg = config.get_config()
+        cls.client = api.Client(cls.cfg, api.json_handler)
 
-        This test explores the design choice stated in the `Pulp #3308`_ that a
-        new repository version is created even if the sync does not add or
-        remove any content units. Even without any changes to the remote if a
-        new sync occurs, a new repository version is created.
+    def test_invalid_url(self):
+        """Sync a repository using a remote url that does not exist.
 
-        .. _Pulp #3308: https://pulp.plan.io/issues/3308
-
-        Do the following:
-
-        1. Create a repository, and an remote.
-        2. Sync the repository an arbitrary number of times.
-        3. Verify that the repository version is equal to the previous number
-           of syncs.
+        Test that we get a task failure. See :meth:`do_test`.
         """
-        cfg = config.get_config()
-        client = api.Client(cfg, api.json_handler)
+        context = self.do_test('http://example.com/invalid/')
+        self.assertIsNotNone(context.exception.task['error']['description'])
 
-        repo = client.post(REPO_PATH, gen_repo())
-        self.addCleanup(client.delete, repo['_href'])
-
-        body = gen_remote(fixture_u1.url)
-        remote = client.post(COOKBOOK_REMOTE_PATH, body)
-        self.addCleanup(client.delete, remote['_href'])
-
-        number_of_syncs = randint(1, 10)
-        for _ in range(number_of_syncs):
-            sync(cfg, remote, repo)
-
-        repo = client.get(repo['_href'])
-        path = urlsplit(repo['_latest_version_href']).path
-        latest_repo_version = int(path.split('/')[-2])
-        self.assertEqual(latest_repo_version, number_of_syncs)
+    def do_test(self, url):
+        """Sync a repository given ``url`` on the remote."""
+        repo = self.client.post(REPO_PATH, gen_repo())
+        self.addCleanup(self.client.delete, repo['_href'])
+        body = gen_remote(url=url)
+        remote = self.client.post(COOKBOOK_REMOTE_PATH, body)
+        self.addCleanup(self.client.delete, remote['_href'])
+        with self.assertRaises(TaskReportError) as context:
+            sync(self.cfg, remote, repo)
+        return context

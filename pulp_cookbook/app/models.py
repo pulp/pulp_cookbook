@@ -53,6 +53,7 @@ class CookbookRemote(Remote):
     """
     Remote for "cookbook" content.
     """
+
     TYPE = 'cookbook'
 
     cookbooks = JSONField(blank=True)
@@ -68,4 +69,5 @@ class CookbookPublisher(Publisher):
     """
     Publisher for "cookbook" content.
     """
+
     TYPE = 'cookbook'

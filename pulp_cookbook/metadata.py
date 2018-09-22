@@ -12,6 +12,7 @@ class CookbookMetadata:
 
     Attributes:
         metadata (dict): content of the 'metadata.json' file of a cookbook
+
     """
 
     def __init__(self, metadata):
@@ -41,6 +42,7 @@ class CookbookMetadata:
 
         Returns:
             CookbookMetadata: Instance containing the extracted metadata
+
         """
         tf = tarfile.open(file_name)
         for element in tf:
@@ -55,18 +57,15 @@ class Entry:
     """
     Universe entry: info about a cookbook in the universe file.
 
-
     Attributes:
         name (str): cookbook name
         version (str): cookbook version
         download_url (str): URL of cookbook tar package
         dependencies (dict): cookbook dependencies
+
     """
 
     def __init__(self, name, version, download_url, dependencies):
-        """
-        Args:
-        """
         self.name = name
         self.version = version
         self.download_url = download_url
@@ -85,16 +84,21 @@ class Entry:
 class Universe:
     """
     Represents the cookbook universe.
+
     Describes cookbooks contained within the directory.
 
     Attributes:
         relative_path (str): An relative path to the universe.
+
     """
 
     def __init__(self, relative_path):
         """
+        Represents the cookbook universe.
+
         Args:
             relative_path (str): An relative path to the universe.
+
         """
         self.relative_path = relative_path
 
@@ -103,6 +107,7 @@ class Universe:
         Read the universe file at `relative_path` and yield cookbook entries.
 
         Yields: Entry: for each cookbook.
+
         """
         with open(self.relative_path) as fp:
             universe = json.load(fp)
@@ -117,6 +122,7 @@ class Universe:
 
         Args:
             entries (iterable): The entries to be written.
+
         """
         universe = dict()
         for entry in entries:

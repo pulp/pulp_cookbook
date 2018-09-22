@@ -70,6 +70,7 @@ def populate(publication):
 
     Yields:
         Entry: Universe entry for each cookbook
+
     """
     for content in CookbookPackageContent.objects.filter(
             pk__in=publication.repository_version.content).order_by('-created'):

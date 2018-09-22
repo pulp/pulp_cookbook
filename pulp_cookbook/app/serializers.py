@@ -14,6 +14,8 @@ from .models import CookbookPackageContent, CookbookRemote, CookbookPublisher
 
 
 class CookbookPackageContentSerializer(ContentSerializer):
+    """Serializer for the cookbook content."""
+
     name = serializers.CharField(
         help_text=_("name of the cookbook")
     )
@@ -39,6 +41,7 @@ class CookbookPackageContentSerializer(ContentSerializer):
 
 
 class CookbookRemoteSerializer(RemoteSerializer):
+    """Serializer for the remote pointing to a universe repo."""
 
     cookbooks = serializers.JSONField(
         help_text=_('An optional JSON object in the format {"<cookbook name>":'
@@ -64,6 +67,8 @@ class CookbookRemoteSerializer(RemoteSerializer):
 
 
 class CookbookPublisherSerializer(PublisherSerializer):
+    """Serializer for the publisher."""
+
     class Meta:
         fields = PublisherSerializer.Meta.fields
         model = CookbookPublisher

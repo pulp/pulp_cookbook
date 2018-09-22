@@ -1,8 +1,6 @@
 # coding=utf-8
 """Tests that sync cookbook plugin repositories."""
 import unittest
-from random import randint
-from urllib.parse import urlsplit
 
 from pulp_smash import api, config
 from pulp_smash.exceptions import TaskReportError
@@ -42,6 +40,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
 
         Returns:
             Task report structure
+
         """
         if mirror is None:
             sync_resp = sync(self.cfg, remote, repo)

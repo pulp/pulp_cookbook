@@ -22,10 +22,13 @@ log = logging.getLogger(__name__)
 
 class ExistingContentNeedsNoArtifacts(Stage):
     """
+    A Stages API stage that removes artifacts that are known (i.e. do not need to be downloaded).
+
     A Stages API stage that removes all
     :class:`~pulpcore.plugin.stages.DeclarativeArtifact` instances from
     :class:`~pulpcore.plugin.stages.DeclarativeContent` units if the respective
     :class:`~pulpcore.plugin.models.Content` is already existing.
+
     """
 
     async def __call__(self, in_q, out_q):
@@ -40,6 +43,7 @@ class ExistingContentNeedsNoArtifacts(Stage):
 
         Returns:
             The coroutine for this stage.
+
         """
         async for batch in self.batches(in_q):
             for declarative_content in batch:
@@ -50,6 +54,7 @@ class ExistingContentNeedsNoArtifacts(Stage):
 
 
 class CookbookFirstStage(Stage):
+    """The first stage of the pulp_cookbook sync pipeline."""
 
     def __init__(self, remote):
         """
@@ -62,13 +67,15 @@ class CookbookFirstStage(Stage):
 
     async def __call__(self, in_q, out_q):
         """
-        Build and emit `DeclarativeContent` from the Manifest data. If a
-        cookbook specifier is set in the remote, cookbooks are filtered using
-        this specifier.
+        Build and emit `DeclarativeContent` from the Manifest data.
 
-        Args:
-            in_q (asyncio.Queue): Unused because the first stage doesn't read from an input queue.
-            out_q (asyncio.Queue): The out_q to send `DeclarativeContent` objects to
+        If a cookbook specifier is set in the remote, cookbooks are filtered
+        using this specifier.
+
+        Args: in_q (asyncio.Queue): Unused because the first stage doesn't read
+            from an input queue. out_q (asyncio.Queue): The out_q to send
+            `DeclarativeContent` objects to
+
         """
         with ProgressBar(message='Downloading Metadata', total=1) as pb:
             downloader = self.remote.get_downloader(urljoin(self.remote.url + '/', 'universe'))
@@ -94,6 +101,7 @@ class CookbookFirstStage(Stage):
 
 
 class CookbookDeclarativeVersion(DeclarativeVersion):
+    """Implement pulp_cookbook's stape API pipeline."""
 
     def create(self):
         """
@@ -119,8 +127,7 @@ class CookbookDeclarativeVersion(DeclarativeVersion):
 
 def synchronize(remote_pk, repository_pk, mirror):
     """
-    Create a new version of the repository that is synchronized with the remote
-    as specified by the remote.
+    Create a new version of the repository that is synchronized with the remote.
 
     Args:
         remote_pk (str): The remote PK.
@@ -129,6 +136,7 @@ def synchronize(remote_pk, repository_pk, mirror):
 
     Raises:
         ValueError: When url is empty.
+
     """
     remote = CookbookRemote.objects.get(pk=remote_pk)
     repository = Repository.objects.get(pk=repository_pk)

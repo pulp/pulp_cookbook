@@ -37,6 +37,8 @@ from pulp_cookbook.metadata import CookbookMetadata
 
 
 class CookbookPackageContentFilter(BaseFilterSet):
+    """Filters for the content endpoint."""
+
     class Meta:
         model = CookbookPackageContent
         fields = [
@@ -46,6 +48,8 @@ class CookbookPackageContentFilter(BaseFilterSet):
 
 
 class CookbookPackageContentViewSet(ContentViewSet):
+    """The ViewSet for the content endpoint."""
+
     endpoint_name = 'cookbook/cookbooks'
     queryset = CookbookPackageContent.objects.all()
     serializer_class = CookbookPackageContentSerializer
@@ -84,6 +88,8 @@ class CookbookPackageContentViewSet(ContentViewSet):
 
 
 class CookbookRemoteViewSet(RemoteViewSet):
+    """The ViewSet for the remote endpoint."""
+
     endpoint_name = 'cookbook'
     queryset = CookbookRemote.objects.all()
     serializer_class = CookbookRemoteSerializer
@@ -114,6 +120,8 @@ class CookbookRemoteViewSet(RemoteViewSet):
 
 
 class CookbookPublisherViewSet(PublisherViewSet):
+    """The ViewSet for the publish endpoint."""
+
     endpoint_name = 'cookbook'
     queryset = CookbookPublisher.objects.all()
     serializer_class = CookbookPublisherSerializer
@@ -124,8 +132,11 @@ class CookbookPublisherViewSet(PublisherViewSet):
     @detail_route(methods=('post',), serializer_class=RepositoryPublishURLSerializer)
     def publish(self, request, pk):
         """
-        Publishes a repository. Either the ``repository`` or the ``repository_version`` fields can
+        Publishes a repository.
+
+        Either the ``repository`` or the ``repository_version`` fields can
         be provided but not both at the same time.
+
         """
         publisher = self.get_object()
         serializer = RepositoryPublishURLSerializer(data=request.data,

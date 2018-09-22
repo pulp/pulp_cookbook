@@ -14,10 +14,12 @@ BASE_PATH_MARKER = '{{ base_path }}'
 
 
 def path_template(artifact_path):
+    """Artifact path to write into published '__universe__' file."""
     return BASE_PATH_MARKER + '/' + artifact_path
 
 
 def replace_all_paths(content, base_url):
+    """Replace BASE_PATH_MARKERs with base_url in the give '__universe__' content."""
     return content.replace(BASE_PATH_MARKER, base_url)
 
 

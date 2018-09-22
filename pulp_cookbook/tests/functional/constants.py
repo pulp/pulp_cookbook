@@ -21,6 +21,7 @@ COOKBOOK_BASE_LIVE_API_PATH = '/pulp_cookbook/market/'
 
 
 class CookbookFixture:
+    """Class holding information about a universe cookbook repo fixture."""
 
     def __init__(self, repo_name: str, cookbooks: Dict[str, List[str]]) -> None:
         self.url = urljoin(FIXTURES_BASE_URL, repo_name + '/')

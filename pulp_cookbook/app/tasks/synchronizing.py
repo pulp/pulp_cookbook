@@ -1,17 +1,14 @@
-import asyncio
 import logging
 
 from gettext import gettext as _
 from urllib.parse import urljoin
 
-from pulpcore.plugin.models import Artifact, ProgressBar, Repository, RepositoryVersion
+from pulpcore.plugin.models import Artifact, ProgressBar, Repository
 from pulpcore.plugin.stages import (
     DeclarativeArtifact, DeclarativeContent, DeclarativeVersion, Stage,
     ArtifactDownloader, ArtifactSaver,
-    QueryExistingContentUnits, ContentUnitSaver, ContentUnitAssociation, ContentUnitUnassociation,
-    EndStage, create_pipeline
+    QueryExistingContentUnits, ContentUnitSaver
 )
-from pulpcore.plugin.tasking import WorkingDirectory
 
 from pulp_cookbook.app.models import CookbookPackageContent, CookbookRemote
 from pulp_cookbook.metadata import Universe
@@ -60,6 +57,9 @@ class CookbookFirstStage(Stage):
         """
         The first stage of the pulp_cookbook sync pipeline.
 
+        Get the `universe` of the remote repo, parse it and inject a
+        DeclarativeContent instance for each cookbook found.
+
         Args:
             remote (CookbookRemote): The remote data to be used when syncing
         """
@@ -103,26 +103,13 @@ class CookbookFirstStage(Stage):
 class CookbookDeclarativeVersion(DeclarativeVersion):
     """Implement pulp_cookbook's stape API pipeline."""
 
-    def create(self):
-        """
-        Perform the work. This is the long-blocking call where all syncing occurs.
-        """
-        with WorkingDirectory():
-            with RepositoryVersion.create(self.repository) as new_version:
-                loop = asyncio.get_event_loop()
-                stages = [
-                    self.first_stage,
-                    QueryExistingContentUnits(), ExistingContentNeedsNoArtifacts(),
-                    ArtifactDownloader(max_concurrent_downloads=4), ArtifactSaver(),
-                    ContentUnitSaver(),
-                    ContentUnitAssociation(new_version)
-                ]
-                if self.mirror:
-                    stages.extend([ContentUnitUnassociation(new_version), EndStage()])
-                else:
-                    stages.append(EndStage())
-                pipeline = create_pipeline(stages)
-                loop.run_until_complete(pipeline)
+    def pipeline_stages(self, new_version):
+        return [
+            self.first_stage,
+            QueryExistingContentUnits(), ExistingContentNeedsNoArtifacts(),
+            ArtifactDownloader(max_concurrent_downloads=4), ArtifactSaver(),
+            ContentUnitSaver()
+        ]
 
 
 def synchronize(remote_pk, repository_pk, mirror):

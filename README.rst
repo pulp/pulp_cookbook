@@ -250,8 +250,7 @@ Use the ``publisher`` Publisher to create a Publication
 .. code:: json
 
     {
-        "_href": "/pulp/api/v3/tasks/66da00ea-fdc9-43f1-a9ef-95180db278a9/",
-        "task_id": "66da00ea-fdc9-43f1-a9ef-95180db278a9"
+        "task": "/pulp/api/v3/tasks/66da00ea-fdc9-43f1-a9ef-95180db278a9/"
     }
 
 ``$ export PUBLICATION_HREF=$(http :8000/pulp/api/v3/publications/ | jq -r --arg PUBLISHER_HREF "$PUBLISHER_HREF" '.results[] | select(.publisher==$PUBLISHER_HREF) | ._href')``

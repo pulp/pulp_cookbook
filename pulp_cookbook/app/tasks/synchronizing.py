@@ -107,7 +107,7 @@ class CookbookDeclarativeVersion(DeclarativeVersion):
         return [
             self.first_stage,
             QueryExistingContentUnits(), ExistingContentNeedsNoArtifacts(),
-            ArtifactDownloader(max_concurrent_downloads=4), ArtifactSaver(),
+            ArtifactDownloader(), ArtifactSaver(),
             ContentUnitSaver()
         ]
 

@@ -20,7 +20,6 @@ if [ -z "$TRAVIS_TAG" ]; then
     popd
   fi
 
-  pushd pulp/common/ && pip install -e . && popd
   pushd pulp/pulpcore/ && pip install -e . && popd
   pushd pulp/plugin/ && pip install -e .  && popd
 

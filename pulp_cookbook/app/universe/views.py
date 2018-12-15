@@ -6,7 +6,7 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFound
 
-from rest_framework import views, reverse
+from rest_framework import views
 
 from pulpcore.app.models import Distribution
 
@@ -51,10 +51,10 @@ class UniverseView(views.APIView):
         return HttpResponse(content, content_type='application/json; charset=utf-8')
 
     def _get_content_base_url(self, request):
-        if settings.CONTENT.get('host'):
-            host = settings.CONTENT['host']
+        if settings.CONTENT_HOST:
+            host = settings.CONTENT_HOST
         else:
             host = request.get_host()
         host = "{}://{}".format(request.scheme, host)
 
-        return host + reverse.reverse('content-app')
+        return host + settings.CONTENT_PATH_PREFIX

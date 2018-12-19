@@ -13,10 +13,7 @@ pulp-manager makemigrations pulp_app --noinput
 pulp-manager makemigrations pulp_cookbook
 pulp-manager migrate --noinput
 
-# Run unit tests.
-(cd ../pulp && coverage run manage.py test pulp_cookbook.tests.unit)
-
-# Run functional tests.
+# Run unit and functional tests.
 pulp-manager reset-admin-password --password admin
 pulp-manager runserver >> ~/django_runserver.log 2>&1 &
 gunicorn pulpcore.content:server --bind 'localhost:8080' --worker-class 'aiohttp.GunicornWebWorker' -w 2 >> ~/content_app.log 2>&1 &
@@ -32,7 +29,7 @@ show_logs_and_return_non_zero() {
     cat ~/reserved_worker-1.log
     return "${rc}"
 }
-pytest -v -r sx --color=yes --pyargs pulp_cookbook.tests.functional || show_logs_and_return_non_zero
+pytest -v -r sx --color=yes --pyargs pulp_cookbook.tests || show_logs_and_return_non_zero
 
 # Travis' scripts use unbound variables. This is problematic, because the
 # changes made to this script's environment appear to persist when Travis'

@@ -32,10 +32,10 @@ class CookbookPackageContentSerializer(ContentSerializer):
         help_text=_("tar archive containing the cookbook"),
         queryset=Artifact.objects.all()
     )
-    artifacts = None
+    _artifacts = None
 
     class Meta:
-        fields = tuple(field for field in ContentSerializer.Meta.fields if field != 'artifacts') \
+        fields = tuple(field for field in ContentSerializer.Meta.fields if field != '_artifacts') \
             + ('name', 'version', 'dependencies', 'artifact')
         model = CookbookPackageContent
 

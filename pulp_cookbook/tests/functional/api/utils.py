@@ -24,5 +24,6 @@ def get_content_and_unit_paths(repo):
         return path_format.format(content['name'],
                                   content['version'],
                                   content['version'].replace('.', '_'))
-
-    return [(content_unit, rel_path(content_unit)) for content_unit in get_content(repo)]
+    content = get_content(repo)
+    assert list(content.keys()) == ['cookbook']
+    return [(content_unit, rel_path(content_unit)) for content_unit in content['cookbook']]

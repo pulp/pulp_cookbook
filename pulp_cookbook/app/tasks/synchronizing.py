@@ -3,7 +3,7 @@ import logging
 from gettext import gettext as _
 from urllib.parse import urljoin
 
-from pulpcore.plugin.models import Artifact, ProgressBar, Repository
+from pulpcore.plugin.models import Artifact, ProgressBar, Remote, Repository
 from pulpcore.plugin.stages import (
     DeclarativeArtifact, DeclarativeContent, DeclarativeVersion, Stage,
     ArtifactDownloader, ArtifactSaver,
@@ -127,9 +127,11 @@ def synchronize(remote_pk, repository_pk, mirror):
     """
     remote = CookbookRemote.objects.get(pk=remote_pk)
     repository = Repository.objects.get(pk=repository_pk)
-
     if not remote.url:
         raise ValueError(_('A remote must have a url specified to synchronize.'))
+
+    if remote.policy != Remote.IMMEDIATE:
+        raise ValueError(_('Sync supports "{}" policy only').format(Remote.IMMEDIATE))
 
     first_stage = CookbookFirstStage(remote)
     CookbookDeclarativeVersion(first_stage, repository, mirror).create()

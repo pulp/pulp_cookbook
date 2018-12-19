@@ -115,9 +115,7 @@ Create a repository ``foo``
         "_versions_href": "/pulp/api/v3/repositories/1/versions/",
         "created": "2018-09-05T20:00:34.872345Z",
         "description": "",
-        "id": 1,
-        "name": "foo",
-        "notes": {}
+        "name": "foo"
     }
 
 ``$ export REPO_HREF=$(http :8000/pulp/api/v3/repositories/ | jq -r '.results[] | select(.name == "foo") | ._href')``
@@ -148,7 +146,6 @@ Create artifacts by uploading the cookbooks to Pulp. First, the artifact for the
 .. code:: json
 
     {
-    "id": 1,
     "_href": "/pulp/api/v3/artifacts/1/",
     "created": "2018-09-05T20:00:37.719715Z",
     "file": "/var/lib/pulp/artifact/32/a7d3de4ff8f769eeab4ffc982eb8df845d91d49c01548d6f993b10e52b6f69",
@@ -185,9 +182,7 @@ Create a content unit for ubuntu 2.0.1:
         "dependencies": {
             "apt": ">= 0.0.0"
         },
-        "id": 1,
         "name": "ubuntu",
-        "notes": {},
         "type": "cookbook",
         "version": "2.0.1"
     }
@@ -205,9 +200,7 @@ Create a content unit for apt 7.0.0:
         "artifact": "/pulp/api/v3/artifacts/2/",
         "created": "2018-09-05T20:00:40.897876Z",
         "dependencies": {},
-        "id": 2,
         "name": "apt",
-        "notes": {},
         "type": "cookbook",
         "version": "7.0.0"
     }
@@ -233,8 +226,6 @@ Create a ``cookbook`` Publisher
         "_href": "/pulp/api/v3/publishers/cookbook/1/",
         "created": "2018-09-05T20:00:42.277819Z",
         "distributions": [],
-        "id": 1,
-        "last_published": null,
         "last_updated": "2018-09-05T20:00:42.277843Z",
         "name": "publisher",
         "type": "cookbook"
@@ -251,7 +242,7 @@ Use the ``publisher`` Publisher to create a Publication
 .. code:: json
 
     {
-        "task": "/pulp/api/v3/tasks/66da00ea-fdc9-43f1-a9ef-95180db278a9/"
+        "task": "/pulp/api/v3/tasks/2/"
     }
 
 ``$ export PUBLICATION_HREF=$(http :8000/pulp/api/v3/publications/ | jq -r --arg PUBLISHER_HREF "$PUBLISHER_HREF" '.results[] | select(.publisher==$PUBLISHER_HREF) | ._href')``
@@ -267,9 +258,9 @@ Create a Distribution at 'foo' for the Publication
     {
         "_href": "/pulp/api/v3/distributions/1/",
         "base_path": "foo",
-        "base_url": "localhost:8000/pulp/content/foo",
+        "base_url": "localhost:8080/pulp/content/foo",
+        "content_guard": null,
         "created": "2018-09-05T20:00:44.482852Z",
-        "id": 1,
         "name": "baz",
         "publication": "/pulp/api/v3/publications/1/",
         "publisher": null,
@@ -286,8 +277,8 @@ You can have a look at the published "universe" metadata now:
         "apt": {
             "7.0.0": {
                 "dependencies": {},
-                "download_url": "http://localhost:8000/pulp/content/foo/cookbook_files/apt/7_0_0/apt-7.0.0.tar.gz",
-                "location_path": "http://localhost:8000/pulp/content/foo/cookbook_files/apt/7_0_0/apt-7.0.0.tar.gz",
+                "download_url": "http://localhost:8080/pulp/content/foo/cookbook_files/apt/7_0_0/apt-7.0.0.tar.gz",
+                "location_path": "http://localhost:8080/pulp/content/foo/cookbook_files/apt/7_0_0/apt-7.0.0.tar.gz",
                 "location_type": "uri"
             }
         },
@@ -296,8 +287,8 @@ You can have a look at the published "universe" metadata now:
                 "dependencies": {
                     "apt": ">= 0.0.0"
                 },
-                "download_url": "http://localhost:8000/pulp/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz",
-                "location_path": "http://localhost:8000/pulp/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz",
+                "download_url": "http://localhost:8080/pulp/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz",
+                "location_path": "http://localhost:8080/pulp/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz",
                 "location_type": "uri"
             }
         }
@@ -323,9 +314,8 @@ Create a Berksfile with the following content:
 
    Resolving cookbook dependencies...
    Fetching cookbook index from http://localhost:8000/pulp_cookbook/market/foo...
-   Installing apt (7.0.0) from http://localhost:8000/pulp_cookbook/market/foo ([uri] http://localhost:8000/pulp/content/foo/cookbook_files/apt/7_0_0/apt-7.0.0.tar.gz)
-   Installing ubuntu (2.0.1) from http://localhost:8000/pulp_cookbook/market/foo ([uri] http://localhost:8000/pulp/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz)
-
+   Installing apt (7.0.0) from http://localhost:8000/pulp_cookbook/market/foo ([uri] http://localhost:8080/pulp/content/foo/cookbook_files/apt/7_0_0/apt-7.0.0.tar.gz)
+   Installing ubuntu (2.0.1) from http://localhost:8000/pulp_cookbook/market/foo ([uri] http://localhost:8080/pulp/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz)
 
 Create a new remote ``supermarket``
 -----------------------------------
@@ -341,15 +331,15 @@ Let's mirror the ``pulp`` and ``qpid`` cookbooks into our existing repo. First, 
 
     {
         "_href": "/pulp/api/v3/remotes/cookbook/1/",
+        "connection_limit": 20,
         "cookbooks": {
             "pulp": "",
             "qpid": ""
         },
         "created": "2018-09-05T20:23:09.750080Z",
-        "id": 1,
-        "last_synced": null,
         "last_updated": "2018-09-05T20:23:09.750113Z",
         "name": "supermarket",
+        "policy": "immediate",
         "proxy_url": "",
         "ssl_validation": true,
         "type": "cookbook",
@@ -375,16 +365,23 @@ Look at the new Repository Version created
 .. code:: json
 
     {
-        "_added_href": "/pulp/api/v3/repositories/1/versions/2/added_content/",
-        "_content_href": "/pulp/api/v3/repositories/1/versions/2/content/",
         "_href": "/pulp/api/v3/repositories/1/versions/2/",
-        "_removed_href": "/pulp/api/v3/repositories/1/versions/2/removed_content/",
         "base_version": null,
+        "content_added_hrefs": {
+            "cookbook": "/pulp/api/v3/content/cookbook/cookbooks/?repository_version_added=/pulp/api/v3/repositories/1/versions/2/"
+        },
+        "content_added_summary": {
+            "cookbook": 2
+        },
+        "content_hrefs": {
+            "cookbook": "/pulp/api/v3/content/cookbook/cookbooks/?repository_version=/pulp/api/v3/repositories/1/versions/2/"
+        },
+        "content_removed_hrefs": {},
+        "content_removed_summary": {},
         "content_summary": {
             "cookbook": 4
         },
         "created": "2018-09-05T20:34:22.636271Z",
-        "id": 2,
         "number": 2
     }
 

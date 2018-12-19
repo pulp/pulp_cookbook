@@ -29,7 +29,7 @@ class CookbookPackageContent(Content):
 
     @property
     def artifact(self):
-        return self.artifacts.get().pk
+        return self._artifacts.get().pk
 
     @artifact.setter
     def artifact(self, artifact):

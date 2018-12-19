@@ -73,7 +73,7 @@ def populate(publication):
 
     """
     for content in CookbookPackageContent.objects.filter(
-            pk__in=publication.repository_version.content).order_by('-created'):
+            pk__in=publication.repository_version.content).order_by('-_created'):
         relative_path = 'cookbook_files/{}/{}/'.format(content.name,
                                                        content.version.replace('.', '_'))
         for content_artifact in content.contentartifact_set.all():

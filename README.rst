@@ -110,10 +110,10 @@ Create a repository ``foo``
 .. code:: json
 
     {
+        "_created": "2018-09-05T20:00:34.872345Z",
         "_href": "/pulp/api/v3/repositories/1/",
         "_latest_version_href": null,
         "_versions_href": "/pulp/api/v3/repositories/1/versions/",
-        "created": "2018-09-05T20:00:34.872345Z",
         "description": "",
         "name": "foo"
     }
@@ -147,7 +147,7 @@ Create artifacts by uploading the cookbooks to Pulp. First, the artifact for the
 
     {
     "_href": "/pulp/api/v3/artifacts/1/",
-    "created": "2018-09-05T20:00:37.719715Z",
+    "_created": "2018-09-05T20:00:37.719715Z",
     "file": "/var/lib/pulp/artifact/32/a7d3de4ff8f769eeab4ffc982eb8df845d91d49c01548d6f993b10e52b6f69",
     "size": 3712,
     "md5": "36b2b6e59dfd4ce8185042e384d73498",
@@ -176,14 +176,14 @@ Create a content unit for ubuntu 2.0.1:
 .. code:: json
 
     {
+        "_created": "2018-09-05T20:00:38.164310Z",
         "_href": "/pulp/api/v3/content/cookbook/cookbooks/1/",
+        "_type": "cookbook",
         "artifact": "/pulp/api/v3/artifacts/1/",
-        "created": "2018-09-05T20:00:38.164310Z",
         "dependencies": {
             "apt": ">= 0.0.0"
         },
         "name": "ubuntu",
-        "type": "cookbook",
         "version": "2.0.1"
     }
 
@@ -196,12 +196,12 @@ Create a content unit for apt 7.0.0:
 .. code:: json
 
     {
+        "_created": "2018-09-05T20:00:40.897876Z",
         "_href": "/pulp/api/v3/content/cookbook/cookbooks/2/",
+        "_type": "cookbook",
         "artifact": "/pulp/api/v3/artifacts/2/",
-        "created": "2018-09-05T20:00:40.897876Z",
         "dependencies": {},
         "name": "apt",
-        "type": "cookbook",
         "version": "7.0.0"
     }
 
@@ -223,12 +223,12 @@ Create a ``cookbook`` Publisher
 .. code:: json
 
     {
+        "_created": "2018-09-05T20:00:42.277819Z",
         "_href": "/pulp/api/v3/publishers/cookbook/1/",
-        "created": "2018-09-05T20:00:42.277819Z",
+        "_last_updated": "2018-09-05T20:00:42.277843Z",
+        "_type": "cookbook"
         "distributions": [],
-        "last_updated": "2018-09-05T20:00:42.277843Z",
         "name": "publisher",
-        "type": "cookbook"
     }
 
 ``$ export PUBLISHER_HREF=$(http :8000/pulp/api/v3/publishers/cookbook/ | jq -r '.results[] | select(.name == "publisher") | ._href')``
@@ -256,11 +256,11 @@ Create a Distribution at 'foo' for the Publication
 .. code:: json
 
     {
+        "_created": "2018-09-05T20:00:44.482852Z",
         "_href": "/pulp/api/v3/distributions/1/",
         "base_path": "foo",
         "base_url": "localhost:8080/pulp/content/foo",
         "content_guard": null,
-        "created": "2018-09-05T20:00:44.482852Z",
         "name": "baz",
         "publication": "/pulp/api/v3/publications/1/",
         "publisher": null,
@@ -330,19 +330,19 @@ Let's mirror the ``pulp`` and ``qpid`` cookbooks into our existing repo. First, 
 .. code:: json
 
     {
+        "_created": "2018-09-05T20:23:09.750080Z",
         "_href": "/pulp/api/v3/remotes/cookbook/1/",
+        "_last_updated": "2018-09-05T20:23:09.750113Z",
+        "_type": "cookbook",
         "connection_limit": 20,
         "cookbooks": {
             "pulp": "",
             "qpid": ""
         },
-        "created": "2018-09-05T20:23:09.750080Z",
-        "last_updated": "2018-09-05T20:23:09.750113Z",
         "name": "supermarket",
         "policy": "immediate",
         "proxy_url": "",
         "ssl_validation": true,
-        "type": "cookbook",
         "url": "https://supermarket.chef.io/",
         "validate": true
     }
@@ -365,6 +365,7 @@ Look at the new Repository Version created
 .. code:: json
 
     {
+        "_created": "2018-09-05T20:34:22.636271Z",
         "_href": "/pulp/api/v3/repositories/1/versions/2/",
         "base_version": null,
         "content_added_hrefs": {
@@ -381,7 +382,6 @@ Look at the new Repository Version created
         "content_summary": {
             "cookbook": 4
         },
-        "created": "2018-09-05T20:34:22.636271Z",
         "number": 2
     }
 

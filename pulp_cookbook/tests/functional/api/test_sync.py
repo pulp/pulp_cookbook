@@ -4,6 +4,7 @@ import unittest
 
 from pulp_smash import api, config
 from pulp_smash.exceptions import TaskReportError
+from pulp_smash.pulp3.constants import DOWNLOAD_POLICIES as ALL_DOWNLOAD_POLICIES
 from pulp_smash.pulp3.constants import REPO_PATH
 from pulp_smash.pulp3.utils import (
     delete_orphans,
@@ -17,7 +18,8 @@ from pulp_smash.pulp3.utils import (
 
 from pulp_cookbook.tests.functional.constants import (
     fixture_u1,
-    COOKBOOK_REMOTE_PATH
+    COOKBOOK_REMOTE_PATH,
+    DOWNLOAD_POLICIES
 )
 from pulp_cookbook.tests.functional.utils import set_up_module as setUpModule  # noqa:F401
 
@@ -31,9 +33,9 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         cls.cfg = config.get_config()
 
     def verify_counts(self, repo, all_count, added_count, removed_count):
-        self.assertEqual(len(get_content(repo)), all_count)
-        self.assertEqual(len(get_added_content(repo)), added_count)
-        self.assertEqual(len(get_removed_content(repo)), removed_count)
+        self.assertEqual(len(get_content(repo)['cookbook']), all_count)
+        self.assertEqual(len(get_added_content(repo)['cookbook']), added_count)
+        self.assertEqual(len(get_removed_content(repo)['cookbook']), removed_count)
 
     def sync_and_inspect_task_report(self, remote, repo, download_count, mirror=None):
         """Do a sync and verify the number of downloaded artifacts.
@@ -50,8 +52,10 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         self.assertEqual(len(tasks), 1)
         for report in tasks[0]['progress_reports']:
             if report['message'] == "Downloading Artifacts":
-                report['done'] == download_count
-                report['total'] == download_count
+                self.assertEqual(report['done'], download_count)
+                break
+        else:
+            self.fail("Could not find 'Downloading Artifacts' stage in task report")
         return tasks[0]
 
     def test_sync(self):
@@ -148,11 +152,22 @@ class SyncInvalidTestCase(unittest.TestCase):
         context = self.do_test('http://example.com/invalid/')
         self.assertIsNotNone(context.exception.task['error']['description'])
 
-    def do_test(self, url):
+    def test_invalid_policies(self):
+        """Sync a repository using all unsupported policies.
+
+        Test that we get a task failure when using an unsupported policy. See
+        :meth:`do_test`.
+        """
+        for policy in ALL_DOWNLOAD_POLICIES:
+            if policy not in DOWNLOAD_POLICIES:
+                context = self.do_test(fixture_u1.url, policy=policy)
+                self.assertIsNotNone(context.exception.task['error']['description'])
+
+    def do_test(self, url, **remote_kwargs):
         """Sync a repository given ``url`` on the remote."""
         repo = self.client.post(REPO_PATH, gen_repo())
         self.addCleanup(self.client.delete, repo['_href'])
-        body = gen_remote(url=url)
+        body = gen_remote(url=url, **remote_kwargs)
         remote = self.client.post(COOKBOOK_REMOTE_PATH, body)
         self.addCleanup(self.client.delete, remote['_href'])
         with self.assertRaises(TaskReportError) as context:

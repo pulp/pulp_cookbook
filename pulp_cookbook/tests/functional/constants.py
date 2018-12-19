@@ -9,6 +9,8 @@ from pulp_smash.pulp3.constants import (
     CONTENT_PATH
 )
 
+DOWNLOAD_POLICIES = ['immediate']
+
 FIXTURES_BASE_URL = 'https://pulpcookbook.s3.wasabisys.com/'
 
 COOKBOOK_CONTENT_PATH = urljoin(CONTENT_PATH, 'cookbook/cookbooks/')

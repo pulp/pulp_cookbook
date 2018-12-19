@@ -20,11 +20,12 @@ from pulpcore.plugin.serializers import (
 from pulpcore.plugin.tasking import enqueue_with_reservation
 
 from pulpcore.plugin.viewsets import (
+    ContentFilter,
     ContentViewSet,
     RemoteViewSet,
     OperationPostponedResponse,
     PublisherViewSet,
-    BaseFilterSet)
+)
 
 from . import tasks
 from .models import CookbookPackageContent, CookbookRemote, CookbookPublisher
@@ -36,7 +37,7 @@ from .serializers import (
 from pulp_cookbook.metadata import CookbookMetadata
 
 
-class CookbookPackageContentFilter(BaseFilterSet):
+class CookbookPackageContentFilter(ContentFilter):
     """Filters for the content endpoint."""
 
     class Meta:

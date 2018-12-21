@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 requirements = [
-    'pulpcore-plugin>=0.1.0b15',
+    'pulpcore-plugin>=0.1.0b16',
 ]
 
 with open('README.rst') as f:
@@ -11,7 +11,7 @@ with open('README.rst') as f:
 
 setup(
     name='pulp-cookbook',
-    version='0.0.3a1',
+    version='0.0.3a2',
     description='Cookbook plugin for the Pulp Project',
     long_description=long_description,
     author='Simon Baatz',

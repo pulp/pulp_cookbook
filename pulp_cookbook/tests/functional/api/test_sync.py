@@ -18,6 +18,7 @@ from pulp_smash.pulp3.utils import (
 
 from pulp_cookbook.tests.functional.constants import (
     fixture_u1,
+    COOKBOOK_CONTENT_NAME,
     COOKBOOK_REMOTE_PATH,
     DOWNLOAD_POLICIES
 )
@@ -33,9 +34,9 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         cls.cfg = config.get_config()
 
     def verify_counts(self, repo, all_count, added_count, removed_count):
-        self.assertEqual(len(get_content(repo)['cookbook']), all_count)
-        self.assertEqual(len(get_added_content(repo)['cookbook']), added_count)
-        self.assertEqual(len(get_removed_content(repo)['cookbook']), removed_count)
+        self.assertEqual(len(get_content(repo)[COOKBOOK_CONTENT_NAME]), all_count)
+        self.assertEqual(len(get_added_content(repo)[COOKBOOK_CONTENT_NAME]), added_count)
+        self.assertEqual(len(get_removed_content(repo)[COOKBOOK_CONTENT_NAME]), removed_count)
 
     def sync_and_inspect_task_report(self, remote, repo, download_count, mirror=None):
         """Do a sync and verify the number of downloaded artifacts.

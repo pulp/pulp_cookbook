@@ -13,6 +13,7 @@ DOWNLOAD_POLICIES = ['immediate']
 
 FIXTURES_BASE_URL = 'https://pulpcookbook.s3.wasabisys.com/'
 
+COOKBOOK_CONTENT_NAME = 'pulp_cookbook.cookbook'
 COOKBOOK_CONTENT_PATH = urljoin(CONTENT_PATH, 'cookbook/cookbooks/')
 
 COOKBOOK_REMOTE_PATH = urljoin(BASE_REMOTE_PATH, 'cookbook/')

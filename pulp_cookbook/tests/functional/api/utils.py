@@ -2,6 +2,7 @@
 """Utilities for file plugin tests."""
 from pulp_smash import utils
 from pulp_smash.pulp3.utils import get_content
+from pulp_cookbook.tests.functional.constants import COOKBOOK_CONTENT_NAME
 
 
 def gen_publisher(**kwargs):
@@ -25,5 +26,5 @@ def get_content_and_unit_paths(repo):
                                   content['version'],
                                   content['version'].replace('.', '_'))
     content = get_content(repo)
-    assert list(content.keys()) == ['cookbook']
-    return [(content_unit, rel_path(content_unit)) for content_unit in content['cookbook']]
+    assert list(content.keys()) == [COOKBOOK_CONTENT_NAME]
+    return [(cu, rel_path(cu)) for cu in content[COOKBOOK_CONTENT_NAME]]

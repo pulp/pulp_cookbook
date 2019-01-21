@@ -44,7 +44,8 @@ class CookbookPackageContentFilter(ContentFilter):
         model = CookbookPackageContent
         fields = [
             'name',
-            'version'
+            'version',
+            'content_id'
         ]
 
 
@@ -81,7 +82,9 @@ class CookbookPackageContentViewSet(ContentViewSet):
         data['version'] = metadata.version
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
-        content = serializer.save(dependencies=metadata.dependencies)
+        content = serializer.save(dependencies=metadata.dependencies,
+                                  content_id_type=CookbookPackageContent.SHA256,
+                                  content_id=artifact.sha256)
         content.artifact = artifact
 
         headers = self.get_success_headers(request.data)

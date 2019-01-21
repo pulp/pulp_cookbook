@@ -55,6 +55,8 @@ class ContentUnitTestCase(unittest.TestCase):
         for key, val in attrs.items():
             with self.subTest(key=key):
                 self.assertEqual(self.content_unit[key], val)
+        with self.subTest(key='content_id'):
+            self.assertEqual(self.content_unit['content_id'], self.artifact['sha256'])
 
     def test_02_read_content_unit(self):
         """Read a content unit by its href."""
@@ -64,7 +66,7 @@ class ContentUnitTestCase(unittest.TestCase):
                 self.assertEqual(content_unit[key], val)
 
     def test_02_read_content_units(self):
-        """Read a content unit by its name and version."""
+        """Read content units by its name and version."""
         page = self.client.get(COOKBOOK_CONTENT_PATH, params={
             'name': self.content_unit['name'],
             'version': self.content_unit['version'],
@@ -102,3 +104,15 @@ class ContentUnitTestCase(unittest.TestCase):
         with self.assertRaises(HTTPError) as exc:
             self.client.delete(self.content_unit['_href'])
         self.assertEqual(exc.exception.response.status_code, 405)
+
+
+# TODO: implement
+class DuplicateContentUnit(unittest.TestCase):
+    """
+    Attempt to create a duplicate content unit.
+
+    This test targets the following issues:
+    *  `Pulp #4125 <https://pulp.plan.io/issues/4125>`_
+    """
+
+    pass

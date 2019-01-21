@@ -27,6 +27,13 @@ class CookbookPackageContentSerializer(ContentSerializer):
         help_text=_("dependencies of the cookbook"),
         read_only=True
     )
+    content_id_type = serializers.HiddenField(default=CookbookPackageContent.SHA256)
+    content_id = serializers.CharField(
+        help_text=_(
+            "content_id of the cookbook (UUID (lazy download)/SHA256 (immediate download/import)"
+        ),
+        read_only=True
+    )
     artifact = RelatedField(
         view_name='artifacts-detail',
         help_text=_("tar archive containing the cookbook"),
@@ -36,7 +43,7 @@ class CookbookPackageContentSerializer(ContentSerializer):
 
     class Meta:
         fields = tuple(field for field in ContentSerializer.Meta.fields if field != '_artifacts') \
-            + ('name', 'version', 'dependencies', 'artifact')
+            + ('name', 'version', 'dependencies', 'content_id_type', 'content_id', 'artifact')
         model = CookbookPackageContent
 
 

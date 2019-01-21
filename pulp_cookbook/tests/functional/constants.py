@@ -9,7 +9,7 @@ from pulp_smash.pulp3.constants import (
     CONTENT_PATH
 )
 
-DOWNLOAD_POLICIES = ['immediate']
+DOWNLOAD_POLICIES = ['immediate', 'on_demand', 'streamed']
 
 FIXTURES_BASE_URL = 'https://pulpcookbook.s3.wasabisys.com/'
 
@@ -20,7 +20,7 @@ COOKBOOK_REMOTE_PATH = urljoin(BASE_REMOTE_PATH, 'cookbook/')
 
 COOKBOOK_PUBLISHER_PATH = urljoin(BASE_PUBLISHER_PATH, 'cookbook/')
 
-COOKBOOK_BASE_LIVE_API_PATH = '/pulp_cookbook/market/'
+COOKBOOK_BASE_CONTENT_URL = 'http://localhost:8080/pulp_cookbook/content/'
 
 
 class CookbookFixture:
@@ -38,7 +38,6 @@ class CookbookFixture:
 
     def cookbook_download_url(self, name: str, version: str):
         uversion = version.replace('.', '_')
-        print("kjk", self.url)
         return urljoin(self.url, f"cookbook_files/{name}/{uversion}/{name}-{version}.tar.gz")
 
 
@@ -52,6 +51,11 @@ fixture_u1.example1_name = 'ubuntu'
 fixture_u1.example1_version = '2.0.1'
 fixture_u1.example2_name = 'nginx'
 fixture_u1.example2_version = '2.7.4'
+
+# u1_diff_digest1 has the same cookbooks as u1, but the tar.gz files are
+# different. Used in repo isolation tests together with u1
+fixture_u1_diff_digest = CookbookFixture('u1_diff_digest', fixture_u1.cookbooks)
+
 
 COOKBOOK2_FIXTURE_URL = urljoin(FIXTURES_BASE_URL, 'u2/')
 """The URL to a cookbook universe repository."""

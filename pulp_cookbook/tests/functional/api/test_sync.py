@@ -1,4 +1,3 @@
-# coding=utf-8
 """Tests that sync cookbook plugin repositories."""
 import unittest
 
@@ -10,17 +9,19 @@ from pulp_smash.pulp3.utils import (
     delete_orphans,
     gen_remote,
     gen_repo,
-    get_added_content,
-    get_content,
-    get_removed_content,
     sync,
 )
 
 from pulp_cookbook.tests.functional.constants import (
     fixture_u1,
-    COOKBOOK_CONTENT_NAME,
+    fixture_u1_diff_digest,
     COOKBOOK_REMOTE_PATH,
-    DOWNLOAD_POLICIES
+    DOWNLOAD_POLICIES,
+)
+from pulp_cookbook.tests.functional.api.utils import (
+    get_cookbook_added_content,
+    get_cookbook_content,
+    get_cookbook_removed_content,
 )
 from pulp_cookbook.tests.functional.utils import set_up_module as setUpModule  # noqa:F401
 
@@ -34,11 +35,12 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         cls.cfg = config.get_config()
 
     def verify_counts(self, repo, all_count, added_count, removed_count):
-        self.assertEqual(len(get_content(repo)[COOKBOOK_CONTENT_NAME]), all_count)
-        self.assertEqual(len(get_added_content(repo)[COOKBOOK_CONTENT_NAME]), added_count)
-        self.assertEqual(len(get_removed_content(repo)[COOKBOOK_CONTENT_NAME]), removed_count)
+        self.assertEqual(len(get_cookbook_content(repo)), all_count)
+        self.assertEqual(len(get_cookbook_added_content(repo)), added_count)
+        self.assertEqual(len(get_cookbook_removed_content(repo)), removed_count)
 
-    def sync_and_inspect_task_report(self, remote, repo, download_count, mirror=None):
+    def sync_and_inspect_task_report(self, remote, repo, download_count,
+                                     mirror=None, policy='immediate'):
         """Do a sync and verify the number of downloaded artifacts.
 
         Returns:
@@ -53,13 +55,16 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         self.assertEqual(len(tasks), 1)
         for report in tasks[0]['progress_reports']:
             if report['message'] == "Downloading Artifacts":
+                if policy != 'immediate':
+                    self.fail(f"'Downloading Artifacts' stage in task report for {policy} policy")
                 self.assertEqual(report['done'], download_count)
                 break
         else:
-            self.fail("Could not find 'Downloading Artifacts' stage in task report")
+            if policy == 'immediate':
+                self.fail("Could not find 'Downloading Artifacts' stage in task report")
         return tasks[0]
 
-    def test_sync(self):
+    def do_sync_check(self, policy):
         """Sync repositories with the cookbook plugin.
 
         In order to sync a repository a remote has to be associated within
@@ -89,7 +94,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         repo = client.post(REPO_PATH, gen_repo())
         self.addCleanup(client.delete, repo['_href'])
 
-        body = gen_remote(fixture_u1.url)
+        body = gen_remote(fixture_u1.url, policy=policy)
         remote = client.post(COOKBOOK_REMOTE_PATH, body)
         self.addCleanup(client.delete, remote['_href'])
 
@@ -97,7 +102,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         self.assertIsNone(repo['_latest_version_href'])
 
         all_cookbook_count = fixture_u1.cookbook_count()
-        task = self.sync_and_inspect_task_report(remote, repo, all_cookbook_count)
+        task = self.sync_and_inspect_task_report(remote, repo, all_cookbook_count, policy=policy)
 
         repo = client.get(repo['_href'])
         latest_version_href = repo['_latest_version_href']
@@ -108,14 +113,14 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
                            all_cookbook_count, all_cookbook_count, 0)
 
         # Sync the full repository again.
-        self.sync_and_inspect_task_report(remote, repo, 0)
+        self.sync_and_inspect_task_report(remote, repo, 0, policy=policy)
         repo = client.get(repo['_href'])
         self.assertNotEqual(latest_version_href, repo['_latest_version_href'])
         self.verify_counts(repo, all_cookbook_count, 0, 0)
 
         # Sync the repository with a filter (mirror mode is the default).
         client.patch(remote['_href'], {'cookbooks': {fixture_u1.example1_name: ''}})
-        self.sync_and_inspect_task_report(remote, repo, 0)
+        self.sync_and_inspect_task_report(remote, repo, 0, policy=policy)
         repo = client.get(repo['_href'])
         self.assertNotEqual(latest_version_href, repo['_latest_version_href'])
         example1_count = fixture_u1.cookbook_count([fixture_u1.example1_name])
@@ -126,7 +131,10 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
 
         # Sync the repository with another filter and add cookbooks (mirror=False).
         client.patch(remote['_href'], {'cookbooks': {fixture_u1.example2_name: ''}})
-        self.sync_and_inspect_task_report(remote, repo, 0, mirror=False)
+        # Although cookbook content is already present, it is not present in the
+        # repository. Thus, it must be downloaded again.
+        example2_count = fixture_u1.cookbook_count([fixture_u1.example2_name])
+        self.sync_and_inspect_task_report(remote, repo, example2_count, mirror=False, policy=policy)
         repo = client.get(repo['_href'])
         self.assertNotEqual(latest_version_href, repo['_latest_version_href'])
         self.verify_counts(repo,
@@ -134,6 +142,106 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
                                                       fixture_u1.example2_name]),
                            fixture_u1.cookbook_count([fixture_u1.example2_name]),
                            0)
+
+        # Verify that cookbook content_id is of the right type (content_type_id
+        # is hidden by the serializer)
+        for cookbook in get_cookbook_content(repo):
+            print(cookbook)
+            if policy == 'immediate':
+                self.assertEqual(len(cookbook['content_id']), 64,
+                                 msg=f"{cookbook} does not have a SHA256 content_id")
+            else:
+                self.assertEqual(len(cookbook['content_id']), 36,
+                                 msg=f"{cookbook} does not have a UUID conten_id")
+
+    def test_sync_immediate(self):
+        self.do_sync_check('immediate')
+
+    def test_sync_on_demand(self):
+        self.do_sync_check('on_demand')
+
+    def test_sync_streamed(self):
+        self.do_sync_check('streamed')
+
+    def test_sync_repo_isolation(self):
+        """Sync two repositories with same content but different artifacts.
+
+        The two repo fixtures u1 and u1_diff_digest contain the same cookbooks
+        by name and version, but differ in the digest of the artifact. Ensure
+        that syncing these two remotes to two repos respectively does not mixup
+        cookbooks.
+        """
+        delete_orphans(self.cfg)
+
+        client = api.Client(self.cfg, api.json_handler)
+
+        # Create repo u1 and sync partially
+        repo_u1 = client.post(REPO_PATH, gen_repo())
+        self.addCleanup(client.delete, repo_u1['_href'])
+
+        body = gen_remote(fixture_u1.url, cookbooks={fixture_u1.example1_name: ''})
+        remote_u1 = client.post(COOKBOOK_REMOTE_PATH, body)
+        self.addCleanup(client.delete, remote_u1['_href'])
+
+        self.assertIsNone(repo_u1['_latest_version_href'])
+
+        example1_count = fixture_u1.cookbook_count([fixture_u1.example1_name])
+        self.sync_and_inspect_task_report(remote_u1, repo_u1, example1_count)
+
+        repo_u1 = client.get(repo_u1['_href'])
+        self.verify_counts(repo_u1,
+                           all_count=example1_count,
+                           added_count=example1_count,
+                           removed_count=0)
+
+        # Create repo u1_diff_digest and do a full sync
+        repo_u1_diff_digest = client.post(REPO_PATH, gen_repo())
+        self.addCleanup(client.delete, repo_u1_diff_digest['_href'])
+
+        body = gen_remote(fixture_u1_diff_digest.url)
+        remote_u1_diff_digest = client.post(COOKBOOK_REMOTE_PATH, body)
+        self.addCleanup(client.delete, remote_u1_diff_digest['_href'])
+
+        self.assertIsNone(repo_u1_diff_digest['_latest_version_href'])
+
+        # u1 and u1_diff_digest must not share content: all cookbooks are added
+        cookbook_count = fixture_u1_diff_digest.cookbook_count()
+        self.sync_and_inspect_task_report(remote_u1_diff_digest, repo_u1_diff_digest,
+                                          cookbook_count)
+
+        repo_u1_diff_digest = client.get(repo_u1_diff_digest['_href'])
+        self.verify_counts(repo_u1_diff_digest,
+                           all_count=cookbook_count,
+                           added_count=cookbook_count,
+                           removed_count=0)
+
+        # Full sync u1
+        client.patch(remote_u1['_href'], {'cookbooks': {}})
+        all_cookbook_count = fixture_u1.cookbook_count()
+        self.sync_and_inspect_task_report(remote_u1, repo_u1,
+                                          all_cookbook_count - example1_count)
+        repo_u1 = client.get(repo_u1['_href'])
+        self.verify_counts(repo_u1,
+                           all_count=all_cookbook_count,
+                           added_count=all_cookbook_count - example1_count,
+                           removed_count=0)
+
+        # Verify that the same cookbooks (w.r.t. name and version) differ by content_id
+        content_u1_diff_digest = get_cookbook_content(repo_u1_diff_digest)
+        self.assertTrue(content_u1_diff_digest)
+        for c_u1 in get_cookbook_content(repo_u1):
+            for c_u1_diff_digest in content_u1_diff_digest:
+                if c_u1['name'] == c_u1_diff_digest['name'] \
+                   and c_u1['version'] == c_u1_diff_digest['version']:
+                    artifact_u1 = client.get(c_u1['artifact'])
+                    self.assertEqual(c_u1['content_id'], artifact_u1['sha256'])
+                    artifact_u1_diff_digest = client.get(c_u1_diff_digest['artifact'])
+                    self.assertEqual(c_u1_diff_digest['content_id'],
+                                     artifact_u1_diff_digest['sha256'])
+                    self.assertNotEqual(c_u1['content_id'], c_u1_diff_digest['content_id'])
+                    break
+            else:
+                self.fail(f"Found no matching cookbook for {c_u1} in u1_diff_digest")
 
 
 class SyncInvalidTestCase(unittest.TestCase):

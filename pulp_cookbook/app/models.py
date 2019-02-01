@@ -6,7 +6,7 @@ import uuid
 
 from django.db import models
 
-from pulpcore.plugin.models import Artifact, Content, ContentArtifact, Publisher, Remote
+from pulpcore.plugin.models import Content, Publisher, Remote
 from pulpcore.plugin.fields import JSONField
 
 
@@ -43,21 +43,6 @@ class CookbookPackageContent(Content):
     content_id_type = models.CharField(max_length=10, choices=CONTENT_ID_TYPE_CHOICES,
                                        blank=False, null=False, default=UUID)
     content_id = models.CharField(max_length=64, null=False, blank=False, default=uuid.uuid4)
-
-    @property
-    def artifact(self):
-        try:
-            return self._artifacts.get().pk
-        except Artifact.DoesNotExist:
-            return None
-
-    @artifact.setter
-    def artifact(self, artifact):
-        if self.pk:
-            ca = ContentArtifact(artifact=artifact,
-                                 content=self,
-                                 relative_path=self.relative_path())
-            ca.save()
 
     def relative_path(self):
         return "{}-{}.tar.gz".format(self.name, self.version)

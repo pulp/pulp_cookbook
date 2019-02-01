@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 from django.test import TestCase
 
-from pulpcore.plugin.models import Artifact
+from pulpcore.plugin.models import Artifact, ContentArtifact
 from pulpcore.plugin.stages import DeclarativeArtifact, DeclarativeContent
 
 from pulp_cookbook.app.models import CookbookPackageContent, CookbookRemote
@@ -87,14 +87,16 @@ class QueryExistingRepoContentAndArtifactsTestCase(TestCase):
             content_id='1',
             dependencies={}
         )
-        self.c1.artifact = self.a1
+        ContentArtifact.objects.create(artifact=self.a1, content=self.c1,
+                                       relative_path=self.c1.relative_path())
         # c3: content unit does exist, has a content_artifact association,
         # but no artifact
         self.c3 = CookbookPackageContent.objects.create(
             name='c3', version='1.0.0',
             dependencies={}
         )
-        self.c3.artifact = None
+        ContentArtifact.objects.create(artifact=None, content=self.c3,
+                                       relative_path=self.c3.relative_path())
 
     def new_version_all_content(self):
         """Provide a mock for a repository version containing all content."""

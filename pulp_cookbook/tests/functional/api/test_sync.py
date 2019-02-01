@@ -233,9 +233,9 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
             for c_u1_diff_digest in content_u1_diff_digest:
                 if c_u1['name'] == c_u1_diff_digest['name'] \
                    and c_u1['version'] == c_u1_diff_digest['version']:
-                    artifact_u1 = client.get(c_u1['artifact'])
+                    artifact_u1 = client.get(c_u1['_artifact'])
                     self.assertEqual(c_u1['content_id'], artifact_u1['sha256'])
-                    artifact_u1_diff_digest = client.get(c_u1_diff_digest['artifact'])
+                    artifact_u1_diff_digest = client.get(c_u1_diff_digest['_artifact'])
                     self.assertEqual(c_u1_diff_digest['content_id'],
                                      artifact_u1_diff_digest['sha256'])
                     self.assertNotEqual(c_u1['content_id'], c_u1_diff_digest['content_id'])

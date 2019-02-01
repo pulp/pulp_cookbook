@@ -179,7 +179,7 @@ Create a content unit for ubuntu 2.0.1:
         "_created": "2018-09-05T20:00:38.164310Z",
         "_href": "/pulp/api/v3/content/cookbook/cookbooks/1/",
         "_type": "pulp_cookbook.cookbook",
-        "artifact": "/pulp/api/v3/artifacts/1/",
+        "_artifact": "/pulp/api/v3/artifacts/1/",
         "dependencies": {
             "apt": ">= 0.0.0"
         },
@@ -199,7 +199,7 @@ Create a content unit for apt 7.0.0:
         "_created": "2018-09-05T20:00:40.897876Z",
         "_href": "/pulp/api/v3/content/cookbook/cookbooks/2/",
         "_type": "pulp_cookbook.cookbook",
-        "artifact": "/pulp/api/v3/artifacts/2/",
+        "_artifact": "/pulp/api/v3/artifacts/2/",
         "dependencies": {},
         "name": "apt",
         "version": "7.0.0"

@@ -52,7 +52,7 @@ class CookbookPackageContentFilter(ContentFilter):
 class CookbookPackageContentViewSet(ContentViewSet):
     """The ViewSet for the content endpoint."""
 
-    endpoint_name = 'cookbook/cookbooks'
+    endpoint_name = 'cookbooks'
     queryset = CookbookPackageContent.objects.all()
     serializer_class = CookbookPackageContentSerializer
     filterset_class = CookbookPackageContentFilter
@@ -61,9 +61,9 @@ class CookbookPackageContentViewSet(ContentViewSet):
     def create(self, request):
         data = request.data
         try:
-            artifact = self.get_resource(data['artifact'], Artifact)
+            artifact = self.get_resource(data['_artifact'], Artifact)
         except KeyError:
-            raise serializers.ValidationError(detail={'artifact': _('This field is required')})
+            raise serializers.ValidationError(detail={'_artifact': _('This field is required')})
 
         try:
             metadata = CookbookMetadata.from_cookbook_file(artifact.file.name, data['name'])
@@ -71,7 +71,7 @@ class CookbookPackageContentViewSet(ContentViewSet):
             raise serializers.ValidationError(detail={'name': _('This field is required')})
         except FileNotFoundError:
             raise serializers.ValidationError(
-                detail={'artifact': _('No metadata.json found in cookbook tar')})
+                detail={'_artifact': _('No metadata.json found in cookbook tar')})
 
         try:
             if data['version'] != metadata.version:
@@ -82,11 +82,9 @@ class CookbookPackageContentViewSet(ContentViewSet):
         data['version'] = metadata.version
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
-        content = serializer.save(dependencies=metadata.dependencies,
-                                  content_id_type=CookbookPackageContent.SHA256,
-                                  content_id=artifact.sha256)
-        content.artifact = artifact
-
+        serializer.save(dependencies=metadata.dependencies,
+                        content_id_type=CookbookPackageContent.SHA256,
+                        content_id=artifact.sha256)
         headers = self.get_success_headers(request.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 

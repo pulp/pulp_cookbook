@@ -15,10 +15,12 @@ class CookbookContentHandlerTestCase(TestCase):
     def setUp(self):
         self.c1 = CookbookPackageContent.objects.create(name='c1', version='1.0.0',
                                                         dependencies={})
-        self.c1.artifact = None
+        ContentArtifact.objects.create(artifact=None, content=self.c1,
+                                       relative_path=self.c1.relative_path())
         self.c1_prime = CookbookPackageContent.objects.create(name='c1', version='1.0.0',
                                                               dependencies={})
-        self.c1_prime.artifact = None
+        ContentArtifact.objects.create(artifact=None, content=self.c1_prime,
+                                       relative_path=self.c1_prime.relative_path())
         self.assertEqual(self.c1.content_id_type, CookbookPackageContent.UUID)
         self.assertEqual(self.c1_prime.content_id_type, CookbookPackageContent.UUID)
 

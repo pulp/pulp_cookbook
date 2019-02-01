@@ -5,15 +5,16 @@ from gettext import gettext as _
 
 from rest_framework import serializers
 
-from pulpcore.plugin.models import Artifact
+from pulpcore.plugin.models import ContentArtifact
+
 from pulpcore.plugin.serializers import (
-    ContentSerializer, RelatedField, RemoteSerializer, PublisherSerializer
+    SingleArtifactContentSerializer, RemoteSerializer, PublisherSerializer
 )
 
 from .models import CookbookPackageContent, CookbookRemote, CookbookPublisher
 
 
-class CookbookPackageContentSerializer(ContentSerializer):
+class CookbookPackageContentSerializer(SingleArtifactContentSerializer):
     """Serializer for the cookbook content."""
 
     name = serializers.CharField(
@@ -34,16 +35,24 @@ class CookbookPackageContentSerializer(ContentSerializer):
         ),
         read_only=True
     )
-    artifact = RelatedField(
-        view_name='artifacts-detail',
-        help_text=_("tar archive containing the cookbook"),
-        queryset=Artifact.objects.all()
-    )
-    _artifacts = None
+
+    def create(self, validated_data):
+        content_data = {k: v for k, v in validated_data.items() if k != '_artifact'}
+        content = super().create(content_data)
+        ContentArtifact.objects.create(
+            artifact=validated_data['_artifact'],
+            content=content,
+            relative_path=content.relative_path(),
+        )
+        return content
+
+    def update(self, instance, validated_data):
+        raise serializers.ValidationError("content is immutable")
 
     class Meta:
-        fields = tuple(field for field in ContentSerializer.Meta.fields if field != '_artifacts') \
-            + ('name', 'version', 'dependencies', 'content_id_type', 'content_id', 'artifact')
+        fields = SingleArtifactContentSerializer.Meta.fields + (
+            'name', 'version', 'dependencies', 'content_id_type', 'content_id'
+        )
         model = CookbookPackageContent
 
 

@@ -34,10 +34,31 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         """Create class-wide variables."""
         cls.cfg = config.get_config()
 
+    def setUp(self):
+        delete_orphans(self.cfg)
+
     def verify_counts(self, repo, all_count, added_count, removed_count):
         self.assertEqual(len(get_cookbook_content(repo)), all_count)
         self.assertEqual(len(get_cookbook_added_content(repo)), added_count)
         self.assertEqual(len(get_cookbook_removed_content(repo)), removed_count)
+
+    def verify_ids_and_artifacts(self, repo, policy):
+        """
+        Verify that content_id and artifact presence corresponds to the policy.
+
+        Verify that cookbook content_id is of the right type (based in the
+        format; content_type_id is hidden by the serializer). Artifacts must be
+        present in 'immediate' mode, otherwise not.
+        """
+        for cookbook in get_cookbook_content(repo):
+            if policy == 'immediate':
+                self.assertEqual(len(cookbook['content_id']), 64,
+                                 msg=f"{cookbook} does not have a SHA256 content_id")
+                self.assertIsNotNone(cookbook['_artifact'])
+            else:
+                self.assertEqual(len(cookbook['content_id']), 36,
+                                 msg=f"{cookbook} does not have a UUID conten_id")
+                self.assertIsNone(cookbook['_artifact'])
 
     def sync_and_inspect_task_report(self, remote, repo, download_count,
                                      mirror=None, policy='immediate'):
@@ -64,33 +85,13 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
                 self.fail("Could not find 'Downloading Artifacts' stage in task report")
         return tasks[0]
 
-    def do_sync_check(self, policy):
-        """Sync repositories with the cookbook plugin.
-
-        In order to sync a repository a remote has to be associated within
-        this repository. When a repository is created this version field is set
-        as None. After a sync the repository version is updated.
-
-        Do the following:
-
-        1.  Delete orphan content units, create a repository, and an remote.
-        2.  Assert that repository version is None
-        3.  Sync the remote.
-        4.  Assert that repository version is not None and the artifact/content counts
-        5.  Sync the remote one more time.
-        6.  Assert that repository version is different from the previous one. Assert that no
-            artifact was downloaded.
-        7.  Add a filter for a single cookbook name to the remote.
-        8.  Sync the remote.
-        9.  Assert artifact/content counts
-        10. Change the filter for a single cookbook name in the remote.
-        11. Sync the remote with "mirror=False".
-        12. Assert artifact/content counts (content must have been added)
+    def do_create_repo_and_sync(self, client, policy):
         """
-        delete_orphans(self.cfg)
+        Create a repo and remote (fixture_u1) using `policy`. Sync the repo.
 
-        client = api.Client(self.cfg, api.json_handler)
-
+        Verify that a new version was created, the number of downloads and the
+        number of content units.
+        """
         repo = client.post(REPO_PATH, gen_repo())
         self.addCleanup(client.delete, repo['_href'])
 
@@ -105,6 +106,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         task = self.sync_and_inspect_task_report(remote, repo, all_cookbook_count, policy=policy)
 
         repo = client.get(repo['_href'])
+
         latest_version_href = repo['_latest_version_href']
         self.assertIsNotNone(latest_version_href)
         self.assertEqual(latest_version_href,
@@ -112,13 +114,71 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         self.verify_counts(repo,
                            all_cookbook_count, all_cookbook_count, 0)
 
-        # Sync the full repository again.
-        self.sync_and_inspect_task_report(remote, repo, 0, policy=policy)
+        return repo, remote
+
+    def do_create_repo_and_sync_twice(self, client, policy, second_policy):
+        """
+        Create a repo and remote (fixture_u1). Sync the repo twice.
+
+        The first sync happens with policy `policy`, the second sync with policy
+        `second_policy`.
+
+        Verify that a new version was created, the number of downloads and the
+        number of content units for both syncs.
+        """
+        all_cookbook_count = fixture_u1.cookbook_count()
+
+        repo, remote = self.do_create_repo_and_sync(client, policy)
+        latest_version_href = repo['_latest_version_href']
+
+        body = gen_remote(fixture_u1.url, policy=second_policy)
+        client.patch(remote['_href'], body)
+
+        # Sync the full repository again using the second policy.
+        exp_download_count = 0
+        exp_policy = second_policy
+        if policy != 'immediate' and second_policy == 'immediate':
+            exp_download_count = all_cookbook_count
+        if policy == 'immediate':
+            exp_policy = 'immediate'
+        self.sync_and_inspect_task_report(remote, repo, exp_download_count, policy=second_policy)
         repo = client.get(repo['_href'])
         self.assertNotEqual(latest_version_href, repo['_latest_version_href'])
-        self.verify_counts(repo, all_cookbook_count, 0, 0)
+        # When we download the actual artifacts, the respective content unit will be replaced.
+        # This looks like adding/deleting all cookbooks.
+        self.verify_counts(repo, all_cookbook_count, exp_download_count, exp_download_count)
+        self.verify_ids_and_artifacts(repo, exp_policy)
+
+        return repo, remote
+
+    def do_sync_check(self, policy):
+        """Sync repository with the cookbook plugin.
+
+        In order to sync a repository a remote has to be associated within
+        this repository. When a repository is created this version field is set
+        as None. After a sync the repository version is updated.
+
+        Do the following:
+
+        1.  Delete orphan content units, create a repository, and an remote.
+        2.  Assert that repository version is None
+        3.  Sync the remote.
+        4.  Assert that repository version is not None and the artifact/content counts
+        5.  Add a filter for a single cookbook name to the remote.
+        6.  Sync the remote.
+        7.  Assert artifact/content counts
+        8. Change the filter for a single cookbook name in the remote.
+        9. Sync the remote with "mirror=False".
+        10. Assert artifact/content counts (content must have been added)
+        """
+        client = api.Client(self.cfg, api.json_handler)
+
+        repo, remote = self.do_create_repo_and_sync(client, policy)
 
         # Sync the repository with a filter (mirror mode is the default).
+        all_cookbook_count = fixture_u1.cookbook_count()
+        latest_version_href = repo['_latest_version_href']
+
         client.patch(remote['_href'], {'cookbooks': {fixture_u1.example1_name: ''}})
         self.sync_and_inspect_task_report(remote, repo, 0, policy=policy)
         repo = client.get(repo['_href'])
@@ -145,14 +205,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
 
         # Verify that cookbook content_id is of the right type (content_type_id
         # is hidden by the serializer)
-        for cookbook in get_cookbook_content(repo):
-            print(cookbook)
-            if policy == 'immediate':
-                self.assertEqual(len(cookbook['content_id']), 64,
-                                 msg=f"{cookbook} does not have a SHA256 content_id")
-            else:
-                self.assertEqual(len(cookbook['content_id']), 36,
-                                 msg=f"{cookbook} does not have a UUID conten_id")
+        self.verify_ids_and_artifacts(repo, policy)
 
     def test_sync_immediate(self):
         self.do_sync_check('immediate')
@@ -163,6 +216,22 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
     def test_sync_streamed(self):
         self.do_sync_check('streamed')
 
+    def test_sync_immediate_immediate(self):
+        client = api.Client(self.cfg, api.json_handler)
+        self.do_create_repo_and_sync_twice(client, 'immediate', 'immediate')
+
+    def test_sync_on_demand_immediate(self):
+        client = api.Client(self.cfg, api.json_handler)
+        self.do_create_repo_and_sync_twice(client, 'on_demand', 'immediate')
+
+    def test_sync_immediate_on_demand(self):
+        client = api.Client(self.cfg, api.json_handler)
+        self.do_create_repo_and_sync_twice(client, 'immediate', 'on_demand')
+
+    def test_sync_on_demand_on_demand(self):
+        client = api.Client(self.cfg, api.json_handler)
+        self.do_create_repo_and_sync_twice(client, 'on_demand', 'on_demand')
+
     def test_sync_repo_isolation(self):
         """Sync two repositories with same content but different artifacts.
 
@@ -171,8 +240,6 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         that syncing these two remotes to two repos respectively does not mixup
         cookbooks.
         """
-        delete_orphans(self.cfg)
-
         client = api.Client(self.cfg, api.json_handler)
 
         # Create repo u1 and sync partially

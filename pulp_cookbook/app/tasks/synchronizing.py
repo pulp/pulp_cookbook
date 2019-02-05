@@ -26,9 +26,19 @@ class UpdateContentWithDownloadResult(Stage):
 
     async def run(self):
         async for d_content in self.items():
+            download_sha256 = d_content.d_artifacts[0].artifact.sha256
             if d_content.content.pk is None:
-                download_sha256 = d_content.d_artifacts[0].artifact.sha256
                 d_content.content.set_sha256_digest(download_sha256)
+            else:
+                if d_content.content.content_id != download_sha256:
+                    # To keep previous repository versions untouched, create a
+                    # new content unit instead of modifying the existing
+                    # content.
+                    d_content.content.set_sha256_digest(download_sha256)
+                    # To copy multiple inheritance models, we need to set both
+                    # pk and _id to None...
+                    d_content.content.pk = None
+                    d_content.content._id = None
             await self.put(d_content)
 
 

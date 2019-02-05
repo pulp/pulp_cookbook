@@ -5,15 +5,16 @@ from gettext import gettext as _
 
 from rest_framework import serializers
 
-from pulpcore.plugin.models import Artifact
+from pulpcore.plugin.models import ContentArtifact
+
 from pulpcore.plugin.serializers import (
-    ContentSerializer, RelatedField, RemoteSerializer, PublisherSerializer
+    SingleArtifactContentSerializer, RemoteSerializer, PublisherSerializer
 )
 
 from .models import CookbookPackageContent, CookbookRemote, CookbookPublisher
 
 
-class CookbookPackageContentSerializer(ContentSerializer):
+class CookbookPackageContentSerializer(SingleArtifactContentSerializer):
     """Serializer for the cookbook content."""
 
     name = serializers.CharField(
@@ -27,16 +28,31 @@ class CookbookPackageContentSerializer(ContentSerializer):
         help_text=_("dependencies of the cookbook"),
         read_only=True
     )
-    artifact = RelatedField(
-        view_name='artifacts-detail',
-        help_text=_("tar archive containing the cookbook"),
-        queryset=Artifact.objects.all()
+    content_id_type = serializers.HiddenField(default=CookbookPackageContent.SHA256)
+    content_id = serializers.CharField(
+        help_text=_(
+            "content_id of the cookbook (UUID (lazy download)/SHA256 (immediate download/import)"
+        ),
+        read_only=True
     )
-    _artifacts = None
+
+    def create(self, validated_data):
+        content_data = {k: v for k, v in validated_data.items() if k != '_artifact'}
+        content = super().create(content_data)
+        ContentArtifact.objects.create(
+            artifact=validated_data['_artifact'],
+            content=content,
+            relative_path=content.relative_path(),
+        )
+        return content
+
+    def update(self, instance, validated_data):
+        raise serializers.ValidationError("content is immutable")
 
     class Meta:
-        fields = tuple(field for field in ContentSerializer.Meta.fields if field != '_artifacts') \
-            + ('name', 'version', 'dependencies', 'artifact')
+        fields = SingleArtifactContentSerializer.Meta.fields + (
+            'name', 'version', 'dependencies', 'content_id_type', 'content_id'
+        )
         model = CookbookPackageContent
 
 

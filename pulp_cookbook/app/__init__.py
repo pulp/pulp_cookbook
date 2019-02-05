@@ -9,4 +9,4 @@ class PulpCookbookPluginAppConfig(PulpPluginAppConfig):
     """Entry point for pulp_cookbook plugin."""
 
     name = 'pulp_cookbook.app'
-    label = 'pulp_cookbook'
+    label = 'cookbook'

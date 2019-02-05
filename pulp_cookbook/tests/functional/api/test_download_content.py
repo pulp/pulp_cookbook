@@ -5,9 +5,10 @@ import unittest
 from random import choice
 from urllib.parse import urljoin
 
-from pulp_smash import api, config, utils
+from pulp_smash import api, config, exceptions, utils
 from pulp_smash.pulp3.constants import DISTRIBUTION_PATH, REPO_PATH
 from pulp_smash.pulp3.utils import (
+    delete_orphans,
     gen_distribution,
     gen_remote,
     gen_repo,
@@ -18,12 +19,13 @@ from pulp_smash.pulp3.utils import (
 from pulp_cookbook.tests.functional.api.utils import (
     gen_publisher,
     get_content_and_unit_paths,
+    get_cookbook_content,
 )
 from pulp_cookbook.tests.functional.constants import (
     fixture_u1,
     COOKBOOK_REMOTE_PATH,
     COOKBOOK_PUBLISHER_PATH,
-    COOKBOOK_BASE_LIVE_API_PATH,
+    COOKBOOK_BASE_CONTENT_URL,
 )
 from pulp_cookbook.tests.functional.utils import set_up_module as setUpModule  # noqa:F401
 
@@ -31,7 +33,75 @@ from pulp_cookbook.tests.functional.utils import set_up_module as setUpModule  #
 class DownloadContentTestCase(unittest.TestCase):
     """Verify whether content served by pulp can be downloaded."""
 
-    def test_all(self):
+    def create_and_sync_repo(self, cfg, client, policy):
+        repo = client.post(REPO_PATH, gen_repo())
+        self.addCleanup(client.delete, repo['_href'])
+
+        body = gen_remote(fixture_u1.url, policy=policy)
+        remote = client.post(COOKBOOK_REMOTE_PATH, body)
+        self.addCleanup(client.delete, remote['_href'])
+
+        sync(cfg, remote, repo)
+        return client.get(repo['_href'])
+
+    def create_distribution(self, cfg, client, repo):
+        """Create a publication for the latest repo version and a distribution."""
+        # Create a publisher.
+        publisher = client.post(COOKBOOK_PUBLISHER_PATH, gen_publisher())
+        self.addCleanup(client.delete, publisher['_href'])
+
+        # Create a publication.
+        publication = publish(cfg, publisher, repo)
+        self.addCleanup(client.delete, publication['_href'])
+
+        # Create a distribution.
+        body = gen_distribution()
+        body['publication'] = publication['_href']
+        distribution = client.post(DISTRIBUTION_PATH, body)
+        self.addCleanup(client.delete, distribution['_href'])
+        return distribution
+
+    def download_check(self, cfg, client, repo, distribution, policy):
+        """Verify the '/universe' endpoint, download and check a cookbook."""
+        # pulp_cookbook universe live endpoint contains
+        # all cookbooks
+        distribution_base_url = cfg.get_hosts('api')[0].roles['api']['scheme']
+        distribution_base_url += '://' + distribution['base_url'] + '/'
+
+        # TODO: HACK: can't set the base_url correctly currently
+        distribution_base_url = distribution_base_url.replace('/pulp/', '/pulp_cookbook/')
+
+        universe_url = COOKBOOK_BASE_CONTENT_URL
+        universe_url += distribution['base_path'] + '/universe'
+
+        universe = client.get(universe_url)
+        for content, publication_path in get_content_and_unit_paths(repo):
+            u_url = universe[content['name']][content['version']]['download_url']
+            self.assertEqual(u_url, urljoin(distribution_base_url, publication_path))
+
+        # Pick a cookbook, and download it from Fixtures…
+        cu, unit_path = choice(get_content_and_unit_paths(repo))
+        fixtures_hash = hashlib.sha256(
+            utils.http_get(urljoin(fixture_u1.url, unit_path))
+        ).hexdigest()
+
+        # …and Pulp content
+        client.response_handler = api.safe_handler
+
+        unit_url = urljoin(distribution_base_url, unit_path)
+
+        pulp_hash = hashlib.sha256(client.get(unit_url).content).hexdigest()
+        self.assertEqual(fixtures_hash, pulp_hash)
+
+        # Verify that the content unit contains the right sha256
+        cu_updated = client.get(cu['_href']).json()
+        if policy != 'streamed':
+            self.assertEqual(fixtures_hash, cu_updated['content_id'])
+            self.assertIsNotNone(cu_updated['_artifact'])
+        else:
+            self.assertIsNone(cu_updated['_artifact'])
+
+    def sync_and_download_check(self, policy):
         """Verify whether content served by pulp can be downloaded.
 
         The process of publishing content is more involved in Pulp 3 than it
@@ -59,60 +129,53 @@ class DownloadContentTestCase(unittest.TestCase):
         * `Pulp Smash #872 <https://github.com/PulpQE/pulp-smash/issues/872>`_
         """
         cfg = config.get_config()
+        delete_orphans(cfg)
         client = api.Client(cfg, api.json_handler)
+        repo = self.create_and_sync_repo(cfg, client, policy)
+        distribution = self.create_distribution(cfg, client, repo)
+        self.download_check(cfg, client, repo, distribution, policy)
 
-        repo = client.post(REPO_PATH, gen_repo())
-        self.addCleanup(client.delete, repo['_href'])
+    def sync_merge_and_download_check(self, policy):
+        """
+        Merge two repos synced from same source and publish.
 
-        body = gen_remote(fixture_u1.url)
-        remote = client.post(COOKBOOK_REMOTE_PATH, body)
-        self.addCleanup(client.delete, remote['_href'])
+        1. sync repo and repo2 from the same source
+        2. Add all content units from repo2 to repo
+        3. publish and create distribution for repo
+        4. Perform download check
+        """
+        cfg = config.get_config()
+        delete_orphans(cfg)
+        client = api.Client(cfg, api.json_handler)
+        repo = self.create_and_sync_repo(cfg, client, policy)
+        repo2 = self.create_and_sync_repo(cfg, client, policy)
 
-        sync(cfg, remote, repo)
+        cb_content = get_cookbook_content(repo2)
+        client.post(
+            repo['_versions_href'],
+            {'add_content_units': [cb['_href'] for cb in cb_content]}
+        )
         repo = client.get(repo['_href'])
+        distribution = self.create_distribution(cfg, client, repo)
+        self.download_check(cfg, client, repo, distribution, policy)
 
-        # Create a publisher.
-        publisher = client.post(COOKBOOK_PUBLISHER_PATH, gen_publisher())
-        self.addCleanup(client.delete, publisher['_href'])
+    def test_download_immediate_policy(self):
+        self.sync_and_download_check(policy='immediate')
 
-        # Create a publication.
-        publication = publish(cfg, publisher, repo)
-        self.addCleanup(client.delete, publication['_href'])
+    def test_download_on_demand_policy(self):
+        self.sync_and_download_check(policy='on_demand')
 
-        # Create a distribution.
-        body = gen_distribution()
-        body['publication'] = publication['_href']
-        distribution = client.post(DISTRIBUTION_PATH, body)
-        self.addCleanup(client.delete, distribution['_href'])
+    def test_download_streamed_policy(self):
+        self.sync_and_download_check(policy='streamed')
 
-        # pulp_cookbook universe live endpoint contains
-        # all cookbooks
-        distribution_base_url = cfg.get_hosts('api')[0].roles['api']['scheme']
-        distribution_base_url += '://' + distribution['base_url'] + '/'
+    def test_download_merged_immediate_policy(self):
+        # When using immediate policy, same content units are merged (sha256 is
+        # known). Therefore, there are no duplicate content units in the repo.
+        self.sync_merge_and_download_check(policy='immediate')
 
-        api_host_cfg = cfg.get_hosts('api')[0]
-        universe_url = api_host_cfg.roles['api']['scheme']
-        universe_url += '://' + api_host_cfg.hostname
-        universe_url += ':{}'.format(api_host_cfg.roles['api']['port'])
-        universe_url += COOKBOOK_BASE_LIVE_API_PATH
-        universe_url += distribution['base_path'] + '/universe'
-
-        universe = client.get(universe_url)
-
-        for content, publication_path in get_content_and_unit_paths(repo):
-            u_url = universe[content['name']][content['version']]['download_url']
-            self.assertEqual(u_url, urljoin(distribution_base_url, publication_path))
-
-        # Pick a cookbook, and download it from both Fixtures…
-        _, unit_path = choice(get_content_and_unit_paths(repo))
-        fixtures_hash = hashlib.sha256(
-            utils.http_get(urljoin(fixture_u1.url, unit_path))
-        ).hexdigest()
-
-        # …and Pulp content
-        client.response_handler = api.safe_handler
-
-        unit_url = urljoin(distribution_base_url, unit_path)
-
-        pulp_hash = hashlib.sha256(client.get(unit_url).content).hexdigest()
-        self.assertEqual(fixtures_hash, pulp_hash)
+    def test_download_merged_on_demand_policy(self):
+        #  When using non-immediate policy, content units can't be merged
+        #  (sha256 is unknown). Therefore, the publish task must fail.
+        with self.assertRaisesRegex(exceptions.TaskReportError,
+                                    r"Publication would contain multiple versions of cookbooks:"):
+            self.sync_merge_and_download_check(policy='on_demand')

@@ -1,7 +1,9 @@
-# coding=utf-8
-"""Utilities for file plugin tests."""
+"""Utilities for cookbook plugin tests."""
+import functools
+
 from pulp_smash import utils
-from pulp_smash.pulp3.utils import get_content
+from pulp_smash.pulp3.utils import get_added_content, get_content, get_removed_content
+
 from pulp_cookbook.tests.functional.constants import COOKBOOK_CONTENT_NAME
 
 
@@ -10,6 +12,17 @@ def gen_publisher(**kwargs):
     data = {'name': utils.uuid4()}
     data.update(kwargs)
     return data
+
+
+def _filter_for_cookbook_content(get_func, *args, **kwargs):
+    content = get_func(*args, **kwargs)
+    assert not content or list(content.keys()) == [COOKBOOK_CONTENT_NAME]
+    return content.get(COOKBOOK_CONTENT_NAME, {})
+
+
+get_cookbook_content = functools.partial(_filter_for_cookbook_content, get_content)
+get_cookbook_added_content = functools.partial(_filter_for_cookbook_content, get_added_content)
+get_cookbook_removed_content = functools.partial(_filter_for_cookbook_content, get_removed_content)
 
 
 def get_content_and_unit_paths(repo):
@@ -25,6 +38,4 @@ def get_content_and_unit_paths(repo):
         return path_format.format(content['name'],
                                   content['version'],
                                   content['version'].replace('.', '_'))
-    content = get_content(repo)
-    assert list(content.keys()) == [COOKBOOK_CONTENT_NAME]
-    return [(cu, rel_path(cu)) for cu in content[COOKBOOK_CONTENT_NAME]]
+    return [(cu, rel_path(cu)) for cu in get_cookbook_content(repo)]

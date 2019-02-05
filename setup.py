@@ -11,7 +11,7 @@ with open('README.rst') as f:
 
 setup(
     name='pulp-cookbook',
-    version='0.0.3a2',
+    version='0.0.4b1',
     description='Cookbook plugin for the Pulp Project',
     long_description=long_description,
     author='Simon Baatz',

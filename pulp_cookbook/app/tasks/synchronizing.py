@@ -1,3 +1,7 @@
+# (C) Copyright 2019 Simon Baatz <gmbnomis@gmail.com>
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 import logging
 
 from collections import defaultdict
@@ -6,11 +10,21 @@ from urllib.parse import urljoin
 
 from django.db.models import Prefetch, Q
 
-from pulpcore.plugin.models import Artifact, ContentArtifact, ProgressBar, Remote, Repository
+from pulpcore.plugin.models import (
+    Artifact,
+    ContentArtifact,
+    ProgressBar,
+    Remote,
+    Repository,
+)
 from pulpcore.plugin.stages import (
-    DeclarativeArtifact, DeclarativeContent, DeclarativeVersion, Stage,
-    ArtifactDownloader, ArtifactSaver,
-    ContentSaver
+    DeclarativeArtifact,
+    DeclarativeContent,
+    DeclarativeVersion,
+    Stage,
+    ArtifactDownloader,
+    ArtifactSaver,
+    ContentSaver,
 )
 
 from pulp_cookbook.app.models import CookbookPackageContent, CookbookRemote
@@ -96,12 +110,14 @@ class QueryExistingRepoContentAndArtifacts(Stage):
             m_type = type(declarative_content.content)
             unit_q = declarative_content.content.repo_q()
             content_q_by_type[m_type] = content_q_by_type[m_type] | unit_q
-            d_c_by_mt_rk[m_type][declarative_content.content.repo_key()] = declarative_content
+            d_c_by_mt_rk[m_type][
+                declarative_content.content.repo_key()
+            ] = declarative_content
 
         for model_type in content_q_by_type:
-            self._associate_model_type(model_type,
-                                       content_q_by_type[model_type],
-                                       d_c_by_mt_rk[model_type])
+            self._associate_model_type(
+                model_type, content_q_by_type[model_type], d_c_by_mt_rk[model_type]
+            )
 
     def _associate_model_type(self, model_type, q, d_c_by_repo_key):
         content_filter = model_type.objects.filter(pk__in=self.new_version.content)
@@ -109,11 +125,13 @@ class QueryExistingRepoContentAndArtifacts(Stage):
         # prefetch the related ContentArtifact and Artifact objects:
         content_filter = content_filter.prefetch_related(
             Prefetch(
-                '_artifacts',
-                queryset=(ContentArtifact.objects
-                                         .filter(artifact__isnull=False)
-                                         .select_related('artifact')),
-                to_attr='c_as_with_artifact'
+                "_artifacts",
+                queryset=(
+                    ContentArtifact.objects.filter(
+                        artifact__isnull=False
+                    ).select_related("artifact")
+                ),
+                to_attr="c_as_with_artifact",
             )
         )
         for content in content_filter:
@@ -198,7 +216,9 @@ class QueryExistingContentUnits(Stage):
                         continue
                     not_same_unit = False
                     for field in key_fields:
-                        in_memory_digest_value = getattr(declarative_content.content, field)
+                        in_memory_digest_value = getattr(
+                            declarative_content.content, field
+                        )
                         if in_memory_digest_value != getattr(result, field):
                             not_same_unit = True
                             break
@@ -235,23 +255,29 @@ class CookbookFirstStage(Stage):
             `DeclarativeContent` objects to
 
         """
-        with ProgressBar(message='Downloading Metadata', total=1) as pb:
-            downloader = self.remote.get_downloader(url=urljoin(self.remote.url + '/', 'universe'))
+        with ProgressBar(message="Downloading Metadata", total=1) as pb:
+            downloader = self.remote.get_downloader(
+                url=urljoin(self.remote.url + "/", "universe")
+            )
             result = await downloader.run()
             pb.increment()
 
         cookbook_names = self.remote.specifier_cookbook_names()
 
-        with ProgressBar(message='Parsing Metadata') as pb:
+        with ProgressBar(message="Parsing Metadata") as pb:
             universe = Universe(result.path)
             for entry in universe.read():
                 if cookbook_names and entry.name not in cookbook_names:
                     continue
-                cookbook = CookbookPackageContent(name=entry.name, version=entry.version,
-                                                  dependencies=entry.dependencies)
+                cookbook = CookbookPackageContent(
+                    name=entry.name,
+                    version=entry.version,
+                    dependencies=entry.dependencies,
+                )
                 artifact = Artifact()
-                da = DeclarativeArtifact(artifact, entry.download_url,
-                                         cookbook.relative_path(), self.remote)
+                da = DeclarativeArtifact(
+                    artifact, entry.download_url, cookbook.relative_path(), self.remote
+                )
                 dc = DeclarativeContent(content=cookbook, d_artifacts=[da])
                 pb.increment()
                 await self.put(dc)
@@ -266,12 +292,14 @@ class CookbookDeclarativeVersion(DeclarativeVersion):
             QueryExistingRepoContentAndArtifacts(new_version=new_version),
         ]
         if self.download_artifacts:
-            pipeline.extend([
-                ArtifactDownloader(),
-                ArtifactSaver(),
-                UpdateContentWithDownloadResult(),
-                QueryExistingContentUnits(),  # share content with known digest
-            ])
+            pipeline.extend(
+                [
+                    ArtifactDownloader(),
+                    ArtifactSaver(),
+                    UpdateContentWithDownloadResult(),
+                    QueryExistingContentUnits(),  # share content with known digest
+                ]
+            )
         pipeline.append(ContentSaver())
         return pipeline
 
@@ -292,11 +320,14 @@ def synchronize(remote_pk, repository_pk, mirror):
     remote = CookbookRemote.objects.get(pk=remote_pk)
     repository = Repository.objects.get(pk=repository_pk)
     if not remote.url:
-        raise ValueError(_('A remote must have a url specified to synchronize.'))
+        raise ValueError(_("A remote must have a url specified to synchronize."))
 
-    download = (remote.policy == Remote.IMMEDIATE)  # Interpret policy to download Artifacts or not
+    download = (
+        remote.policy == Remote.IMMEDIATE
+    )  # Interpret policy to download Artifacts or not
 
     first_stage = CookbookFirstStage(remote)
-    dv = CookbookDeclarativeVersion(first_stage, repository,
-                                    mirror=mirror, download_artifacts=download)
+    dv = CookbookDeclarativeVersion(
+        first_stage, repository, mirror=mirror, download_artifacts=download
+    )
     dv.create()

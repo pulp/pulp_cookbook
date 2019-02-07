@@ -14,7 +14,8 @@ from pulpcore.plugin.models import (
     RepositoryVersion,
     Publication,
     PublishedArtifact,
-    PublishedMetadata)
+    PublishedMetadata,
+)
 from pulpcore.plugin.tasking import WorkingDirectory
 
 from pulp_cookbook.app.models import CookbookPackageContent, CookbookPublisher
@@ -22,12 +23,12 @@ from pulp_cookbook.metadata import Entry, Universe
 
 log = logging.getLogger(__name__)
 
-BASE_PATH_MARKER = '{{ base_path }}'
+BASE_PATH_MARKER = "{{ base_path }}"
 
 
 def path_template(artifact_path):
     """Artifact path to write into published '__universe__' file."""
-    return BASE_PATH_MARKER + '/' + artifact_path
+    return BASE_PATH_MARKER + "/" + artifact_path
 
 
 def replace_all_paths(content, base_url):
@@ -47,29 +48,29 @@ def publish(publisher_pk, repository_version_pk):
     repository_version = RepositoryVersion.objects.get(pk=repository_version_pk)
 
     log.info(
-        _('Publishing: repository=%(repository)s, version=%(version)d, publisher=%(publisher)s'),
+        _(
+            "Publishing: repository=%(repository)s, version=%(version)d, publisher=%(publisher)s"
+        ),
         {
-            'repository': repository_version.repository.name,
-            'version': repository_version.number,
-            'publisher': publisher.name,
-        })
+            "repository": repository_version.repository.name,
+            "version": repository_version.number,
+            "publisher": publisher.name,
+        },
+    )
 
     with WorkingDirectory():
         with Publication.create(repository_version, publisher) as publication:
             check_repo_version_constraint(publication)
-            universe = Universe('__universe__')
+            universe = Universe("__universe__")
             universe.write(populate(publication))
             metadata = PublishedMetadata(
                 relative_path=os.path.basename(universe.relative_path),
                 publication=publication,
-                file=File(open(universe.relative_path, 'rb')))
+                file=File(open(universe.relative_path, "rb")),
+            )
             metadata.save()
 
-    log.info(
-        _('Publication: %(publication)s created'),
-        {
-            'publication': publication.pk
-        })
+    log.info(_("Publication: %(publication)s created"), {"publication": publication.pk})
 
 
 def check_repo_version_constraint(publication):
@@ -84,7 +85,11 @@ def check_repo_version_constraint(publication):
     qs_content = CookbookPackageContent.objects.filter(
         pk__in=publication.repository_version.content
     )
-    qs = qs_content.values(*fields).annotate(num_cookbooks=Count('pk')).filter(num_cookbooks__gt=1)
+    qs = (
+        qs_content.values(*fields)
+        .annotate(num_cookbooks=Count("pk"))
+        .filter(num_cookbooks__gt=1)
+    )
     duplicates = [f"{res['name']} {res['version']}" for res in qs]
     if duplicates:
         raise ValueError(
@@ -106,19 +111,23 @@ def populate(publication):
 
     """
     for content in CookbookPackageContent.objects.filter(
-            pk__in=publication.repository_version.content).order_by('-_created'):
-        relative_path = 'cookbook_files/{}/{}/'.format(content.name,
-                                                       content.version.replace('.', '_'))
+        pk__in=publication.repository_version.content
+    ).order_by("-_created"):
+        relative_path = "cookbook_files/{}/{}/".format(
+            content.name, content.version.replace(".", "_")
+        )
         for content_artifact in content.contentartifact_set.all():
             art_path = os.path.join(relative_path, content_artifact.relative_path)
             published_artifact = PublishedArtifact(
                 relative_path=art_path,
                 publication=publication,
-                content_artifact=content_artifact)
+                content_artifact=content_artifact,
+            )
             published_artifact.save()
             entry = Entry(
                 name=content.name,
                 version=content.version,
                 download_url=path_template(art_path),
-                dependencies=content.dependencies)
+                dependencies=content.dependencies,
+            )
             yield entry

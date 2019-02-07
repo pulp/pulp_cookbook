@@ -1,6 +1,6 @@
 [flake8]
 exclude = ./docs/*,*/migrations/*
-ignore = Q000,D100,D102,D104,D106,D107,D200,D401,D402
+ignore = W503,Q000,D100,D102,D104,D106,D107,D200,D401,D402
 max-line-length = 100
 
 # Flake8-quotes extension codes

@@ -17,9 +17,9 @@ log = logging.getLogger(__name__)
 
 def pulp_cookbook_content_path():
     """Get base cotent path from configuration."""
-    components = settings.CONTENT_PATH_PREFIX.split('/')
-    components[1] = 'pulp_cookbook'
-    return '/'.join(components)
+    components = settings.CONTENT_PATH_PREFIX.split("/")
+    components[1] = "pulp_cookbook"
+    return "/".join(components)
 
 
 class CookbookContentHandler(Handler):
@@ -39,27 +39,31 @@ class CookbookContentHandler(Handler):
         Since the '/universe' endpoint contains absolute URLs, translate
         the content of '__universe__' on the fly.
         """
-        path = request.match_info['path'] + '/universe'
+        path = request.match_info["path"] + "/universe"
         distribution = Handler._match_distribution(path)
         Handler._permit(request, distribution)
         publication = distribution.publication
         if not publication:
             raise PathNotResolved(path)
-        pm = publication.published_metadata.get(relative_path='__universe__')
+        pm = publication.published_metadata.get(relative_path="__universe__")
         try:
-            with pm.file.open('rb') as u:
-                content = u.read().decode('utf-8')
+            with pm.file.open("rb") as u:
+                content = u.read().decode("utf-8")
         except FileNotFoundError:
             return PathNotResolved(path)
         except PermissionError:
             return aiohttp.web_exceptions.HTTPForbidden
-        content = replace_all_paths(content,
-                                    self._get_content_base_url(request) + distribution.base_path)
-        return aiohttp.web.Response(body=content, content_type='application/json', charset='utf-8')
+        content = replace_all_paths(
+            content, self._get_content_base_url(request) + distribution.base_path
+        )
+        return aiohttp.web.Response(
+            body=content, content_type="application/json", charset="utf-8"
+        )
 
     def _save_content_artifact(self, download_result, content_artifact):
-        new_artifact = super()._save_content_artifact(download_result=download_result,
-                                                      content_artifact=content_artifact)
+        new_artifact = super()._save_content_artifact(
+            download_result=download_result, content_artifact=content_artifact
+        )
         content = content_artifact.content.cast()
         try:
             # Try to 'upgrade' the content unit as the digest is known now. This

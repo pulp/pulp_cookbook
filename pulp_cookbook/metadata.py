@@ -20,15 +20,15 @@ class CookbookMetadata:
 
     @property
     def name(self):
-        return self.metadata['name']
+        return self.metadata["name"]
 
     @property
     def version(self):
-        return self.metadata['version']
+        return self.metadata["version"]
 
     @property
     def dependencies(self):
-        return self.metadata['dependencies']
+        return self.metadata["dependencies"]
 
     @classmethod
     def from_cookbook_file(cls, file_name, name):
@@ -46,7 +46,7 @@ class CookbookMetadata:
         """
         tf = tarfile.open(file_name)
         for element in tf:
-            if element.isfile() and element.name == name + '/metadata.json':
+            if element.isfile() and element.name == name + "/metadata.json":
                 metadata = json.load(tf.extractfile(element))
                 # TODO: check name consistency, raise error
                 return CookbookMetadata(metadata)
@@ -74,10 +74,10 @@ class Entry:
     @property
     def data(self):
         return {
-            'location_type': 'uri',
-            'location_path': self.download_url,
-            'download_url': self.download_url,
-            'dependencies': self.dependencies
+            "location_type": "uri",
+            "location_path": self.download_url,
+            "download_url": self.download_url,
+            "dependencies": self.dependencies,
         }
 
 
@@ -113,8 +113,12 @@ class Universe:
             universe = json.load(fp)
         for cookbook_name, cookbook_versions in universe.items():
             for cookbook_version, cookbook_meta in cookbook_versions.items():
-                yield Entry(cookbook_name, cookbook_version,
-                            cookbook_meta['download_url'], cookbook_meta['dependencies'])
+                yield Entry(
+                    cookbook_name,
+                    cookbook_version,
+                    cookbook_meta["download_url"],
+                    cookbook_meta["dependencies"],
+                )
 
     def write(self, entries):
         """
@@ -131,5 +135,5 @@ class Universe:
             except KeyError:
                 universe[entry.name] = versions = dict()
             versions[entry.version] = entry.data
-        with open(self.relative_path, 'w+') as fp:
+        with open(self.relative_path, "w+") as fp:
             json.dump(universe, fp)

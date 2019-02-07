@@ -8,5 +8,5 @@ from pulpcore.plugin import PulpPluginAppConfig
 class PulpCookbookPluginAppConfig(PulpPluginAppConfig):
     """Entry point for pulp_cookbook plugin."""
 
-    name = 'pulp_cookbook.app'
-    label = 'cookbook'
+    name = "pulp_cookbook.app"
+    label = "cookbook"

@@ -1,4 +1,7 @@
-# coding=utf-8
+# (C) Copyright 2019 Simon Baatz <gmbnomis@gmail.com>
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 """Tests that CRUD publishers."""
 import unittest
 
@@ -10,7 +13,6 @@ from pulp_smash.pulp3.utils import gen_repo
 
 from pulp_cookbook.tests.functional.api.utils import gen_publisher
 from pulp_cookbook.tests.functional.constants import COOKBOOK_PUBLISHER_PATH
-from pulp_cookbook.tests.functional.utils import set_up_module as setUpModule  # noqa:F401
 from pulp_cookbook.tests.functional.utils import skip_if
 
 
@@ -31,7 +33,7 @@ class CRUDPublishersTestCase(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         """Clean class-wide variable."""
-        cls.client.delete(cls.repo['_href'])
+        cls.client.delete(cls.repo["_href"])
 
     def test_01_create_publisher(self):
         """Create a publisher."""
@@ -41,7 +43,7 @@ class CRUDPublishersTestCase(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertEqual(self.publisher[key], val)
 
-    @skip_if(bool, 'publisher', False)
+    @skip_if(bool, "publisher", False)
     def test_02_create_same_name(self):
         """Try to create a second publisher with an identical name.
 
@@ -49,52 +51,52 @@ class CRUDPublishersTestCase(unittest.TestCase):
         <https://github.com/PulpQE/pulp-smash/issues/1055>`_.
         """
         body = gen_publisher()
-        body['name'] = self.publisher['name']
+        body["name"] = self.publisher["name"]
         with self.assertRaises(HTTPError):
             self.client.post(COOKBOOK_PUBLISHER_PATH, body)
 
-    @skip_if(bool, 'publisher', False)
+    @skip_if(bool, "publisher", False)
     def test_02_read_publisher(self):
         """Read a publisher by its href."""
-        publisher = self.client.get(self.publisher['_href'])
+        publisher = self.client.get(self.publisher["_href"])
         for key, val in self.publisher.items():
             with self.subTest(key=key):
                 self.assertEqual(publisher[key], val)
 
-    @skip_if(bool, 'publisher', False)
+    @skip_if(bool, "publisher", False)
     def test_02_read_publishers(self):
         """Read a publisher by its name."""
-        page = self.client.get(COOKBOOK_PUBLISHER_PATH, params={
-            'name': self.publisher['name']
-        })
-        self.assertEqual(len(page['results']), 1)
+        page = self.client.get(
+            COOKBOOK_PUBLISHER_PATH, params={"name": self.publisher["name"]}
+        )
+        self.assertEqual(len(page["results"]), 1)
         for key, val in self.publisher.items():
             with self.subTest(key=key):
-                self.assertEqual(page['results'][0][key], val)
+                self.assertEqual(page["results"][0][key], val)
 
-    @skip_if(bool, 'publisher', False)
+    @skip_if(bool, "publisher", False)
     def test_03_partially_update(self):
         """Update a publisher using HTTP PATCH."""
         body = gen_publisher()
-        self.client.patch(self.publisher['_href'], body)
-        type(self).publisher = self.client.get(self.publisher['_href'])
+        self.client.patch(self.publisher["_href"], body)
+        type(self).publisher = self.client.get(self.publisher["_href"])
         for key, val in body.items():
             with self.subTest(key=key):
                 self.assertEqual(self.publisher[key], val)
 
-    @skip_if(bool, 'publisher', False)
+    @skip_if(bool, "publisher", False)
     def test_04_fully_update(self):
         """Update a publisher using HTTP PUT."""
         body = gen_publisher()
-        self.client.put(self.publisher['_href'], body)
-        type(self).publisher = self.client.get(self.publisher['_href'])
+        self.client.put(self.publisher["_href"], body)
+        type(self).publisher = self.client.get(self.publisher["_href"])
         for key, val in body.items():
             with self.subTest(key=key):
                 self.assertEqual(self.publisher[key], val)
 
-    @skip_if(bool, 'publisher', False)
+    @skip_if(bool, "publisher", False)
     def test_05_delete(self):
         """Delete a publisher."""
-        self.client.delete(self.publisher['_href'])
+        self.client.delete(self.publisher["_href"])
         with self.assertRaises(HTTPError):
-            self.client.get(self.publisher['_href'])
+            self.client.get(self.publisher["_href"])

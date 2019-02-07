@@ -1,4 +1,7 @@
-# coding=utf-8
+# (C) Copyright 2019 Simon Baatz <gmbnomis@gmail.com>
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 """Tests that verify download of content served by Pulp."""
 import hashlib
 import unittest
@@ -27,7 +30,6 @@ from pulp_cookbook.tests.functional.constants import (
     COOKBOOK_PUBLISHER_PATH,
     COOKBOOK_BASE_CONTENT_URL,
 )
-from pulp_cookbook.tests.functional.utils import set_up_module as setUpModule  # noqa:F401
 
 
 class DownloadContentTestCase(unittest.TestCase):
@@ -35,48 +37,50 @@ class DownloadContentTestCase(unittest.TestCase):
 
     def create_and_sync_repo(self, cfg, client, policy):
         repo = client.post(REPO_PATH, gen_repo())
-        self.addCleanup(client.delete, repo['_href'])
+        self.addCleanup(client.delete, repo["_href"])
 
         body = gen_remote(fixture_u1.url, policy=policy)
         remote = client.post(COOKBOOK_REMOTE_PATH, body)
-        self.addCleanup(client.delete, remote['_href'])
+        self.addCleanup(client.delete, remote["_href"])
 
         sync(cfg, remote, repo)
-        return client.get(repo['_href'])
+        return client.get(repo["_href"])
 
     def create_distribution(self, cfg, client, repo):
         """Create a publication for the latest repo version and a distribution."""
         # Create a publisher.
         publisher = client.post(COOKBOOK_PUBLISHER_PATH, gen_publisher())
-        self.addCleanup(client.delete, publisher['_href'])
+        self.addCleanup(client.delete, publisher["_href"])
 
         # Create a publication.
         publication = publish(cfg, publisher, repo)
-        self.addCleanup(client.delete, publication['_href'])
+        self.addCleanup(client.delete, publication["_href"])
 
         # Create a distribution.
         body = gen_distribution()
-        body['publication'] = publication['_href']
+        body["publication"] = publication["_href"]
         distribution = client.post(DISTRIBUTION_PATH, body)
-        self.addCleanup(client.delete, distribution['_href'])
+        self.addCleanup(client.delete, distribution["_href"])
         return distribution
 
     def download_check(self, cfg, client, repo, distribution, policy):
         """Verify the '/universe' endpoint, download and check a cookbook."""
         # pulp_cookbook universe live endpoint contains
         # all cookbooks
-        distribution_base_url = cfg.get_hosts('api')[0].roles['api']['scheme']
-        distribution_base_url += '://' + distribution['base_url'] + '/'
+        distribution_base_url = cfg.get_hosts("api")[0].roles["api"]["scheme"]
+        distribution_base_url += "://" + distribution["base_url"] + "/"
 
         # TODO: HACK: can't set the base_url correctly currently
-        distribution_base_url = distribution_base_url.replace('/pulp/', '/pulp_cookbook/')
+        distribution_base_url = distribution_base_url.replace(
+            "/pulp/", "/pulp_cookbook/"
+        )
 
         universe_url = COOKBOOK_BASE_CONTENT_URL
-        universe_url += distribution['base_path'] + '/universe'
+        universe_url += distribution["base_path"] + "/universe"
 
         universe = client.get(universe_url)
         for content, publication_path in get_content_and_unit_paths(repo):
-            u_url = universe[content['name']][content['version']]['download_url']
+            u_url = universe[content["name"]][content["version"]]["download_url"]
             self.assertEqual(u_url, urljoin(distribution_base_url, publication_path))
 
         # Pick a cookbook, and download it from Fixtures…
@@ -94,12 +98,12 @@ class DownloadContentTestCase(unittest.TestCase):
         self.assertEqual(fixtures_hash, pulp_hash)
 
         # Verify that the content unit contains the right sha256
-        cu_updated = client.get(cu['_href']).json()
-        if policy != 'streamed':
-            self.assertEqual(fixtures_hash, cu_updated['content_id'])
-            self.assertIsNotNone(cu_updated['_artifact'])
+        cu_updated = client.get(cu["_href"]).json()
+        if policy != "streamed":
+            self.assertEqual(fixtures_hash, cu_updated["content_id"])
+            self.assertIsNotNone(cu_updated["_artifact"])
         else:
-            self.assertIsNone(cu_updated['_artifact'])
+            self.assertIsNone(cu_updated["_artifact"])
 
     def sync_and_download_check(self, policy):
         """Verify whether content served by pulp can be downloaded.
@@ -152,30 +156,32 @@ class DownloadContentTestCase(unittest.TestCase):
 
         cb_content = get_cookbook_content(repo2)
         client.post(
-            repo['_versions_href'],
-            {'add_content_units': [cb['_href'] for cb in cb_content]}
+            repo["_versions_href"],
+            {"add_content_units": [cb["_href"] for cb in cb_content]},
         )
-        repo = client.get(repo['_href'])
+        repo = client.get(repo["_href"])
         distribution = self.create_distribution(cfg, client, repo)
         self.download_check(cfg, client, repo, distribution, policy)
 
     def test_download_immediate_policy(self):
-        self.sync_and_download_check(policy='immediate')
+        self.sync_and_download_check(policy="immediate")
 
     def test_download_on_demand_policy(self):
-        self.sync_and_download_check(policy='on_demand')
+        self.sync_and_download_check(policy="on_demand")
 
     def test_download_streamed_policy(self):
-        self.sync_and_download_check(policy='streamed')
+        self.sync_and_download_check(policy="streamed")
 
     def test_download_merged_immediate_policy(self):
         # When using immediate policy, same content units are merged (sha256 is
         # known). Therefore, there are no duplicate content units in the repo.
-        self.sync_merge_and_download_check(policy='immediate')
+        self.sync_merge_and_download_check(policy="immediate")
 
     def test_download_merged_on_demand_policy(self):
         #  When using non-immediate policy, content units can't be merged
         #  (sha256 is unknown). Therefore, the publish task must fail.
-        with self.assertRaisesRegex(exceptions.TaskReportError,
-                                    r"Publication would contain multiple versions of cookbooks:"):
-            self.sync_merge_and_download_check(policy='on_demand')
+        with self.assertRaisesRegex(
+            exceptions.TaskReportError,
+            r"Publication would contain multiple versions of cookbooks:",
+        ):
+            self.sync_merge_and_download_check(policy="on_demand")

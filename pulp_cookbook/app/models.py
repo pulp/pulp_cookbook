@@ -28,21 +28,28 @@ class CookbookPackageContent(Content):
     """
 
     # Constants for the choices of content_id types
-    UUID = 'uuid'
-    SHA256 = 'sha256'
+    UUID = "uuid"
+    SHA256 = "sha256"
     CONTENT_ID_TYPE_CHOICES = (
-        (UUID, 'On demand/streaming content: arbitrary UUID'),
-        (SHA256, 'Immediate download content: digest of associated artifact'),
+        (UUID, "On demand/streaming content: arbitrary UUID"),
+        (SHA256, "Immediate download content: digest of associated artifact"),
     )
 
-    TYPE = 'cookbook'
+    TYPE = "cookbook"
 
     name = models.TextField(blank=False, null=False)
     version = models.TextField(blank=False, null=False)
     dependencies = JSONField(blank=False, null=False)
-    content_id_type = models.CharField(max_length=10, choices=CONTENT_ID_TYPE_CHOICES,
-                                       blank=False, null=False, default=UUID)
-    content_id = models.CharField(max_length=64, null=False, blank=False, default=uuid.uuid4)
+    content_id_type = models.CharField(
+        max_length=10,
+        choices=CONTENT_ID_TYPE_CHOICES,
+        blank=False,
+        null=False,
+        default=UUID,
+    )
+    content_id = models.CharField(
+        max_length=64, null=False, blank=False, default=uuid.uuid4
+    )
 
     def relative_path(self):
         return "{}-{}.tar.gz".format(self.name, self.version)
@@ -60,7 +67,7 @@ class CookbookPackageContent(Content):
             tuple: The repo key field names.
 
         """
-        return ('name', 'version')
+        return ("name", "version")
 
     def repo_key(self):
         """
@@ -91,7 +98,7 @@ class CookbookPackageContent(Content):
         return models.Q(**self.repo_key_dict())
 
     class Meta:
-        unique_together = ('name', 'version', 'content_id_type', 'content_id')
+        unique_together = ("name", "version", "content_id_type", "content_id")
 
 
 class CookbookRemote(Remote):
@@ -99,12 +106,12 @@ class CookbookRemote(Remote):
     Remote for "cookbook" content.
     """
 
-    TYPE = 'cookbook'
+    TYPE = "cookbook"
 
     cookbooks = JSONField(blank=True)
 
     def specifier_cookbook_names(self):
-        if self.cookbooks == '':  # blank JSON field
+        if self.cookbooks == "":  # blank JSON field
             return None
         else:
             return set(self.cookbooks.keys())
@@ -115,4 +122,4 @@ class CookbookPublisher(Publisher):
     Publisher for "cookbook" content.
     """
 
-    TYPE = 'cookbook'
+    TYPE = "cookbook"

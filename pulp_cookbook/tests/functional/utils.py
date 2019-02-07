@@ -1,22 +1,19 @@
-# coding=utf-8
+# (C) Copyright 2019 Simon Baatz <gmbnomis@gmail.com>
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 """Utilities for tests for the cookbook plugin."""
 from functools import partial
 from unittest import SkipTest
 
 from pulp_smash import api, selectors
 from pulp_smash.pulp3.constants import REPO_PATH
-from pulp_smash.pulp3.utils import (
-    gen_remote,
-    gen_repo,
-    require_pulp_3,
-    require_pulp_plugins,
-    sync,
-)
+from pulp_smash.pulp3.utils import gen_remote, gen_repo, sync
 
 from pulp_cookbook.tests.functional.constants import (
     COOKBOOK_CONTENT_PATH,
     fixture_u1,
-    COOKBOOK_REMOTE_PATH
+    COOKBOOK_REMOTE_PATH,
 )
 
 
@@ -41,16 +38,10 @@ def populate_pulp(cfg, url=None):
         sync(cfg, remote, repo)
     finally:
         if remote:
-            client.delete(remote['_href'])
+            client.delete(remote["_href"])
         if repo:
-            client.delete(repo['_href'])
-    return client.get(COOKBOOK_CONTENT_PATH)['results']
-
-
-def set_up_module():
-    """Skip tests Pulp 3 isn't under test or if pulp-cookbook isn't installed."""
-    require_pulp_3(SkipTest)
-    require_pulp_plugins({'pulp_cookbook'}, SkipTest)
+            client.delete(repo["_href"])
+    return client.get(COOKBOOK_CONTENT_PATH)["results"]
 
 
 skip_if = partial(selectors.skip_if, exc=SkipTest)  # pylint:disable=invalid-name

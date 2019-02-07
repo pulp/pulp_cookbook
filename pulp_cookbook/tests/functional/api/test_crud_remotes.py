@@ -1,4 +1,7 @@
-# coding=utf-8
+# (C) Copyright 2019 Simon Baatz <gmbnomis@gmail.com>
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 """Tests that CRUD remotes."""
 from random import choice
 import unittest
@@ -11,9 +14,8 @@ from pulp_smash.pulp3.utils import gen_remote
 from pulp_cookbook.tests.functional.constants import (
     fixture_u1,
     COOKBOOK2_FIXTURE_URL,
-    COOKBOOK_REMOTE_PATH
+    COOKBOOK_REMOTE_PATH,
 )
-from pulp_cookbook.tests.functional.utils import set_up_module as setUpModule  # noqa:F401
 from pulp_cookbook.tests.functional.utils import skip_if
 
 
@@ -30,13 +32,13 @@ class CRUDRemotesTestCase(unittest.TestCase):
         """Create a remote."""
         body = _gen_verbose_remote()
         type(self).remote = self.client.post(COOKBOOK_REMOTE_PATH, body)
-        for key in ('username', 'password'):
+        for key in ("username", "password"):
             del body[key]
         for key, val in body.items():
             with self.subTest(key=key):
                 self.assertEqual(self.remote[key], val)
 
-    @skip_if(bool, 'remote', False)
+    @skip_if(bool, "remote", False)
     def test_02_create_same_name(self):
         """Try to create a second remote with an identical name.
 
@@ -44,59 +46,59 @@ class CRUDRemotesTestCase(unittest.TestCase):
         <https://github.com/PulpQE/pulp-smash/issues/1055>`_.
         """
         body = gen_remote(fixture_u1.url)
-        body['name'] = self.remote['name']
+        body["name"] = self.remote["name"]
         with self.assertRaises(HTTPError):
             self.client.post(COOKBOOK_REMOTE_PATH, body)
 
-    @skip_if(bool, 'remote', False)
+    @skip_if(bool, "remote", False)
     def test_02_read_remote(self):
         """Read an remote by its href."""
-        remote = self.client.get(self.remote['_href'])
+        remote = self.client.get(self.remote["_href"])
         for key, val in self.remote.items():
             with self.subTest(key=key):
                 self.assertEqual(remote[key], val)
 
-    @skip_if(bool, 'remote', False)
+    @skip_if(bool, "remote", False)
     def test_02_read_remotes(self):
         """Read an remote by its name."""
-        page = self.client.get(COOKBOOK_REMOTE_PATH, params={
-            'name': self.remote['name']
-        })
-        self.assertEqual(len(page['results']), 1)
+        page = self.client.get(
+            COOKBOOK_REMOTE_PATH, params={"name": self.remote["name"]}
+        )
+        self.assertEqual(len(page["results"]), 1)
         for key, val in self.remote.items():
             with self.subTest(key=key):
-                self.assertEqual(page['results'][0][key], val)
+                self.assertEqual(page["results"][0][key], val)
 
-    @skip_if(bool, 'remote', False)
+    @skip_if(bool, "remote", False)
     def test_03_partially_update(self):
         """Update an remote using HTTP PATCH."""
         body = _gen_verbose_remote()
-        self.client.patch(self.remote['_href'], body)
-        for key in ('username', 'password'):
+        self.client.patch(self.remote["_href"], body)
+        for key in ("username", "password"):
             del body[key]
-        type(self).remote = self.client.get(self.remote['_href'])
+        type(self).remote = self.client.get(self.remote["_href"])
         for key, val in body.items():
             with self.subTest(key=key):
                 self.assertEqual(self.remote[key], val)
 
-    @skip_if(bool, 'remote', False)
+    @skip_if(bool, "remote", False)
     def test_04_fully_update(self):
         """Update an remote using HTTP PUT."""
         body = _gen_verbose_remote()
-        self.client.put(self.remote['_href'], body)
-        for key in ('username', 'password'):
+        self.client.put(self.remote["_href"], body)
+        for key in ("username", "password"):
             del body[key]
-        type(self).remote = self.client.get(self.remote['_href'])
+        type(self).remote = self.client.get(self.remote["_href"])
         for key, val in body.items():
             with self.subTest(key=key):
                 self.assertEqual(self.remote[key], val)
 
-    @skip_if(bool, 'remote', False)
+    @skip_if(bool, "remote", False)
     def test_05_delete(self):
         """Delete an remote."""
-        self.client.delete(self.remote['_href'])
+        self.client.delete(self.remote["_href"])
         with self.assertRaises(HTTPError):
-            self.client.get(self.remote['_href'])
+            self.client.get(self.remote["_href"])
 
 
 class CreateRemoteNoURLTestCase(unittest.TestCase):
@@ -111,7 +113,7 @@ class CreateRemoteNoURLTestCase(unittest.TestCase):
         * `Pulp Smash #984 <https://github.com/PulpQE/pulp-smash/issues/984>`_
         """
         body = gen_remote(utils.uuid4())
-        del body['url']
+        del body["url"]
         with self.assertRaises(HTTPError):
             api.Client(config.get_config()).post(COOKBOOK_REMOTE_PATH, body)
 
@@ -127,9 +129,11 @@ def _gen_verbose_remote():
     Note that 'username' and 'password' are write-only attributes.
     """
     attrs = gen_remote(choice((fixture_u1.url, COOKBOOK2_FIXTURE_URL)))
-    attrs.update({
-        'password': utils.uuid4(),
-        'username': utils.uuid4(),
-        'validate': choice((False, True)),
-    })
+    attrs.update(
+        {
+            "password": utils.uuid4(),
+            "username": utils.uuid4(),
+            "validate": choice((False, True)),
+        }
+    )
     return attrs

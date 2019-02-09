@@ -18,6 +18,7 @@ from pulpcore.plugin.stages import (
     Stage,
     ArtifactDownloader,
     ArtifactSaver,
+    RemoteArtifactSaver,
     ContentSaver,
 )
 
@@ -284,6 +285,7 @@ class CookbookDeclarativeVersion(DeclarativeVersion):
                 ]
             )
         pipeline.append(ContentSaver())
+        pipeline.append(RemoteArtifactSaver())
         return pipeline
 
 

@@ -6,8 +6,6 @@ from gettext import gettext as _
 
 from rest_framework import serializers
 
-from pulpcore.plugin.models import ContentArtifact
-
 from pulpcore.plugin.serializers import (
     SingleArtifactContentSerializer,
     RemoteSerializer,
@@ -33,21 +31,17 @@ class CookbookPackageContentSerializer(SingleArtifactContentSerializer):
         read_only=True,
     )
 
-    def create(self, validated_data):
-        content_data = {k: v for k, v in validated_data.items() if k != "_artifact"}
-        content = super().create(content_data)
-        ContentArtifact.objects.create(
-            artifact=validated_data["_artifact"],
-            content=content,
-            relative_path=content.relative_path(),
-        )
-        return content
+    def validate(self, data):
+        """Validate the CookbookPackageContent data."""
+        data = super().validate(data)
+        data["_relative_path"] = CookbookPackageContent.relative_path_from_data(data)
+        return data
 
     def update(self, instance, validated_data):
         raise serializers.ValidationError("content is immutable")
 
     class Meta:
-        fields = SingleArtifactContentSerializer.Meta.fields + (
+        fields = tuple(set(SingleArtifactContentSerializer.Meta.fields) - {"_relative_path"}) + (
             "name",
             "version",
             "dependencies",

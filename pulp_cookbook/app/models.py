@@ -48,6 +48,10 @@ class CookbookPackageContent(Content):
     def relative_path(self):
         return "{}-{}.tar.gz".format(self.name, self.version)
 
+    @staticmethod
+    def relative_path_from_data(data):
+        return "{}-{}.tar.gz".format(data["name"], data["version"])
+
     def set_sha256_digest(self, sha256_digest):
         self.content_id_type = self.SHA256
         self.content_id = sha256_digest

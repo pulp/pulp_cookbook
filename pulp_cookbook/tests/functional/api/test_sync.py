@@ -82,9 +82,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         for report in tasks[0]["progress_reports"]:
             if report["message"] == "Downloading Artifacts":
                 if policy != "immediate":
-                    self.fail(
-                        f"'Downloading Artifacts' stage in task report for {policy} policy"
-                    )
+                    self.fail(f"'Downloading Artifacts' stage in task report for {policy} policy")
                 self.assertEqual(report["done"], download_count)
                 break
         else:
@@ -110,9 +108,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         self.assertIsNone(repo["_latest_version_href"])
 
         all_cookbook_count = fixture_u1.cookbook_count()
-        task = self.sync_and_inspect_task_report(
-            remote, repo, all_cookbook_count, policy=policy
-        )
+        task = self.sync_and_inspect_task_report(remote, repo, all_cookbook_count, policy=policy)
 
         repo = client.get(repo["_href"])
 
@@ -148,16 +144,12 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
             exp_download_count = all_cookbook_count
         if policy == "immediate":
             exp_policy = "immediate"
-        self.sync_and_inspect_task_report(
-            remote, repo, exp_download_count, policy=second_policy
-        )
+        self.sync_and_inspect_task_report(remote, repo, exp_download_count, policy=second_policy)
         repo = client.get(repo["_href"])
         self.assertNotEqual(latest_version_href, repo["_latest_version_href"])
         # When we download the actual artifacts, the respective content unit will be replaced.
         # This looks like adding/deleting all cookbooks.
-        self.verify_counts(
-            repo, all_cookbook_count, exp_download_count, exp_download_count
-        )
+        self.verify_counts(repo, all_cookbook_count, exp_download_count, exp_download_count)
         self.verify_ids_and_artifacts(repo, exp_policy)
 
         return repo, remote
@@ -202,16 +194,12 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         # Although cookbook content is already present, it is not present in the
         # repository. Thus, it must be downloaded again.
         example2_count = fixture_u1.cookbook_count([fixture_u1.example2_name])
-        self.sync_and_inspect_task_report(
-            remote, repo, example2_count, mirror=False, policy=policy
-        )
+        self.sync_and_inspect_task_report(remote, repo, example2_count, mirror=False, policy=policy)
         repo = client.get(repo["_href"])
         self.assertNotEqual(latest_version_href, repo["_latest_version_href"])
         self.verify_counts(
             repo,
-            fixture_u1.cookbook_count(
-                [fixture_u1.example1_name, fixture_u1.example2_name]
-            ),
+            fixture_u1.cookbook_count([fixture_u1.example1_name, fixture_u1.example2_name]),
             fixture_u1.cookbook_count([fixture_u1.example2_name]),
             0,
         )
@@ -270,10 +258,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
 
         repo_u1 = client.get(repo_u1["_href"])
         self.verify_counts(
-            repo_u1,
-            all_count=example1_count,
-            added_count=example1_count,
-            removed_count=0,
+            repo_u1, all_count=example1_count, added_count=example1_count, removed_count=0
         )
 
         # Create repo u1_diff_digest and do a full sync
@@ -303,9 +288,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         # Full sync u1
         client.patch(remote_u1["_href"], {"cookbooks": {}})
         all_cookbook_count = fixture_u1.cookbook_count()
-        self.sync_and_inspect_task_report(
-            remote_u1, repo_u1, all_cookbook_count - example1_count
-        )
+        self.sync_and_inspect_task_report(remote_u1, repo_u1, all_cookbook_count - example1_count)
         repo_u1 = client.get(repo_u1["_href"])
         self.verify_counts(
             repo_u1,
@@ -327,12 +310,9 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
                     self.assertEqual(c_u1["content_id"], artifact_u1["sha256"])
                     artifact_u1_diff_digest = client.get(c_u1_diff_digest["_artifact"])
                     self.assertEqual(
-                        c_u1_diff_digest["content_id"],
-                        artifact_u1_diff_digest["sha256"],
+                        c_u1_diff_digest["content_id"], artifact_u1_diff_digest["sha256"]
                     )
-                    self.assertNotEqual(
-                        c_u1["content_id"], c_u1_diff_digest["content_id"]
-                    )
+                    self.assertNotEqual(c_u1["content_id"], c_u1_diff_digest["content_id"])
                     break
             else:
                 self.fail(f"Found no matching cookbook for {c_u1} in u1_diff_digest")

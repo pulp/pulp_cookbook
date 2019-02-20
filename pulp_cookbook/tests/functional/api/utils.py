@@ -25,12 +25,8 @@ def _filter_for_cookbook_content(get_func, *args, **kwargs):
 
 
 get_cookbook_content = functools.partial(_filter_for_cookbook_content, get_content)
-get_cookbook_added_content = functools.partial(
-    _filter_for_cookbook_content, get_added_content
-)
-get_cookbook_removed_content = functools.partial(
-    _filter_for_cookbook_content, get_removed_content
-)
+get_cookbook_added_content = functools.partial(_filter_for_cookbook_content, get_added_content)
+get_cookbook_removed_content = functools.partial(_filter_for_cookbook_content, get_removed_content)
 
 
 def get_content_and_unit_paths(repo):

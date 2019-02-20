@@ -5,11 +5,7 @@
 from typing import Dict, Iterable, List, Optional
 from urllib.parse import urljoin
 
-from pulp_smash.pulp3.constants import (
-    BASE_PUBLISHER_PATH,
-    BASE_REMOTE_PATH,
-    CONTENT_PATH,
-)
+from pulp_smash.pulp3.constants import BASE_PUBLISHER_PATH, BASE_REMOTE_PATH, CONTENT_PATH
 
 DOWNLOAD_POLICIES = ["immediate", "on_demand", "streamed"]
 
@@ -40,9 +36,7 @@ class CookbookFixture:
 
     def cookbook_download_url(self, name: str, version: str):
         uversion = version.replace(".", "_")
-        return urljoin(
-            self.url, f"cookbook_files/{name}/{uversion}/{name}-{version}.tar.gz"
-        )
+        return urljoin(self.url, f"cookbook_files/{name}/{uversion}/{name}-{version}.tar.gz")
 
 
 fixture_u1 = CookbookFixture(

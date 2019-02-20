@@ -72,10 +72,7 @@ class ContentUnitTestCase(unittest.TestCase):
         """Read content units by its name and version."""
         page = self.client.get(
             COOKBOOK_CONTENT_PATH,
-            params={
-                "name": self.content_unit["name"],
-                "version": self.content_unit["version"],
-            },
+            params={"name": self.content_unit["name"], "version": self.content_unit["version"]},
         )
         self.assertEqual(len(page["results"]), 1)
         for key, val in self.content_unit.items():

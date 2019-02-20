@@ -41,15 +41,9 @@ class CookbookPackageContent(Content):
     version = models.TextField(blank=False, null=False)
     dependencies = JSONField(blank=False, null=False)
     content_id_type = models.CharField(
-        max_length=10,
-        choices=CONTENT_ID_TYPE_CHOICES,
-        blank=False,
-        null=False,
-        default=UUID,
+        max_length=10, choices=CONTENT_ID_TYPE_CHOICES, blank=False, null=False, default=UUID
     )
-    content_id = models.CharField(
-        max_length=64, null=False, blank=False, default=uuid.uuid4
-    )
+    content_id = models.CharField(max_length=64, null=False, blank=False, default=uuid.uuid4)
 
     def relative_path(self):
         return "{}-{}.tar.gz".format(self.name, self.version)

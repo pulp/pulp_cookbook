@@ -10,13 +10,7 @@ from urllib.parse import urljoin
 
 from django.db.models import Prefetch, Q
 
-from pulpcore.plugin.models import (
-    Artifact,
-    ContentArtifact,
-    ProgressBar,
-    Remote,
-    Repository,
-)
+from pulpcore.plugin.models import Artifact, ContentArtifact, ProgressBar, Remote, Repository
 from pulpcore.plugin.stages import (
     DeclarativeArtifact,
     DeclarativeContent,
@@ -110,9 +104,7 @@ class QueryExistingRepoContentAndArtifacts(Stage):
             m_type = type(declarative_content.content)
             unit_q = declarative_content.content.repo_q()
             content_q_by_type[m_type] = content_q_by_type[m_type] | unit_q
-            d_c_by_mt_rk[m_type][
-                declarative_content.content.repo_key()
-            ] = declarative_content
+            d_c_by_mt_rk[m_type][declarative_content.content.repo_key()] = declarative_content
 
         for model_type in content_q_by_type:
             self._associate_model_type(
@@ -127,9 +119,9 @@ class QueryExistingRepoContentAndArtifacts(Stage):
             Prefetch(
                 "_artifacts",
                 queryset=(
-                    ContentArtifact.objects.filter(
-                        artifact__isnull=False
-                    ).select_related("artifact")
+                    ContentArtifact.objects.filter(artifact__isnull=False).select_related(
+                        "artifact"
+                    )
                 ),
                 to_attr="c_as_with_artifact",
             )
@@ -216,9 +208,7 @@ class QueryExistingContentUnits(Stage):
                         continue
                     not_same_unit = False
                     for field in key_fields:
-                        in_memory_digest_value = getattr(
-                            declarative_content.content, field
-                        )
+                        in_memory_digest_value = getattr(declarative_content.content, field)
                         if in_memory_digest_value != getattr(result, field):
                             not_same_unit = True
                             break
@@ -256,9 +246,7 @@ class CookbookFirstStage(Stage):
 
         """
         with ProgressBar(message="Downloading Metadata", total=1) as pb:
-            downloader = self.remote.get_downloader(
-                url=urljoin(self.remote.url + "/", "universe")
-            )
+            downloader = self.remote.get_downloader(url=urljoin(self.remote.url + "/", "universe"))
             result = await downloader.run()
             pb.increment()
 
@@ -270,9 +258,7 @@ class CookbookFirstStage(Stage):
                 if cookbook_names and entry.name not in cookbook_names:
                     continue
                 cookbook = CookbookPackageContent(
-                    name=entry.name,
-                    version=entry.version,
-                    dependencies=entry.dependencies,
+                    name=entry.name, version=entry.version, dependencies=entry.dependencies
                 )
                 artifact = Artifact()
                 da = DeclarativeArtifact(
@@ -287,10 +273,7 @@ class CookbookDeclarativeVersion(DeclarativeVersion):
     """Implement pulp_cookbook's stage API pipeline."""
 
     def pipeline_stages(self, new_version):
-        pipeline = [
-            self.first_stage,
-            QueryExistingRepoContentAndArtifacts(new_version=new_version),
-        ]
+        pipeline = [self.first_stage, QueryExistingRepoContentAndArtifacts(new_version=new_version)]
         if self.download_artifacts:
             pipeline.extend(
                 [
@@ -322,9 +305,7 @@ def synchronize(remote_pk, repository_pk, mirror):
     if not remote.url:
         raise ValueError(_("A remote must have a url specified to synchronize."))
 
-    download = (
-        remote.policy == Remote.IMMEDIATE
-    )  # Interpret policy to download Artifacts or not
+    download = remote.policy == Remote.IMMEDIATE  # Interpret policy to download Artifacts or not
 
     first_stage = CookbookFirstStage(remote)
     dv = CookbookDeclarativeVersion(

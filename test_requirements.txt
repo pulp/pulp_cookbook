@@ -1,4 +1,5 @@
 asynctest
+black
 coverage
 flake8
 flake8-docstrings

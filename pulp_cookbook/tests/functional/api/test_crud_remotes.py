@@ -61,9 +61,7 @@ class CRUDRemotesTestCase(unittest.TestCase):
     @skip_if(bool, "remote", False)
     def test_02_read_remotes(self):
         """Read an remote by its name."""
-        page = self.client.get(
-            COOKBOOK_REMOTE_PATH, params={"name": self.remote["name"]}
-        )
+        page = self.client.get(COOKBOOK_REMOTE_PATH, params={"name": self.remote["name"]})
         self.assertEqual(len(page["results"]), 1)
         for key, val in self.remote.items():
             with self.subTest(key=key):
@@ -130,10 +128,6 @@ def _gen_verbose_remote():
     """
     attrs = gen_remote(choice((fixture_u1.url, COOKBOOK2_FIXTURE_URL)))
     attrs.update(
-        {
-            "password": utils.uuid4(),
-            "username": utils.uuid4(),
-            "validate": choice((False, True)),
-        }
+        {"password": utils.uuid4(), "username": utils.uuid4(), "validate": choice((False, True))}
     )
     return attrs

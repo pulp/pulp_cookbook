@@ -48,9 +48,7 @@ def publish(publisher_pk, repository_version_pk):
     repository_version = RepositoryVersion.objects.get(pk=repository_version_pk)
 
     log.info(
-        _(
-            "Publishing: repository=%(repository)s, version=%(version)d, publisher=%(publisher)s"
-        ),
+        _("Publishing: repository=%(repository)s, version=%(version)d, publisher=%(publisher)s"),
         {
             "repository": repository_version.repository.name,
             "version": repository_version.number,
@@ -85,11 +83,7 @@ def check_repo_version_constraint(publication):
     qs_content = CookbookPackageContent.objects.filter(
         pk__in=publication.repository_version.content
     )
-    qs = (
-        qs_content.values(*fields)
-        .annotate(num_cookbooks=Count("pk"))
-        .filter(num_cookbooks__gt=1)
-    )
+    qs = qs_content.values(*fields).annotate(num_cookbooks=Count("pk")).filter(num_cookbooks__gt=1)
     duplicates = [f"{res['name']} {res['version']}" for res in qs]
     if duplicates:
         raise ValueError(
@@ -119,9 +113,7 @@ def populate(publication):
         for content_artifact in content.contentartifact_set.all():
             art_path = os.path.join(relative_path, content_artifact.relative_path)
             published_artifact = PublishedArtifact(
-                relative_path=art_path,
-                publication=publication,
-                content_artifact=content_artifact,
+                relative_path=art_path, publication=publication, content_artifact=content_artifact
             )
             published_artifact.save()
             entry = Entry(

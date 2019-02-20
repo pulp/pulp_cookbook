@@ -18,10 +18,5 @@ app.add_routes(
     ]
 )
 app.add_routes(
-    [
-        web.get(
-            pulp_cookbook_content_path() + "{path:.+}",
-            CookbookContentHandler().stream_content,
-        )
-    ]
+    [web.get(pulp_cookbook_content_path() + "{path:.+}", CookbookContentHandler().stream_content)]
 )

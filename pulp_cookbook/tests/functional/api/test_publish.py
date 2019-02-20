@@ -12,14 +12,7 @@ from requests.exceptions import HTTPError
 from pulp_smash import api, config
 from pulp_smash.exceptions import TaskReportError
 from pulp_smash.pulp3.constants import REPO_PATH
-from pulp_smash.pulp3.utils import (
-    delete_orphans,
-    gen_remote,
-    gen_repo,
-    get_versions,
-    publish,
-    sync,
-)
+from pulp_smash.pulp3.utils import delete_orphans, gen_remote, gen_repo, get_versions, publish, sync
 
 from pulp_cookbook.tests.functional.api.utils import gen_publisher, get_cookbook_content
 from pulp_cookbook.tests.functional.constants import (
@@ -77,9 +70,7 @@ class PublishAnyRepoVersionTestCase(unittest.TestCase):
         repo = client.post(REPO_PATH, gen_repo())
         self.addCleanup(client.delete, repo["_href"])
         for cookbook in repo_content:
-            client.post(
-                repo["_versions_href"], {"add_content_units": [cookbook["_href"]]}
-            )
+            client.post(repo["_versions_href"], {"add_content_units": [cookbook["_href"]]})
         version_hrefs = tuple(ver["_href"] for ver in get_versions(repo))
         non_latest = choice(version_hrefs[:-1])
 
@@ -125,9 +116,7 @@ class RepoVersionConstraintValidationTestCase(unittest.TestCase):
         repo_u1_diff_digest = client.post(REPO_PATH, gen_repo())
         self.addCleanup(client.delete, repo_u1_diff_digest["_href"])
 
-        body = gen_remote(
-            fixture_u1_diff_digest.url, cookbooks={fixture_u1.example1_name: ""}
-        )
+        body = gen_remote(fixture_u1_diff_digest.url, cookbooks={fixture_u1.example1_name: ""})
         remote_u1_diff_digest = client.post(COOKBOOK_REMOTE_PATH, body)
         self.addCleanup(client.delete, remote_u1_diff_digest["_href"])
 
@@ -138,8 +127,7 @@ class RepoVersionConstraintValidationTestCase(unittest.TestCase):
         content_u1_diff_digest = get_cookbook_content(repo_u1_diff_digest)
         self.assertTrue(content_u1_diff_digest)
         client.post(
-            repo_u1["_versions_href"],
-            {"add_content_units": [content_u1_diff_digest[0]["_href"]]},
+            repo_u1["_versions_href"], {"add_content_units": [content_u1_diff_digest[0]["_href"]]}
         )
 
         publisher = client.post(COOKBOOK_PUBLISHER_PATH, gen_publisher())

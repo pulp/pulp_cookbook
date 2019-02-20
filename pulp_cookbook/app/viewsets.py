@@ -60,18 +60,12 @@ class CookbookPackageContentViewSet(ContentViewSet):
         try:
             artifact = self.get_resource(data["_artifact"], Artifact)
         except KeyError:
-            raise serializers.ValidationError(
-                detail={"_artifact": _("This field is required")}
-            )
+            raise serializers.ValidationError(detail={"_artifact": _("This field is required")})
 
         try:
-            metadata = CookbookMetadata.from_cookbook_file(
-                artifact.file.name, data["name"]
-            )
+            metadata = CookbookMetadata.from_cookbook_file(artifact.file.name, data["name"])
         except KeyError:
-            raise serializers.ValidationError(
-                detail={"name": _("This field is required")}
-            )
+            raise serializers.ValidationError(detail={"name": _("This field is required")})
         except FileNotFoundError:
             raise serializers.ValidationError(
                 detail={"_artifact": _("No metadata.json found in cookbook tar")}
@@ -80,11 +74,7 @@ class CookbookPackageContentViewSet(ContentViewSet):
         try:
             if data["version"] != metadata.version:
                 raise serializers.ValidationError(
-                    detail={
-                        "version": _(
-                            "version does not correspond to version in cookbook tar"
-                        )
-                    }
+                    detail={"version": _("version does not correspond to version in cookbook tar")}
                 )
         except KeyError:
             pass
@@ -97,9 +87,7 @@ class CookbookPackageContentViewSet(ContentViewSet):
             content_id=artifact.sha256,
         )
         headers = self.get_success_headers(request.data)
-        return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers
-        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class CookbookRemoteViewSet(RemoteViewSet):
@@ -110,8 +98,7 @@ class CookbookRemoteViewSet(RemoteViewSet):
     serializer_class = CookbookRemoteSerializer
 
     @swagger_auto_schema(
-        operation_description="Trigger an asynchronous task to sync cookbook "
-        "content.",
+        operation_description="Trigger an asynchronous task to sync cookbook " "content.",
         responses={202: AsyncOperationResponseSerializer},
     )
     @detail_route(methods=("post",), serializer_class=RepositorySyncURLSerializer)
@@ -120,20 +107,14 @@ class CookbookRemoteViewSet(RemoteViewSet):
         Synchronizes a repository. The ``repository`` field has to be provided.
         """
         remote = self.get_object()
-        serializer = RepositorySyncURLSerializer(
-            data=request.data, context={"request": request}
-        )
+        serializer = RepositorySyncURLSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         repository = serializer.validated_data.get("repository")
         mirror = serializer.validated_data.get("mirror", True)
         result = enqueue_with_reservation(
             tasks.synchronize,
             [repository, remote],
-            kwargs={
-                "remote_pk": remote.pk,
-                "repository_pk": repository.pk,
-                "mirror": mirror,
-            },
+            kwargs={"remote_pk": remote.pk, "repository_pk": repository.pk, "mirror": mirror},
         )
         return OperationPostponedResponse(result, request)
 
@@ -146,8 +127,7 @@ class CookbookPublisherViewSet(PublisherViewSet):
     serializer_class = CookbookPublisherSerializer
 
     @swagger_auto_schema(
-        operation_description="Trigger an asynchronous task to publish "
-        "cookbook content.",
+        operation_description="Trigger an asynchronous task to publish " "cookbook content.",
         responses={202: AsyncOperationResponseSerializer},
     )
     @detail_route(methods=("post",), serializer_class=RepositoryPublishURLSerializer)
@@ -160,9 +140,7 @@ class CookbookPublisherViewSet(PublisherViewSet):
 
         """
         publisher = self.get_object()
-        serializer = RepositoryPublishURLSerializer(
-            data=request.data, context={"request": request}
-        )
+        serializer = RepositoryPublishURLSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         repository_version = serializer.validated_data.get("repository_version")
 

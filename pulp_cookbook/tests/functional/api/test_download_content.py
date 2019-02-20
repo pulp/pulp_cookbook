@@ -71,9 +71,7 @@ class DownloadContentTestCase(unittest.TestCase):
         distribution_base_url += "://" + distribution["base_url"] + "/"
 
         # TODO: HACK: can't set the base_url correctly currently
-        distribution_base_url = distribution_base_url.replace(
-            "/pulp/", "/pulp_cookbook/"
-        )
+        distribution_base_url = distribution_base_url.replace("/pulp/", "/pulp_cookbook/")
 
         universe_url = COOKBOOK_BASE_CONTENT_URL
         universe_url += distribution["base_path"] + "/universe"
@@ -156,8 +154,7 @@ class DownloadContentTestCase(unittest.TestCase):
 
         cb_content = get_cookbook_content(repo2)
         client.post(
-            repo["_versions_href"],
-            {"add_content_units": [cb["_href"] for cb in cb_content]},
+            repo["_versions_href"], {"add_content_units": [cb["_href"] for cb in cb_content]}
         )
         repo = client.get(repo["_href"])
         distribution = self.create_distribution(cfg, client, repo)
@@ -181,7 +178,6 @@ class DownloadContentTestCase(unittest.TestCase):
         #  When using non-immediate policy, content units can't be merged
         #  (sha256 is unknown). Therefore, the publish task must fail.
         with self.assertRaisesRegex(
-            exceptions.TaskReportError,
-            r"Publication would contain multiple versions of cookbooks:",
+            exceptions.TaskReportError, r"Publication would contain multiple versions of cookbooks:"
         ):
             self.sync_merge_and_download_check(policy="on_demand")

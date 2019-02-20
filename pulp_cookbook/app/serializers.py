@@ -21,9 +21,7 @@ class CookbookPackageContentSerializer(SingleArtifactContentSerializer):
     """Serializer for the cookbook content."""
 
     name = serializers.CharField(help_text=_("name of the cookbook"))
-    version = serializers.CharField(
-        help_text=_("version of the cookbook"), required=False
-    )
+    version = serializers.CharField(help_text=_("version of the cookbook"), required=False)
     dependencies = serializers.JSONField(
         help_text=_("dependencies of the cookbook"), read_only=True
     )

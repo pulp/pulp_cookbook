@@ -56,9 +56,7 @@ class CookbookContentHandler(Handler):
         content = replace_all_paths(
             content, self._get_content_base_url(request) + distribution.base_path
         )
-        return aiohttp.web.Response(
-            body=content, content_type="application/json", charset="utf-8"
-        )
+        return aiohttp.web.Response(body=content, content_type="application/json", charset="utf-8")
 
     def _save_content_artifact(self, download_result, content_artifact):
         new_artifact = super()._save_content_artifact(

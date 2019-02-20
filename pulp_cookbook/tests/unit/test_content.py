@@ -17,9 +17,7 @@ class CookbookContentHandlerTestCase(TestCase):
     """Test the CookbookContentHandler."""
 
     def setUp(self):
-        self.c1 = CookbookPackageContent.objects.create(
-            name="c1", version="1.0.0", dependencies={}
-        )
+        self.c1 = CookbookPackageContent.objects.create(name="c1", version="1.0.0", dependencies={})
         ContentArtifact.objects.create(
             artifact=None, content=self.c1, relative_path=self.c1.relative_path()
         )
@@ -27,9 +25,7 @@ class CookbookContentHandlerTestCase(TestCase):
             name="c1", version="1.0.0", dependencies={}
         )
         ContentArtifact.objects.create(
-            artifact=None,
-            content=self.c1_prime,
-            relative_path=self.c1_prime.relative_path(),
+            artifact=None, content=self.c1_prime, relative_path=self.c1_prime.relative_path()
         )
         self.assertEqual(self.c1.content_id_type, CookbookPackageContent.UUID)
         self.assertEqual(self.c1_prime.content_id_type, CookbookPackageContent.UUID)

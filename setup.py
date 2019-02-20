@@ -28,7 +28,5 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
     ),
-    entry_points={
-        "pulpcore.plugin": ["pulp_cookbook = pulp_cookbook:default_app_config"]
-    },
+    entry_points={"pulpcore.plugin": ["pulp_cookbook = pulp_cookbook:default_app_config"]},
 )

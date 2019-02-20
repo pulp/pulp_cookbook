@@ -45,9 +45,7 @@ class QueryExistingContentUnitsTestCase(TestCase):
         self.assertIsNone(batch[1].content.pk)
 
     def test_content_associated_using_natural_key(self):
-        dc_c1 = CookbookPackageContent(
-            name="c1", version="1.0.0", content_id="1", dependencies={}
-        )
+        dc_c1 = CookbookPackageContent(name="c1", version="1.0.0", content_id="1", dependencies={})
         dc_c1_other = CookbookPackageContent(
             name="c1", version="1.0.0", content_id="other", dependencies={}
         )
@@ -64,9 +62,7 @@ class QueryExistingContentUnitsTestCase(TestCase):
 
     def test_existing_content_is_ok(self):
         # dc_c1 is a duplicate of c1 existing in the DB
-        dc_c1 = CookbookPackageContent(
-            name="c1", version="1.0.0", content_id="1", dependencies={}
-        )
+        dc_c1 = CookbookPackageContent(name="c1", version="1.0.0", content_id="1", dependencies={})
         c2 = CookbookPackageContent.objects.create(
             name="c2", version="1.0.0", content_id="2", dependencies={}
         )
@@ -100,9 +96,7 @@ class QueryExistingRepoContentAndArtifactsTestCase(TestCase):
         )
         # c3: content unit does exist, has a content_artifact association,
         # but no artifact
-        self.c3 = CookbookPackageContent.objects.create(
-            name="c3", version="1.0.0", dependencies={}
-        )
+        self.c3 = CookbookPackageContent.objects.create(name="c3", version="1.0.0", dependencies={})
         ContentArtifact.objects.create(
             artifact=None, content=self.c3, relative_path=self.c3.relative_path()
         )
@@ -114,9 +108,7 @@ class QueryExistingRepoContentAndArtifactsTestCase(TestCase):
         return new_version
 
     def test_content_associated_using_repo_key(self):
-        stage = QueryExistingRepoContentAndArtifacts(
-            new_version=self.new_version_all_content()
-        )
+        stage = QueryExistingRepoContentAndArtifacts(new_version=self.new_version_all_content())
 
         # c1: Existing content unit with Artifact
         c1 = CookbookPackageContent(name="c1", version="1.0.0", dependencies={})

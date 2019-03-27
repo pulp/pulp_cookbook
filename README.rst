@@ -29,7 +29,6 @@ resolve cookbook dependencies.
 - Full support of the `Supermarket API <https://docs.chef.io/supermarket_api.html>`_
 - Cookbook version constraints to a remote (only filtering by cookbook name
   is supported)
-- In general, this plugin is at an early stage.
 
 All REST API examples below use `httpie <https://httpie.org/doc>`__ to perform
 the requests. The ``httpie`` commands below assume that the user executing the
@@ -88,19 +87,20 @@ Make and Run Migrations
 
 .. code-block:: bash
 
-   pulp-manager makemigrations pulp_cookbook
-   pulp-manager migrate pulp_cookbook
+   export DJANGO_SETTINGS_MODULE=pulpcore.app.settings
+   django-admin makemigrations pulp_cookbook
+   django-admin migrate pulp_cookbook
 
 Run Services
 ------------
 
 .. code-block:: bash
 
-   pulp-manager runserver
+   django-admin runserver
    gunicorn pulpcore.content:server --bind 'localhost:8080' --worker-class 'aiohttp.GunicornWebWorker' -w 2
-   sudo systemctl restart pulp_resource_manager
-   sudo systemctl restart pulp_worker@1
-   sudo systemctl restart pulp_worker@2
+   sudo systemctl restart pulp-resource-manager
+   sudo systemctl restart pulp-worker@1
+   sudo systemctl restart pulp-worker@2
 
 Example: Import cookbooks and synchronize from remote
 =====================================================
@@ -113,10 +113,10 @@ Create a repository ``foo``
 .. code:: json
 
     {
-        "_created": "2019-02-03T12:46:36.628401Z",
-        "_href": "/pulp/api/v3/repositories/1/",
+        "_created": "2019-03-30T22:33:45.622911Z",
+        "_href": "/pulp/api/v3/repositories/4782fa5b-c36e-4a24-867d-5965525609e3/",
         "_latest_version_href": null,
-        "_versions_href": "/pulp/api/v3/repositories/1/versions/",
+        "_versions_href": "/pulp/api/v3/repositories/4782fa5b-c36e-4a24-867d-5965525609e3/versions/",
         "description": "",
         "name": "foo"
     }
@@ -149,9 +149,9 @@ Create artifacts by uploading the cookbooks to Pulp. First, the artifact for the
 .. code:: json
 
     {
-    "_href": "/pulp/api/v3/artifacts/1/",
-    "_created": "2019-02-03T12:51:13.211628Z",
-    "file": "/var/lib/pulp/artifact/32/a7d3de4ff8f769eeab4ffc982eb8df845d91d49c01548d6f993b10e52b6f69",
+    "_href": "/pulp/api/v3/artifacts/f1469706-e8fe-4ecd-80d1-60a55b4f828c/",
+    "_created": "2019-03-30T22:34:36.926220Z",
+    "file": "artifact/32/a7d3de4ff8f769eeab4ffc982eb8df845d91d49c01548d6f993b10e52b6f69",
     "size": 3712,
     "md5": "36b2b6e59dfd4ce8185042e384d73498",
     "sha1": "e66700968de9441266e48178acfe63f605d04101",
@@ -179,9 +179,9 @@ Create a content unit for ubuntu 2.0.1:
 .. code:: json
 
     {
-        "_artifact": "/pulp/api/v3/artifacts/1/",
-        "_created": "2019-02-03T12:51:13.670981Z",
-        "_href": "/pulp/api/v3/content/cookbook/cookbooks/1/",
+        "_artifact": "/pulp/api/v3/artifacts/f1469706-e8fe-4ecd-80d1-60a55b4f828c/",
+        "_created": "2019-03-30T22:36:05.331407Z",
+        "_href": "/pulp/api/v3/content/cookbook/cookbooks/2ee7a09b-bfde-4d3c-a1bf-fc2a327fd15a/",
         "_type": "cookbook.cookbook",
         "content_id": "32a7d3de4ff8f769eeab4ffc982eb8df845d91d49c01548d6f993b10e52b6f69",
         "dependencies": {
@@ -200,9 +200,9 @@ Create a content unit for apt 7.0.0:
 .. code:: json
 
     {
-        "_artifact": "/pulp/api/v3/artifacts/2/",
-        "_created": "2019-02-03T12:51:16.547481Z",
-        "_href": "/pulp/api/v3/content/cookbook/cookbooks/2/",
+        "_artifact": "/pulp/api/v3/artifacts/250b94e1-2b6a-4de8-a8c5-0e27d56f4687/",
+        "_created": "2019-03-30T22:36:46.013134Z",
+        "_href": "/pulp/api/v3/content/cookbook/cookbooks/f5bde692-a440-4bf7-a873-1465c68c0932/",
         "_type": "cookbook.cookbook",
         "content_id": "c1953292327871542d97a31989ff745c49f610c0f1a16b147d59bc4a60f6e7cd",
         "dependencies": {},
@@ -228,11 +228,11 @@ Create a ``cookbook`` Publisher
 .. code:: json
 
     {
-        "_created": "2019-02-03T12:51:20.596641Z",
-        "_href": "/pulp/api/v3/publishers/cookbook/cookbook/1/",
-        "_last_updated": "2019-02-03T12:51:20.596669Z",
+        "_created": "2019-03-30T22:37:31.851159Z",
+        "_distributions": [],
+        "_href": "/pulp/api/v3/publishers/cookbook/cookbook/a985c28b-c7be-4e66-b10e-d3f799c23726/",
+        "_last_updated": "2019-03-30T22:37:31.851227Z",
         "_type": "cookbook.cookbook",
-        "distributions": [],
         "name": "publisher"
     }
 
@@ -257,20 +257,6 @@ Create a Distribution at 'foo' for the Publication
 --------------------------------------------------
 
 ``$ http POST http://localhost:8000/pulp/api/v3/distributions/ name='baz' base_path='foo' publication=$PUBLICATION_HREF``
-
-.. code:: json
-
-    {
-        "_created": "2019-02-03T12:51:22.474987Z",
-        "_href": "/pulp/api/v3/distributions/1/",
-        "base_path": "foo",
-        "base_url": "localhost:8080/pulp/content/foo",
-        "content_guard": null,
-        "name": "baz",
-        "publication": "/pulp/api/v3/publications/1/",
-        "publisher": null,
-        "repository": null
-    }
 
 You can have a look at the published "universe" metadata now:
 
@@ -335,9 +321,9 @@ Let's mirror the ``pulp`` and ``qpid`` cookbooks into our existing repo. First, 
 .. code:: json
 
     {
-        "_created": "2019-02-03T12:51:28.355687Z",
-        "_href": "/pulp/api/v3/remotes/cookbook/cookbook/1/",
-        "_last_updated": "2019-02-03T12:51:28.355713Z",
+        "_created": "2019-03-30T22:39:23.020585Z",
+        "_href": "/pulp/api/v3/remotes/cookbook/cookbook/2ccb7aed-1625-419f-bf4a-8dce87c43b63/",
+        "_last_updated": "2019-03-30T22:39:23.020603Z",
         "_type": "cookbook.cookbook",
         "cookbooks": {
             "pulp": "",
@@ -345,7 +331,7 @@ Let's mirror the ``pulp`` and ``qpid`` cookbooks into our existing repo. First, 
         },
         "download_concurrency": 20,
         "name": "foo_remote",
-        "policy": "on_demand",
+        "policy": "immediate",
         "proxy_url": "",
         "ssl_validation": true,
         "url": "https://supermarket.chef.io/",
@@ -370,22 +356,23 @@ Look at the new Repository Version created
 .. code:: json
 
     {
-        "_created": "2019-02-03T12:51:29.431080Z",
-        "_href": "/pulp/api/v3/repositories/1/versions/2/",
+        "_created": "2019-03-30T22:40:09.204067Z",
+        "_href": "/pulp/api/v3/repositories/4782fa5b-c36e-4a24-867d-5965525609e3/versions/2/",
         "base_version": null,
-        "content_added_hrefs": {
-            "cookbook.cookbook": "/pulp/api/v3/content/cookbook/cookbooks/?repository_version_added=/pulp/api/v3/repositories/1/versions/2/"
-        },
-        "content_added_summary": {
-            "cookbook.cookbook": 2
-        },
-        "content_hrefs": {
-            "cookbook.cookbook": "/pulp/api/v3/content/cookbook/cookbooks/?repository_version=/pulp/api/v3/repositories/1/versions/2/"
-        },
-        "content_removed_hrefs": {},
-        "content_removed_summary": {},
         "content_summary": {
-            "cookbook.cookbook": 4
+            "added": {
+                "cookbook.cookbook": {
+                    "count": 2,
+                    "href": "/pulp/api/v3/content/cookbook/cookbooks/?repository_version_added=/pulp/api/v3/repositories/4782fa5b-c36e-4a24-867d-5965525609e3/versions/2/"
+                }
+            },
+            "present": {
+                "cookbook.cookbook": {
+                    "count": 4,
+                    "href": "/pulp/api/v3/content/cookbook/cookbooks/?repository_version=/pulp/api/v3/repositories/4782fa5b-c36e-4a24-867d-5965525609e3/versions/2/"
+                }
+            },
+            "removed": {}
         },
         "number": 2
     }
@@ -402,7 +389,12 @@ To publish the version just created, do:
 
 And update the distribution:
 
-``$ http PATCH :8000/pulp/api/v3/distributions/1/ publication=/pulp/api/v3/publications/2/``
+.. code:: bash
+
+    export DISTRIBUTION_HREF=$(http :8000/pulp/api/v3/distributions/ | jq -r '.results[] | select(.name == "baz") | ._href')
+    export LATEST_VERSION_HREF=$(http :8000$REPO_HREF | jq -r '._latest_version_href')
+    export LATEST_PUBLICATION_HREF=$(http :8000/pulp/api/v3/publications/ | jq --arg LVH "$LATEST_VERSION_HREF" -r '.results[] | select(.repository_version == $LVH) | ._href')
+    http PATCH :8000$DISTRIBUTION_HREF publication=$LATEST_PUBLICATION_HREF
 
 Now, the universe endpoint
 ``http://localhost:8080/pulp_cookbook/content/foo/universe`` will show the
@@ -426,10 +418,10 @@ Create a repository ``supermarket``
 .. code:: json
 
     {
-        "_created": "2019-02-03T13:21:43.406665Z",
-        "_href": "/pulp/api/v3/repositories/1/",
+        "_created": "2019-03-30T22:59:02.569833Z",
+        "_href": "/pulp/api/v3/repositories/80f03582-ae58-406d-b456-bbb33e718f8f/",
         "_latest_version_href": null,
-        "_versions_href": "/pulp/api/v3/repositories/1/versions/",
+        "_versions_href": "/pulp/api/v3/repositories/80f03582-ae58-406d-b456-bbb33e718f8f/versions/",
         "description": "",
         "name": "supermarket"
     }
@@ -446,9 +438,9 @@ Create a new remote ``supermarket``
 .. code:: json
 
     {
-        "_created": "2019-02-03T13:22:15.353799Z",
-        "_href": "/pulp/api/v3/remotes/cookbook/cookbook/1/",
-        "_last_updated": "2019-02-03T13:22:15.353824Z",
+        "_created": "2019-03-30T22:59:35.618466Z",
+        "_href": "/pulp/api/v3/remotes/cookbook/cookbook/472c73b9-0132-4c1b-8814-816fd237a40a/",
+        "_last_updated": "2019-03-30T22:59:35.618484Z",
         "_type": "cookbook.cookbook",
         "cookbooks": "",
         "download_concurrency": 20,
@@ -473,11 +465,12 @@ Sync repository ``supermarket`` using remote ``supermarket``
 .. code:: json
 
     {
-        "task": "/pulp/api/v3/tasks/1/"
+        "task": "/pulp/api/v3/tasks/24990466-6602-4f4f-bb59-6d827bd48130/"
     }
 
 This will take a while. You can query the task status using the returned URL. In
-the example above, use ``http :8000/pulp/api/v3/tasks/1/`` and inspect the
+the example above, use ``http
+:8000/pulp/api/v3/tasks/24990466-6602-4f4f-bb59-6d827bd48130/`` and inspect the
 "state" field.
 
 
@@ -489,11 +482,11 @@ Create a ``supermarket`` Publisher
 .. code:: json
 
     {
-        "_created": "2019-02-03T13:25:02.355904Z",
-        "_href": "/pulp/api/v3/publishers/cookbook/cookbook/1/",
-        "_last_updated": "2019-02-03T13:25:02.355930Z",
+        "_created": "2019-03-30T23:01:44.703651Z",
+        "_distributions": [],
+        "_href": "/pulp/api/v3/publishers/cookbook/cookbook/b9df1aef-8eda-4370-8199-93539f14455e/",
+        "_last_updated": "2019-03-30T23:01:44.703671Z",
         "_type": "cookbook.cookbook",
-        "distributions": [],
         "name": "supermarket"
     }
 
@@ -509,7 +502,7 @@ Use the ``supermarket`` Publisher to create a Publication
 .. code:: json
 
     {
-        "task": "/pulp/api/v3/tasks/2/"
+        "task": "/pulp/api/v3/tasks/8e9d3faf-695f-4048-a11a-1a7a65bd2f8e/"
     }
 
 Again, this may take some time. When the task is finished, get the URL of the
@@ -522,21 +515,6 @@ Create a Distribution at 'supermarket' for the Publication
 ----------------------------------------------------------
 
 ``$ http POST http://localhost:8000/pulp/api/v3/distributions/ name='supermarket' base_path='supermarket' publication=$PUBLICATION_HREF``
-
-.. code:: json
-
-    {
-        "_created": "2019-02-03T13:39:49.688899Z",
-        "_href": "/pulp/api/v3/distributions/1/",
-        "base_path": "supermarket",
-        "base_url": "localhost:8080/pulp/content/supermarket",
-        "content_guard": null,
-        "name": "supermarket",
-        "publication": "/pulp/api/v3/publications/1/",
-        "publisher": null,
-        "repository": null
-    }
-
 
 You can have a look at the published "universe" metadata now:
 

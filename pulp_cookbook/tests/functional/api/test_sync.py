@@ -144,7 +144,9 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
             exp_download_count = all_cookbook_count
         if policy == "immediate":
             exp_policy = "immediate"
-        self.sync_and_inspect_task_report(remote, repo, exp_download_count, policy=second_policy)
+        self.sync_and_inspect_task_report(
+            remote, repo, exp_download_count, policy=second_policy, mirror=True
+        )
         repo = client.get(repo["_href"])
         self.assertNotEqual(latest_version_href, repo["_latest_version_href"])
         # When we download the actual artifacts, the respective content unit will be replaced.
@@ -178,23 +180,23 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
 
         repo, remote = self.do_create_repo_and_sync(client, policy)
 
-        # Sync the repository with a filter (mirror mode is the default).
+        # Sync the repository with a filter (use mirror mode).
         all_cookbook_count = fixture_u1.cookbook_count()
         latest_version_href = repo["_latest_version_href"]
 
         client.patch(remote["_href"], {"cookbooks": {fixture_u1.example1_name: ""}})
-        self.sync_and_inspect_task_report(remote, repo, 0, policy=policy)
+        self.sync_and_inspect_task_report(remote, repo, 0, policy=policy, mirror=True)
         repo = client.get(repo["_href"])
         self.assertNotEqual(latest_version_href, repo["_latest_version_href"])
         example1_count = fixture_u1.cookbook_count([fixture_u1.example1_name])
         self.verify_counts(repo, example1_count, 0, all_cookbook_count - example1_count)
 
-        # Sync the repository with another filter and add cookbooks (mirror=False).
+        # Sync the repository with another filter and add cookbooks (additive mode (default).
         client.patch(remote["_href"], {"cookbooks": {fixture_u1.example2_name: ""}})
         # Although cookbook content is already present, it is not present in the
         # repository. Thus, it must be downloaded again.
         example2_count = fixture_u1.cookbook_count([fixture_u1.example2_name])
-        self.sync_and_inspect_task_report(remote, repo, example2_count, mirror=False, policy=policy)
+        self.sync_and_inspect_task_report(remote, repo, example2_count, policy=policy)
         repo = client.get(repo["_href"])
         self.assertNotEqual(latest_version_href, repo["_latest_version_href"])
         self.verify_counts(
@@ -354,5 +356,5 @@ class SyncInvalidTestCase(unittest.TestCase):
         remote = self.client.post(COOKBOOK_REMOTE_PATH, body)
         self.addCleanup(self.client.delete, remote["_href"])
         with self.assertRaises(TaskReportError) as context:
-            sync(self.cfg, remote, repo)
+            sync(self.cfg, remote, repo, mirror=True)
         return context

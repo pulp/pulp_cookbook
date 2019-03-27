@@ -30,24 +30,30 @@ log = logging.getLogger(__name__)
 
 class UpdateContentWithDownloadResult(Stage):
     """
-    A stage that sets the content_id (SHA256 from the artifact) to "unsaved" content.
+    A stage that sets the content_id (SHA256 from the artifact).
+
+    Sate the content_id to the SHA256 checksum for "unsaved" content or, if
+    saved content has no/a different checksum, create a new content instance
+    with a SHA256 content_id.
     """
 
     async def run(self):
         async for d_content in self.items():
             download_sha256 = d_content.d_artifacts[0].artifact.sha256
-            if d_content.content.pk is None:
+            if d_content.content._state.adding:
                 d_content.content.set_sha256_digest(download_sha256)
             else:
                 if d_content.content.content_id != download_sha256:
                     # To keep previous repository versions untouched, create a
                     # new content unit instead of modifying the existing
                     # content.
-                    d_content.content.set_sha256_digest(download_sha256)
                     # To copy multiple inheritance models, we need to set both
-                    # pk and _id to None...
+                    # pk and _id to None and, as stages look at _state.adding,
+                    # reset that as well...
                     d_content.content.pk = None
                     d_content.content._id = None
+                    d_content.content._state.adding = True
+                    d_content.content.set_sha256_digest(download_sha256)
             await self.put(d_content)
 
 
@@ -95,7 +101,7 @@ class QueryExistingRepoContentAndArtifacts(Stage):
                 await self.put(declarative_content)
 
     def _process_batch(self, batch):
-        unsaved_d_cs = [dc for dc in batch if dc.content.pk is None]
+        unsaved_d_cs = [dc for dc in batch if dc.content._state.adding]
 
         content_q_by_type = defaultdict(lambda: Q(pk=None))
         # declarative_content by model type and repo key
@@ -186,7 +192,7 @@ class QueryExistingContentUnits(Stage):
                 await self.put(declarative_content)
 
     def _process_batch(self, batch):
-        unsaved_d_cs = [dc for dc in batch if dc.content.pk is None]
+        unsaved_d_cs = [dc for dc in batch if dc.content._state.adding]
         content_q_by_type = defaultdict(lambda: Q(pk=None))
         for declarative_content in unsaved_d_cs:
             model_type = type(declarative_content.content)
@@ -221,7 +227,7 @@ class QueryExistingContentUnits(Stage):
 class CookbookFirstStage(Stage):
     """The first stage of the pulp_cookbook sync pipeline."""
 
-    def __init__(self, remote, *args, **kwargs):
+    def __init__(self, remote, download_artifacts, *args, **kwargs):
         """
         The first stage of the pulp_cookbook sync pipeline.
 
@@ -233,6 +239,7 @@ class CookbookFirstStage(Stage):
         """
         super().__init__(*args, **kwargs)
         self.remote = remote
+        self.download_artifacts = download_artifacts
 
     async def run(self):
         """
@@ -240,10 +247,6 @@ class CookbookFirstStage(Stage):
 
         If a cookbook specifier is set in the remote, cookbooks are filtered
         using this specifier.
-
-        Args: in_q (asyncio.Queue): Unused because the first stage doesn't read
-            from an input queue. out_q (asyncio.Queue): The out_q to send
-            `DeclarativeContent` objects to
 
         """
         with ProgressBar(message="Downloading Metadata", total=1) as pb:
@@ -263,7 +266,11 @@ class CookbookFirstStage(Stage):
                 )
                 artifact = Artifact()
                 da = DeclarativeArtifact(
-                    artifact, entry.download_url, cookbook.relative_path(), self.remote
+                    artifact=artifact,
+                    url=entry.download_url,
+                    relative_path=cookbook.relative_path(),
+                    remote=self.remote,
+                    deferred_download=not self.download_artifacts,
                 )
                 dc = DeclarativeContent(content=cookbook, d_artifacts=[da])
                 pb.increment()
@@ -272,6 +279,10 @@ class CookbookFirstStage(Stage):
 
 class CookbookDeclarativeVersion(DeclarativeVersion):
     """Implement pulp_cookbook's stage API pipeline."""
+
+    def __init__(self, download_artifacts, *args, **kwargs):
+        self.download_artifacts = download_artifacts
+        super().__init__(*args, **kwargs)
 
     def pipeline_stages(self, new_version):
         pipeline = [self.first_stage, QueryExistingRepoContentAndArtifacts(new_version=new_version)]
@@ -309,8 +320,8 @@ def synchronize(remote_pk, repository_pk, mirror):
 
     download = remote.policy == Remote.IMMEDIATE  # Interpret policy to download Artifacts or not
 
-    first_stage = CookbookFirstStage(remote)
+    first_stage = CookbookFirstStage(remote=remote, download_artifacts=download)
     dv = CookbookDeclarativeVersion(
-        first_stage, repository, mirror=mirror, download_artifacts=download
+        first_stage=first_stage, repository=repository, mirror=mirror, download_artifacts=download
     )
     dv.create()

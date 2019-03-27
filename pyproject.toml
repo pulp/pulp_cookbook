@@ -1,4 +1,4 @@
 [tool.black]
 line-length = 100
-py36 = true
+target-version = ["py36", "py37"]
 skip-numeric-underscore-normalization = true

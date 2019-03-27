@@ -58,7 +58,7 @@ class PublishAnyRepoVersionTestCase(unittest.TestCase):
         repo = client.post(REPO_PATH, gen_repo())
         self.addCleanup(client.delete, repo["_href"])
 
-        sync(cfg, remote, repo)
+        sync(cfg, remote, repo, mirror=True)
         repo = client.get(repo["_href"])
         repo_content = get_cookbook_content(repo)
         self.assertTrue(repo_content)
@@ -109,7 +109,7 @@ class RepoVersionConstraintValidationTestCase(unittest.TestCase):
         remote_u1 = client.post(COOKBOOK_REMOTE_PATH, body)
         self.addCleanup(client.delete, remote_u1["_href"])
 
-        sync(cfg, remote_u1, repo_u1)
+        sync(cfg, remote_u1, repo_u1, mirror=True)
         repo_u1 = client.get(repo_u1["_href"])
 
         # Create repo u1_diff_digest and sync partially
@@ -120,7 +120,7 @@ class RepoVersionConstraintValidationTestCase(unittest.TestCase):
         remote_u1_diff_digest = client.post(COOKBOOK_REMOTE_PATH, body)
         self.addCleanup(client.delete, remote_u1_diff_digest["_href"])
 
-        sync(cfg, remote_u1_diff_digest, repo_u1_diff_digest)
+        sync(cfg, remote_u1_diff_digest, repo_u1_diff_digest, mirror=True)
         repo_u1_diff_digest = client.get(repo_u1_diff_digest["_href"])
 
         # Add a content unit from u1_diff_digest to u1 (duplicate name&version)

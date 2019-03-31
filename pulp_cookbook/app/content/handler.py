@@ -58,10 +58,11 @@ class CookbookContentHandler(Handler):
         )
         return aiohttp.web.Response(body=content, content_type="application/json", charset="utf-8")
 
-    def _save_content_artifact(self, download_result, content_artifact):
-        new_artifact = super()._save_content_artifact(
-            download_result=download_result, content_artifact=content_artifact
+    def _save_artifact(self, download_result, remote_artifact):
+        new_artifact = super()._save_artifact(
+            download_result=download_result, remote_artifact=remote_artifact
         )
+        content_artifact = remote_artifact.content_artifact
         content = content_artifact.content.cast()
         try:
             # Try to 'upgrade' the content unit as the digest is known now. This

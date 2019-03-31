@@ -43,7 +43,7 @@ class DownloadContentTestCase(unittest.TestCase):
         remote = client.post(COOKBOOK_REMOTE_PATH, body)
         self.addCleanup(client.delete, remote["_href"])
 
-        sync(cfg, remote, repo)
+        sync(cfg, remote, repo, mirror=True)
         return client.get(repo["_href"])
 
     def create_distribution(self, cfg, client, repo):
@@ -59,8 +59,11 @@ class DownloadContentTestCase(unittest.TestCase):
         # Create a distribution.
         body = gen_distribution()
         body["publication"] = publication["_href"]
-        distribution = client.post(DISTRIBUTION_PATH, body)
-        self.addCleanup(client.delete, distribution["_href"])
+        response_dict = client.post(DISTRIBUTION_PATH, body)
+        dist_task = client.get(response_dict["task"])
+        distribution_href = dist_task["created_resources"][0]
+        distribution = client.get(distribution_href)
+        self.addCleanup(client.delete, distribution_href)
         return distribution
 
     def download_check(self, cfg, client, repo, distribution, policy):

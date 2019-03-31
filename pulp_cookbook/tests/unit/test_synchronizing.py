@@ -4,6 +4,7 @@
 
 from unittest.mock import Mock
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
 from pulpcore.plugin.models import Artifact, ContentArtifact
@@ -83,7 +84,13 @@ class QueryExistingRepoContentAndArtifactsTestCase(TestCase):
     def setUp(self):
         self.remote = CookbookRemote.objects.create(name="remote")
         # c1: Existing content unit with Artifact a1
-        self.a1 = Artifact.objects.create(size=0, sha256="1", sha384="1", sha512="1")
+        self.a1 = Artifact.objects.create(
+            size=0,
+            sha256="1",
+            sha384="1",
+            sha512="1",
+            file=SimpleUploadedFile("test_filename", b""),
+        )
         self.c1 = CookbookPackageContent.objects.create(
             name="c1",
             version="1.0.0",
@@ -150,7 +157,7 @@ class QueryExistingRepoContentAndArtifactsTestCase(TestCase):
         self.assertEqual(batch[0].d_artifacts[0].artifact.pk, self.a1.pk)
 
         self.assertIsNone(batch[1].content.pk)
-        self.assertIsNone(batch[1].d_artifacts[0].artifact.pk)
+        self.assertTrue(batch[1].d_artifacts[0].artifact._state.adding)
 
         self.assertEqual(batch[2].content.pk, self.c3.pk)
-        self.assertIsNone(batch[2].d_artifacts[0].artifact.pk)
+        self.assertTrue(batch[2].d_artifacts[0].artifact._state.adding)

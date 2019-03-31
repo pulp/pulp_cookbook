@@ -1,6 +1,13 @@
 pulp-cookbook Changelog
 =======================
 
+Version 0.0.4b2
+---------------
+
+Released on Mar 31, 2019
+
+- Adapt to pulpcore-plugin 0.1rc1
+
 Version 0.0.4b1
 ---------------
 

@@ -91,7 +91,7 @@ class CookbookPackageContent(Content):
         """
         Returns a Q object that represents the model within a repository version.
         """
-        if self.pk:
+        if not self._state.adding:
             return models.Q(pk=self.pk)
         return models.Q(**self.repo_key_dict())
 

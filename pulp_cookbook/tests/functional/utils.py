@@ -35,7 +35,7 @@ def populate_pulp(cfg, url=None):
     try:
         remote.update(client.post(COOKBOOK_REMOTE_PATH, gen_remote(url)))
         repo.update(client.post(REPO_PATH, gen_repo()))
-        sync(cfg, remote, repo)
+        sync(cfg, remote, repo, mirror=True)
     finally:
         if remote:
             client.delete(remote["_href"])

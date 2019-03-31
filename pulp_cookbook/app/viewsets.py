@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 from gettext import gettext as _
+import os
 
+from django.conf import settings
 from django.db import transaction
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import detail_route
@@ -62,8 +64,9 @@ class CookbookPackageContentViewSet(ContentViewSet):
         except KeyError:
             raise serializers.ValidationError(detail={"_artifact": _("This field is required")})
 
+        abs_filepath = os.path.join(settings.MEDIA_ROOT, artifact.file.name)
         try:
-            metadata = CookbookMetadata.from_cookbook_file(artifact.file.name, data["name"])
+            metadata = CookbookMetadata.from_cookbook_file(abs_filepath, data["name"])
         except KeyError:
             raise serializers.ValidationError(detail={"name": _("This field is required")})
         except FileNotFoundError:
@@ -110,7 +113,7 @@ class CookbookRemoteViewSet(RemoteViewSet):
         serializer = RepositorySyncURLSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         repository = serializer.validated_data.get("repository")
-        mirror = serializer.validated_data.get("mirror", True)
+        mirror = serializer.validated_data["mirror"]
         result = enqueue_with_reservation(
             tasks.synchronize,
             [repository, remote],

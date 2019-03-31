@@ -2,8 +2,6 @@
 
 from setuptools import setup, find_packages
 
-requirements = ["pulpcore-plugin~=0.1rc1"]
-
 with open("README.rst") as f:
     long_description = f.read()
 
@@ -15,7 +13,8 @@ setup(
     author="Simon Baatz",
     author_email="gmbnomis@gmail.com",
     url="https://github.com/gmbnomis/pulp_cookbook/",
-    install_requires=requirements,
+    install_requires=["pulpcore-plugin~=0.1rc1"],
+    extras_require={"postgres": ["pulpcore[postgres]"], "mysql": ["pulpcore[mysql]"]},
     include_package_data=True,
     packages=find_packages(exclude=["test"]),
     classifiers=(

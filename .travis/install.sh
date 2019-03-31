@@ -36,4 +36,4 @@ if [ -z "$TRAVIS_TAG" ]; then
 fi
 
 cd pulp_cookbook
-pip install -e .
+pip install -e '.[postgres]'

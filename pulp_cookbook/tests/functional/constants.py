@@ -18,7 +18,7 @@ COOKBOOK_REMOTE_PATH = urljoin(BASE_REMOTE_PATH, "cookbook/cookbook/")
 
 COOKBOOK_PUBLISHER_PATH = urljoin(BASE_PUBLISHER_PATH, "cookbook/cookbook/")
 
-COOKBOOK_BASE_CONTENT_URL = "http://localhost:8080/pulp_cookbook/content/"
+COOKBOOK_BASE_CONTENT_URL = "http://localhost:24816/pulp_cookbook/content/"
 
 
 class CookbookFixture:

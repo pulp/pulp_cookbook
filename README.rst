@@ -96,8 +96,8 @@ Run Services
 
 .. code-block:: bash
 
-   django-admin runserver
-   gunicorn pulpcore.content:server --bind 'localhost:8080' --worker-class 'aiohttp.GunicornWebWorker' -w 2
+   django-admin runserver 24817
+   gunicorn pulpcore.content:server --bind 'localhost:24816' --worker-class 'aiohttp.GunicornWebWorker' -w 2
    sudo systemctl restart pulp-resource-manager
    sudo systemctl restart pulp-worker@1
    sudo systemctl restart pulp-worker@2
@@ -108,7 +108,7 @@ Example: Import cookbooks and synchronize from remote
 Create a repository ``foo``
 ---------------------------
 
-``$ http POST http://localhost:8000/pulp/api/v3/repositories/ name=foo``
+``$ http POST http://localhost:24817/pulp/api/v3/repositories/ name=foo``
 
 .. code:: json
 
@@ -121,7 +121,7 @@ Create a repository ``foo``
         "name": "foo"
     }
 
-``$ export REPO_HREF=$(http :8000/pulp/api/v3/repositories/ | jq -r '.results[] | select(.name == "foo") | ._href')``
+``$ export REPO_HREF=$(http :24817/pulp/api/v3/repositories/ | jq -r '.results[] | select(.name == "foo") | ._href')``
 
 Upload cookbooks to Pulp
 ------------------------
@@ -141,7 +141,7 @@ Create artifacts by uploading the cookbooks to Pulp. First, the artifact for the
 
 .. code:: bash
 
-    ubuntu_resp=$(http --form POST http://localhost:8000/pulp/api/v3/artifacts/ file@ubuntu-2.0.1.tgz)
+    ubuntu_resp=$(http --form POST http://localhost:24817/pulp/api/v3/artifacts/ file@ubuntu-2.0.1.tgz)
     echo "$ubuntu_resp" | jq .
     export UBUNTU_ARTIFACT_HREF=$(echo "$ubuntu_resp" | jq -r '._href')
 
@@ -165,7 +165,7 @@ And then, the "apt" cookbook:
 
 .. code:: bash
 
-    apt_resp=$(http --form POST http://localhost:8000/pulp/api/v3/artifacts/ file@apt-7.0.0.tgz)
+    apt_resp=$(http --form POST http://localhost:24817/pulp/api/v3/artifacts/ file@apt-7.0.0.tgz)
     echo "$apt_resp" | jq .
     export APT_ARTIFACT_HREF=$(echo "$apt_resp" | jq -r '._href')
 
@@ -174,7 +174,7 @@ Create ``cookbook`` content from an Artifact
 
 Create a content unit for ubuntu 2.0.1:
 
-``$ http POST http://localhost:8000/pulp/api/v3/content/cookbook/cookbooks/ name="ubuntu" _artifact="$UBUNTU_ARTIFACT_HREF"``
+``$ http POST http://localhost:24817/pulp/api/v3/content/cookbook/cookbooks/ name="ubuntu" _artifact="$UBUNTU_ARTIFACT_HREF"``
 
 .. code:: json
 
@@ -191,11 +191,11 @@ Create a content unit for ubuntu 2.0.1:
         "version": "2.0.1"
     }
 
-``$ export UBUNTU_CONTENT_HREF=$(http :8000/pulp/api/v3/content/cookbook/cookbooks/?name=ubuntu | jq -r '.results[0]._href')``
+``$ export UBUNTU_CONTENT_HREF=$(http :24817/pulp/api/v3/content/cookbook/cookbooks/?name=ubuntu | jq -r '.results[0]._href')``
 
 Create a content unit for apt 7.0.0:
 
-``$ http POST http://localhost:8000/pulp/api/v3/content/cookbook/cookbooks/ name="apt" _artifact="$APT_ARTIFACT_HREF"``
+``$ http POST http://localhost:24817/pulp/api/v3/content/cookbook/cookbooks/ name="apt" _artifact="$APT_ARTIFACT_HREF"``
 
 .. code:: json
 
@@ -210,19 +210,19 @@ Create a content unit for apt 7.0.0:
         "version": "7.0.0"
     }
 
-``$ export APT_CONTENT_HREF=$(http :8000/pulp/api/v3/content/cookbook/cookbooks/?name=apt | jq -r '.results[0]._href')``
+``$ export APT_CONTENT_HREF=$(http :24817/pulp/api/v3/content/cookbook/cookbooks/?name=apt | jq -r '.results[0]._href')``
 
 
 Add content to repository ``foo``
 ---------------------------------
 
-``$ http POST :8000$REPO_HREF'versions/' add_content_units:="[\"$UBUNTU_CONTENT_HREF\",\"$APT_CONTENT_HREF\"]"``
+``$ http POST :24817$REPO_HREF'versions/' add_content_units:="[\"$UBUNTU_CONTENT_HREF\",\"$APT_CONTENT_HREF\"]"``
 
 
 Create a ``cookbook`` Publisher
 -------------------------------
 
-``$ http POST http://localhost:8000/pulp/api/v3/publishers/cookbook/cookbook/ name=publisher``
+``$ http POST http://localhost:24817/pulp/api/v3/publishers/cookbook/cookbook/ name=publisher``
 
 
 .. code:: json
@@ -236,13 +236,13 @@ Create a ``cookbook`` Publisher
         "name": "publisher"
     }
 
-``$ export PUBLISHER_HREF=$(http :8000/pulp/api/v3/publishers/cookbook/cookbook/ | jq -r '.results[] | select(.name == "publisher") | ._href')``
+``$ export PUBLISHER_HREF=$(http :24817/pulp/api/v3/publishers/cookbook/cookbook/ | jq -r '.results[] | select(.name == "publisher") | ._href')``
 
 
 Use the ``publisher`` Publisher to create a Publication
 -------------------------------------------------------
 
-``$ http POST :8000$PUBLISHER_HREF'publish/' repository=$REPO_HREF``
+``$ http POST :24817$PUBLISHER_HREF'publish/' repository=$REPO_HREF``
 
 .. code:: json
 
@@ -250,17 +250,17 @@ Use the ``publisher`` Publisher to create a Publication
         "task": "/pulp/api/v3/tasks/2/"
     }
 
-``$ export PUBLICATION_HREF=$(http :8000/pulp/api/v3/publications/ | jq -r --arg PUBLISHER_HREF "$PUBLISHER_HREF" '.results[] | select(.publisher==$PUBLISHER_HREF) | ._href')``
+``$ export PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/ | jq -r --arg PUBLISHER_HREF "$PUBLISHER_HREF" '.results[] | select(.publisher==$PUBLISHER_HREF) | ._href')``
 
 
 Create a Distribution at 'foo' for the Publication
 --------------------------------------------------
 
-``$ http POST http://localhost:8000/pulp/api/v3/distributions/ name='baz' base_path='foo' publication=$PUBLICATION_HREF``
+``$ http POST http://localhost:24817/pulp/api/v3/distributions/ name='baz' base_path='foo' publication=$PUBLICATION_HREF``
 
 You can have a look at the published "universe" metadata now:
 
-``$ http http://localhost:8080/pulp_cookbook/content/foo/universe``
+``$ http http://localhost:24816/pulp_cookbook/content/foo/universe``
 
 .. code:: json
 
@@ -268,8 +268,8 @@ You can have a look at the published "universe" metadata now:
         "apt": {
             "7.0.0": {
                 "dependencies": {},
-                "download_url": "http://localhost:8080/pulp_cookbook/content/foo/cookbook_files/apt/7_0_0/apt-7.0.0.tar.gz",
-                "location_path": "http://localhost:8080/pulp_cookbook/content/foo/cookbook_files/apt/7_0_0/apt-7.0.0.tar.gz",
+                "download_url": "http://localhost:24816/pulp_cookbook/content/foo/cookbook_files/apt/7_0_0/apt-7.0.0.tar.gz",
+                "location_path": "http://localhost:24816/pulp_cookbook/content/foo/cookbook_files/apt/7_0_0/apt-7.0.0.tar.gz",
                 "location_type": "uri"
             }
         },
@@ -278,8 +278,8 @@ You can have a look at the published "universe" metadata now:
                 "dependencies": {
                     "apt": ">= 0.0.0"
                 },
-                "download_url": "http://localhost:8080/pulp_cookbook/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz",
-                "location_path": "http://localhost:8080/pulp_cookbook/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz",
+                "download_url": "http://localhost:24816/pulp_cookbook/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz",
+                "location_path": "http://localhost:24816/pulp_cookbook/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz",
                 "location_type": "uri"
             }
         }
@@ -294,7 +294,7 @@ Create a Berksfile with the following content:
 
 .. code:: ruby
 
-   source 'http://localhost:8080/pulp_cookbook/content/foo/'
+   source 'http://localhost:24816/pulp_cookbook/content/foo/'
 
    cookbook 'ubuntu'
 
@@ -304,9 +304,9 @@ Create a Berksfile with the following content:
 .. code:: text
 
    Resolving cookbook dependencies...
-   Fetching cookbook index from http://localhost:8080/pulp_cookbook/content/foo/...
-   Installing apt (7.0.0) from http://localhost:8080/pulp_cookbook/content/foo/ ([uri] http://localhost:8080/pulp_cookbook/content/foo/cookbook_files/apt/7_0_0/apt-7.0.0.tar.gz)
-   Installing ubuntu (2.0.1) from http://localhost:8080/pulp_cookbook/content/foo/ ([uri] http://localhost:8080/pulp_cookbook/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz)
+   Fetching cookbook index from http://localhost:24816/pulp_cookbook/content/foo/...
+   Installing apt (7.0.0) from http://localhost:24816/pulp_cookbook/content/foo/ ([uri] http://localhost:24816/pulp_cookbook/content/foo/cookbook_files/apt/7_0_0/apt-7.0.0.tar.gz)
+   Installing ubuntu (2.0.1) from http://localhost:24816/pulp_cookbook/content/foo/ ([uri] http://localhost:24816/pulp_cookbook/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz)
 
 Create a new remote ``foo_remote``
 -----------------------------------
@@ -316,7 +316,7 @@ with an upstream repo (that has to provide a "universe" endpoint).
 
 Let's mirror the ``pulp`` and ``qpid`` cookbooks into our existing repo. First, we have to create a remote:
 
-``$ http POST http://localhost:8000/pulp/api/v3/remotes/cookbook/cookbook/ name='foo_remote' url='https://supermarket.chef.io/' cookbooks:='{"pulp": "", "qpid": ""}'``
+``$ http POST http://localhost:24817/pulp/api/v3/remotes/cookbook/cookbook/ name='foo_remote' url='https://supermarket.chef.io/' cookbooks:='{"pulp": "", "qpid": ""}'``
 
 .. code:: json
 
@@ -338,7 +338,7 @@ Let's mirror the ``pulp`` and ``qpid`` cookbooks into our existing repo. First, 
         "validate": true
     }
 
-``$ export REMOTE_HREF=$(http :8000/pulp/api/v3/remotes/cookbook/cookbook/ | jq -r '.results[] | select(.name == "foo_remote") | ._href')``
+``$ export REMOTE_HREF=$(http :24817/pulp/api/v3/remotes/cookbook/cookbook/ | jq -r '.results[] | select(.name == "foo_remote") | ._href')``
 
 Sync repository ``foo`` using remote ``foo_remote``
 ----------------------------------------------------
@@ -346,12 +346,12 @@ Sync repository ``foo`` using remote ``foo_remote``
 We don't want to delete the ``apt`` and ``ubuntu`` coobooks imported previously.
 Therefore, we sync in 'additive' mode by setting ``mirror`` to false.
 
-``$ http POST :8000$REMOTE_HREF'sync/' repository=$REPO_HREF mirror:=false``
+``$ http POST :24817$REMOTE_HREF'sync/' repository=$REPO_HREF mirror:=false``
 
 Look at the new Repository Version created
 ------------------------------------------
 
-``$ http GET ':8000'$REPO_HREF'versions/2/'``
+``$ http GET ':24817'$REPO_HREF'versions/2/'``
 
 .. code:: json
 
@@ -385,19 +385,19 @@ Publish the newest version
 
 To publish the version just created, do:
 
-``$ http POST :8000$PUBLISHER_HREF'publish/' repository=$REPO_HREF``
+``$ http POST :24817$PUBLISHER_HREF'publish/' repository=$REPO_HREF``
 
 And update the distribution:
 
 .. code:: bash
 
-    export DISTRIBUTION_HREF=$(http :8000/pulp/api/v3/distributions/ | jq -r '.results[] | select(.name == "baz") | ._href')
-    export LATEST_VERSION_HREF=$(http :8000$REPO_HREF | jq -r '._latest_version_href')
-    export LATEST_PUBLICATION_HREF=$(http :8000/pulp/api/v3/publications/ | jq --arg LVH "$LATEST_VERSION_HREF" -r '.results[] | select(.repository_version == $LVH) | ._href')
-    http PATCH :8000$DISTRIBUTION_HREF publication=$LATEST_PUBLICATION_HREF
+    export DISTRIBUTION_HREF=$(http :24817/pulp/api/v3/distributions/ | jq -r '.results[] | select(.name == "baz") | ._href')
+    export LATEST_VERSION_HREF=$(http :24817$REPO_HREF | jq -r '._latest_version_href')
+    export LATEST_PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/ | jq --arg LVH "$LATEST_VERSION_HREF" -r '.results[] | select(.repository_version == $LVH) | ._href')
+    http PATCH :24817$DISTRIBUTION_HREF publication=$LATEST_PUBLICATION_HREF
 
 Now, the universe endpoint
-``http://localhost:8080/pulp_cookbook/content/foo/universe`` will show the
+``http://localhost:24816/pulp_cookbook/content/foo/universe`` will show the
 content of the new repo version.
 
 
@@ -413,7 +413,7 @@ download, the cookbooks are stored locally for faster retrieval.
 Create a repository ``supermarket``
 -----------------------------------
 
-``$ http POST http://localhost:8000/pulp/api/v3/repositories/ name=supermarket``
+``$ http POST http://localhost:24817/pulp/api/v3/repositories/ name=supermarket``
 
 .. code:: json
 
@@ -427,13 +427,13 @@ Create a repository ``supermarket``
     }
 
 
-``$ export REPO_HREF=$(http :8000/pulp/api/v3/repositories/ | jq -r '.results[] | select(.name == "supermarket") | ._href')``
+``$ export REPO_HREF=$(http :24817/pulp/api/v3/repositories/ | jq -r '.results[] | select(.name == "supermarket") | ._href')``
 
 
 Create a new remote ``supermarket``
 -----------------------------------
 
-``$ http POST http://localhost:8000/pulp/api/v3/remotes/cookbook/cookbook/ name='supermarket' url='https://supermarket.chef.io/' policy=on_demand``
+``$ http POST http://localhost:24817/pulp/api/v3/remotes/cookbook/cookbook/ name='supermarket' url='https://supermarket.chef.io/' policy=on_demand``
 
 .. code:: json
 
@@ -453,14 +453,14 @@ Create a new remote ``supermarket``
     }
 
 
-``$ export REMOTE_HREF=$(http :8000/pulp/api/v3/remotes/cookbook/cookbook/ | jq -r '.results[] | select(.name == "supermarket") | ._href')``
+``$ export REMOTE_HREF=$(http :24817/pulp/api/v3/remotes/cookbook/cookbook/ | jq -r '.results[] | select(.name == "supermarket") | ._href')``
 
 
 Sync repository ``supermarket`` using remote ``supermarket``
 ------------------------------------------------------------
 
 
-``$ http POST :8000$REMOTE_HREF'sync/' repository=$REPO_HREF mirror:=true``
+``$ http POST :24817$REMOTE_HREF'sync/' repository=$REPO_HREF mirror:=true``
 
 .. code:: json
 
@@ -470,14 +470,14 @@ Sync repository ``supermarket`` using remote ``supermarket``
 
 This will take a while. You can query the task status using the returned URL. In
 the example above, use ``http
-:8000/pulp/api/v3/tasks/24990466-6602-4f4f-bb59-6d827bd48130/`` and inspect the
+:24817/pulp/api/v3/tasks/24990466-6602-4f4f-bb59-6d827bd48130/`` and inspect the
 "state" field.
 
 
 Create a ``supermarket`` Publisher
 ----------------------------------
 
-``$ http POST http://localhost:8000/pulp/api/v3/publishers/cookbook/cookbook/ name=supermarket``
+``$ http POST http://localhost:24817/pulp/api/v3/publishers/cookbook/cookbook/ name=supermarket``
 
 .. code:: json
 
@@ -491,13 +491,13 @@ Create a ``supermarket`` Publisher
     }
 
 
-``$ export PUBLISHER_HREF=$(http :8000/pulp/api/v3/publishers/cookbook/cookbook/ | jq -r '.results[] | select(.name == "supermarket") | ._href')``
+``$ export PUBLISHER_HREF=$(http :24817/pulp/api/v3/publishers/cookbook/cookbook/ | jq -r '.results[] | select(.name == "supermarket") | ._href')``
 
 
 Use the ``supermarket`` Publisher to create a Publication
 ---------------------------------------------------------
 
-``$ http POST :8000$PUBLISHER_HREF'publish/' repository=$REPO_HREF``
+``$ http POST :24817$PUBLISHER_HREF'publish/' repository=$REPO_HREF``
 
 .. code:: json
 
@@ -508,21 +508,21 @@ Use the ``supermarket`` Publisher to create a Publication
 Again, this may take some time. When the task is finished, get the URL of the
 publication:
 
-``$ export PUBLICATION_HREF=$(http :8000/pulp/api/v3/publications/ | jq -r --arg PUBLISHER_HREF "$PUBLISHER_HREF" '.results[] | select(.publisher==$PUBLISHER_HREF) | ._href')``
+``$ export PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/ | jq -r --arg PUBLISHER_HREF "$PUBLISHER_HREF" '.results[] | select(.publisher==$PUBLISHER_HREF) | ._href')``
 
 
 Create a Distribution at 'supermarket' for the Publication
 ----------------------------------------------------------
 
-``$ http POST http://localhost:8000/pulp/api/v3/distributions/ name='supermarket' base_path='supermarket' publication=$PUBLICATION_HREF``
+``$ http POST http://localhost:24817/pulp/api/v3/distributions/ name='supermarket' base_path='supermarket' publication=$PUBLICATION_HREF``
 
 You can have a look at the published "universe" metadata now:
 
-``$ http localhost:8080/pulp_cookbook/content/supermarket/universe``
+``$ http localhost:24816/pulp_cookbook/content/supermarket/universe``
 
 In your ``Berksfile`` you can use the following ``source`` to access the
 Supermarket snapshot:
 
 .. code:: ruby
 
-   source 'http://localhost:8080/pulp_cookbook/content/supermarket/'
+   source 'http://localhost:24816/pulp_cookbook/content/supermarket/'

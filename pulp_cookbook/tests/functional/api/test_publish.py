@@ -5,20 +5,24 @@
 """Tests that publish cookbook plugin repositories."""
 import unittest
 from random import choice
-from urllib.parse import urljoin
 
 from requests.exceptions import HTTPError
 
 from pulp_smash import api, config
 from pulp_smash.exceptions import TaskReportError
 from pulp_smash.pulp3.constants import REPO_PATH
-from pulp_smash.pulp3.utils import delete_orphans, gen_remote, gen_repo, get_versions, publish, sync
+from pulp_smash.pulp3.utils import delete_orphans, gen_remote, gen_repo, get_versions, sync
 
-from pulp_cookbook.tests.functional.api.utils import gen_publisher, get_cookbook_content
+from pulp_cookbook.tests.functional.api.utils import (
+    create_publication,
+    gen_publisher,
+    get_cookbook_content,
+)
 from pulp_cookbook.tests.functional.constants import (
     fixture_u1,
     fixture_u1_diff_digest,
     COOKBOOK_REMOTE_PATH,
+    COOKBOOK_PUBLICATION_PATH,
     COOKBOOK_PUBLISHER_PATH,
 )
 
@@ -36,7 +40,8 @@ class PublishAnyRepoVersionTestCase(unittest.TestCase):
         """Test whether a particular repository version can be published.
 
         1. Create a repository with at least 2 repository versions.
-        2. Create a publication by supplying the latest ``repository_version``.
+        2. Create a publication without supplying a repository_version (i.e.
+           take the latest ``repository_version``).
         3. Assert that the publication ``repository_version`` attribute points
            to the latest repository version.
         4. Create a publication by supplying the non-latest
@@ -75,13 +80,13 @@ class PublishAnyRepoVersionTestCase(unittest.TestCase):
         non_latest = choice(version_hrefs[:-1])
 
         # Step 2
-        publication = publish(cfg, publisher, repo)
+        publication = create_publication(cfg, repo, publisher=publisher)
 
         # Step 3
         self.assertEqual(publication["repository_version"], version_hrefs[-1])
 
         # Step 4
-        publication = publish(cfg, publisher, repo, non_latest)
+        publication = create_publication(cfg, repo, publisher=publisher, version_href=non_latest)
 
         # Step 5
         self.assertEqual(publication["repository_version"], non_latest)
@@ -89,7 +94,7 @@ class PublishAnyRepoVersionTestCase(unittest.TestCase):
         # Step 6
         with self.assertRaises(HTTPError):
             body = {"repository": repo["_href"], "repository_version": non_latest}
-            client.post(urljoin(publisher["_href"], "publish/"), body)
+            client.post(COOKBOOK_PUBLICATION_PATH, body)
 
 
 class RepoVersionConstraintValidationTestCase(unittest.TestCase):
@@ -133,4 +138,4 @@ class RepoVersionConstraintValidationTestCase(unittest.TestCase):
         publisher = client.post(COOKBOOK_PUBLISHER_PATH, gen_publisher())
         self.addCleanup(client.delete, publisher["_href"])
         with self.assertRaisesRegex(TaskReportError, "would contain multiple versions"):
-            publish(cfg, publisher, repo_u1)
+            create_publication(cfg, repo_u1, publisher=publisher)

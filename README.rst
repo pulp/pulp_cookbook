@@ -239,18 +239,18 @@ Create a ``cookbook`` Publisher
 ``$ export PUBLISHER_HREF=$(http :24817/pulp/api/v3/publishers/cookbook/cookbook/ | jq -r '.results[] | select(.name == "publisher") | ._href')``
 
 
-Use the ``publisher`` Publisher to create a Publication
--------------------------------------------------------
+Create a Publication
+--------------------
 
-``$ http POST :24817$PUBLISHER_HREF'publish/' repository=$REPO_HREF``
+``$ http POST http://localhost:24817/pulp/api/v3/publications/cookbook/cookbook/ repository=$REPO_HREF publisher=$PUBLISHER_HREF``
 
 .. code:: json
 
     {
-        "task": "/pulp/api/v3/tasks/2/"
+        "task": "/pulp/api/v3/tasks/cd37e3dd-fb9b-4fa3-a32b-174bcb860c79/"
     }
 
-``$ export PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/ | jq -r --arg PUBLISHER_HREF "$PUBLISHER_HREF" '.results[] | select(.publisher==$PUBLISHER_HREF) | ._href')``
+``$ export PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/cookbook/cookbook/ | jq -r --arg PUBLISHER_HREF "$PUBLISHER_HREF" '.results[] | select(.publisher==$PUBLISHER_HREF) | ._href')``
 
 
 Create a Distribution at 'foo' for the Publication
@@ -385,7 +385,7 @@ Publish the newest version
 
 To publish the version just created, do:
 
-``$ http POST :24817$PUBLISHER_HREF'publish/' repository=$REPO_HREF``
+``$ http POST http://localhost:24817/pulp/api/v3/publications/cookbook/cookbook/ repository=$REPO_HREF publisher=$PUBLISHER_HREF``
 
 And update the distribution:
 
@@ -393,7 +393,7 @@ And update the distribution:
 
     export DISTRIBUTION_HREF=$(http :24817/pulp/api/v3/distributions/ | jq -r '.results[] | select(.name == "baz") | ._href')
     export LATEST_VERSION_HREF=$(http :24817$REPO_HREF | jq -r '._latest_version_href')
-    export LATEST_PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/ | jq --arg LVH "$LATEST_VERSION_HREF" -r '.results[] | select(.repository_version == $LVH) | ._href')
+    export LATEST_PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/cookbook/cookbook/ | jq --arg LVH "$LATEST_VERSION_HREF" -r '.results[] | select(.repository_version == $LVH) | ._href')
     http PATCH :24817$DISTRIBUTION_HREF publication=$LATEST_PUBLICATION_HREF
 
 Now, the universe endpoint
@@ -494,10 +494,10 @@ Create a ``supermarket`` Publisher
 ``$ export PUBLISHER_HREF=$(http :24817/pulp/api/v3/publishers/cookbook/cookbook/ | jq -r '.results[] | select(.name == "supermarket") | ._href')``
 
 
-Use the ``supermarket`` Publisher to create a Publication
----------------------------------------------------------
+Create a Publication using the ``supermarket`` Publisher
+--------------------------------------------------------
 
-``$ http POST :24817$PUBLISHER_HREF'publish/' repository=$REPO_HREF``
+``$ http POST http://localhost:24817/pulp/api/v3/publications/cookbook/cookbook/ repository=$REPO_HREF publisher=$PUBLISHER_HREF``
 
 .. code:: json
 
@@ -508,7 +508,7 @@ Use the ``supermarket`` Publisher to create a Publication
 Again, this may take some time. When the task is finished, get the URL of the
 publication:
 
-``$ export PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/ | jq -r --arg PUBLISHER_HREF "$PUBLISHER_HREF" '.results[] | select(.publisher==$PUBLISHER_HREF) | ._href')``
+``$ export PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/cookbook/cookbook/ | jq -r --arg PUBLISHER_HREF "$PUBLISHER_HREF" '.results[] | select(.publisher==$PUBLISHER_HREF) | ._href')``
 
 
 Create a Distribution at 'supermarket' for the Publication

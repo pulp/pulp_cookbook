@@ -5,7 +5,12 @@
 from typing import Dict, Iterable, List, Optional
 from urllib.parse import urljoin
 
-from pulp_smash.pulp3.constants import BASE_PUBLISHER_PATH, BASE_REMOTE_PATH, CONTENT_PATH
+from pulp_smash.pulp3.constants import (
+    BASE_PUBLICATION_PATH,
+    BASE_PUBLISHER_PATH,
+    BASE_REMOTE_PATH,
+    CONTENT_PATH,
+)
 
 DOWNLOAD_POLICIES = ["immediate", "on_demand", "streamed"]
 
@@ -16,6 +21,7 @@ COOKBOOK_CONTENT_PATH = urljoin(CONTENT_PATH, "cookbook/cookbooks/")
 
 COOKBOOK_REMOTE_PATH = urljoin(BASE_REMOTE_PATH, "cookbook/cookbook/")
 
+COOKBOOK_PUBLICATION_PATH = urljoin(BASE_PUBLICATION_PATH, "cookbook/cookbook/")
 COOKBOOK_PUBLISHER_PATH = urljoin(BASE_PUBLISHER_PATH, "cookbook/cookbook/")
 
 COOKBOOK_BASE_CONTENT_URL = "http://localhost:24816/pulp_cookbook/content/"

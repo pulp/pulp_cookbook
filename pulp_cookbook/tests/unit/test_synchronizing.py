@@ -11,71 +11,7 @@ from pulpcore.plugin.models import Artifact, ContentArtifact
 from pulpcore.plugin.stages import DeclarativeArtifact, DeclarativeContent
 
 from pulp_cookbook.app.models import CookbookPackageContent, CookbookRemote
-from pulp_cookbook.app.tasks.synchronizing import (
-    QueryExistingContentUnits,
-    QueryExistingRepoContentAndArtifacts,
-)
-
-
-class QueryExistingContentUnitsTestCase(TestCase):
-    """Verify QueryExistingContentUnits stage for both natural and repo keys."""
-
-    def setUp(self):
-        self.c1 = CookbookPackageContent.objects.create(
-            name="c1", version="1.0.0", content_id="1", dependencies={}
-        )
-
-    def new_version_all_content(self):
-        """Provide a mock for a repository version containing all content."""
-        new_version = Mock()
-        new_version.content = CookbookPackageContent.objects.all()
-        return new_version
-
-    def test_content_associated_using_repo_key(self):
-        dc_c1 = CookbookPackageContent(name="c1", version="1.0.0", dependencies={})
-        dc_c2 = CookbookPackageContent(name="c2", version="1.0.0", dependencies={})
-
-        batch = [
-            DeclarativeContent(content=dc_c1, d_artifacts=[]),
-            DeclarativeContent(content=dc_c2, d_artifacts=[]),
-        ]
-        stage = QueryExistingContentUnits(new_version=self.new_version_all_content())
-        stage._process_batch(batch)
-        self.assertEqual(batch[0].content.content_id, "1")
-        self.assertEqual(batch[0].content.pk, self.c1.pk)
-        self.assertIsNone(batch[1].content.pk)
-
-    def test_content_associated_using_natural_key(self):
-        dc_c1 = CookbookPackageContent(name="c1", version="1.0.0", content_id="1", dependencies={})
-        dc_c1_other = CookbookPackageContent(
-            name="c1", version="1.0.0", content_id="other", dependencies={}
-        )
-
-        batch = [
-            DeclarativeContent(content=dc_c1, d_artifacts=[]),
-            DeclarativeContent(content=dc_c1_other, d_artifacts=[]),
-        ]
-        stage = QueryExistingContentUnits()
-        stage._process_batch(batch)
-        self.assertEqual(batch[0].content.content_id, "1")
-        self.assertEqual(batch[0].content.pk, self.c1.pk)
-        self.assertIsNone(batch[1].content.pk)
-
-    def test_existing_content_is_ok(self):
-        # dc_c1 is a duplicate of c1 existing in the DB
-        dc_c1 = CookbookPackageContent(name="c1", version="1.0.0", content_id="1", dependencies={})
-        c2 = CookbookPackageContent.objects.create(
-            name="c2", version="1.0.0", content_id="2", dependencies={}
-        )
-
-        batch = [
-            DeclarativeContent(content=dc_c1, d_artifacts=[]),
-            DeclarativeContent(content=c2, d_artifacts=[]),
-        ]
-        stage = QueryExistingContentUnits()
-        stage._process_batch(batch)
-        self.assertEqual(batch[0].content.pk, self.c1.pk)
-        self.assertEqual(batch[1].content.pk, c2.pk)
+from pulp_cookbook.app.tasks.synchronizing import QueryExistingRepoContentAndArtifacts
 
 
 class QueryExistingRepoContentAndArtifactsTestCase(TestCase):

@@ -18,6 +18,7 @@ from pulpcore.plugin.stages import (
     Stage,
     ArtifactDownloader,
     ArtifactSaver,
+    QueryExistingContents,
     RemoteArtifactSaver,
     ContentSaver,
 )
@@ -147,83 +148,6 @@ class QueryExistingRepoContentAndArtifacts(Stage):
                             d_a.artifact = c_a.artifact
 
 
-# TODO: search within repo version not needed because of
-#       QueryExistingRepoContentAndArtifacts. Is there any use for this stage?
-class QueryExistingContentUnits(Stage):
-    """
-    A Stages API stage that searches for existing saved Content units.
-
-    This stage expects :class:`~pulpcore.plugin.stages.DeclarativeContent` units
-    from `in_q` and inspects their associated
-    :class:`~pulpcore.plugin.models.Content` instance.
-
-    This stage inspects any "unsaved" Content unit objects and searches for
-    existing saved Content units inside Pulp with the same key. The search
-    depends in the value of `new_version`:
-
-    - If present, search in the content of the given repository version using
-      the key :class:`~pulpcore.plugin.models.Content.repo_key_fields()`.
-
-    - If not present (`None`), search in the content of Pulp using
-      the default :class:`~pulpcore.plugin.models.Content.q()` method.
-
-    Any existing Content objects found, replace their "unsaved" counterpart in
-    the :class:`~pulpcore.plugin.stages.DeclarativeContent` object.
-
-    Each :class:`~pulpcore.plugin.stages.DeclarativeContent` is sent to `out_q`
-    after it has been handled.
-
-    This stage drains all available items from `in_q` and batches everything
-    into one large call to the db for efficiency.
-
-    Args:
-        new_version (:class:`~pulpcore.plugin.models.RepositoryVersion`): Optional
-            repository version to search content in.
-    """
-
-    def __init__(self, new_version=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.new_version = new_version
-
-    async def run(self):
-        async for batch in self.batches():
-            self._process_batch(batch)
-            for declarative_content in batch:
-                await self.put(declarative_content)
-
-    def _process_batch(self, batch):
-        unsaved_d_cs = [dc for dc in batch if dc.content._state.adding]
-        content_q_by_type = defaultdict(lambda: Q(pk=None))
-        for declarative_content in unsaved_d_cs:
-            model_type = type(declarative_content.content)
-            if self.new_version:
-                unit_q = declarative_content.content.repo_q()
-            else:
-                unit_q = declarative_content.content.q()
-            content_q_by_type[model_type] = content_q_by_type[model_type] | unit_q
-
-        for model_type in content_q_by_type.keys():
-            content_filter = model_type.objects.filter(content_q_by_type[model_type])
-            if self.new_version:
-                content_filter = content_filter.filter(pk__in=self.new_version.content)
-                key_fields = model_type.repo_key_fields()
-            else:
-                key_fields = model_type.natural_key_fields()
-            for result in content_filter:
-                for declarative_content in unsaved_d_cs:
-                    if type(declarative_content.content) is not model_type:
-                        continue
-                    not_same_unit = False
-                    for field in key_fields:
-                        in_memory_digest_value = getattr(declarative_content.content, field)
-                        if in_memory_digest_value != getattr(result, field):
-                            not_same_unit = True
-                            break
-                    if not_same_unit:
-                        continue
-                    declarative_content.content = result
-
-
 class CookbookFirstStage(Stage):
     """The first stage of the pulp_cookbook sync pipeline."""
 
@@ -292,7 +216,7 @@ class CookbookDeclarativeVersion(DeclarativeVersion):
                     ArtifactDownloader(),
                     ArtifactSaver(),
                     UpdateContentWithDownloadResult(),
-                    QueryExistingContentUnits(),  # share content with known digest
+                    QueryExistingContents(),  # share content with known digest
                 ]
             )
         pipeline.append(ContentSaver())

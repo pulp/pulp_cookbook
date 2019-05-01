@@ -10,15 +10,10 @@ from gettext import gettext as _
 from django.core.files import File
 from django.db.models import Count
 
-from pulpcore.plugin.models import (
-    RepositoryVersion,
-    Publication,
-    PublishedArtifact,
-    PublishedMetadata,
-)
+from pulpcore.plugin.models import PublishedArtifact, PublishedMetadata, RepositoryVersion
 from pulpcore.plugin.tasking import WorkingDirectory
 
-from pulp_cookbook.app.models import CookbookPackageContent, CookbookPublisher
+from pulp_cookbook.app.models import CookbookPackageContent, CookbookPublication, CookbookPublisher
 from pulp_cookbook.metadata import Entry, Universe
 
 log = logging.getLogger(__name__)
@@ -44,7 +39,13 @@ def publish(publisher_pk, repository_version_pk):
         publisher_pk (str): Use the publish settings provided by this publisher.
         repository_version_pk (str): Create a publication from this repository version.
     """
-    publisher = CookbookPublisher.objects.get(pk=publisher_pk)
+    if publisher_pk:
+        publisher = CookbookPublisher.objects.get(pk=publisher_pk)
+        publisher_name = publisher.name
+    else:
+        publisher = None
+        publisher_name = ""
+
     repository_version = RepositoryVersion.objects.get(pk=repository_version_pk)
 
     log.info(
@@ -52,12 +53,12 @@ def publish(publisher_pk, repository_version_pk):
         {
             "repository": repository_version.repository.name,
             "version": repository_version.number,
-            "publisher": publisher.name,
+            "publisher": publisher_name,
         },
     )
 
     with WorkingDirectory():
-        with Publication.create(repository_version, publisher) as publication:
+        with CookbookPublication.create(repository_version, publisher) as publication:
             check_repo_version_constraint(publication)
             universe = Universe("__universe__")
             universe.write(populate(publication))

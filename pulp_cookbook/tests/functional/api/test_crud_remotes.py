@@ -16,7 +16,7 @@ from pulp_cookbook.tests.functional.constants import (
     COOKBOOK2_FIXTURE_URL,
     COOKBOOK_REMOTE_PATH,
 )
-from pulp_cookbook.tests.functional.utils import skip_if
+from pulp_cookbook.tests.functional.api.utils import skip_if
 
 
 class CRUDRemotesTestCase(unittest.TestCase):

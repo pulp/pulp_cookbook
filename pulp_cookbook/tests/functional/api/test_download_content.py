@@ -10,16 +10,10 @@ from urllib.parse import urljoin
 
 from pulp_smash import api, config, exceptions, utils
 from pulp_smash.pulp3.constants import DISTRIBUTION_PATH, REPO_PATH
-from pulp_smash.pulp3.utils import (
-    delete_orphans,
-    gen_distribution,
-    gen_remote,
-    gen_repo,
-    publish,
-    sync,
-)
+from pulp_smash.pulp3.utils import delete_orphans, gen_distribution, gen_remote, gen_repo, sync
 
 from pulp_cookbook.tests.functional.api.utils import (
+    create_publication,
     gen_publisher,
     get_content_and_unit_paths,
     get_cookbook_content,
@@ -53,7 +47,7 @@ class DownloadContentTestCase(unittest.TestCase):
         self.addCleanup(client.delete, publisher["_href"])
 
         # Create a publication.
-        publication = publish(cfg, publisher, repo)
+        publication = create_publication(cfg, repo, publisher=publisher)
         self.addCleanup(client.delete, publication["_href"])
 
         # Create a distribution.

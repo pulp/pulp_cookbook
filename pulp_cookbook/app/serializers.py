@@ -7,12 +7,14 @@ from gettext import gettext as _
 from rest_framework import serializers
 
 from pulpcore.plugin.serializers import (
-    SingleArtifactContentSerializer,
-    RemoteSerializer,
+    DetailRelatedField,
+    PublicationSerializer,
     PublisherSerializer,
+    RemoteSerializer,
+    SingleArtifactContentSerializer,
 )
 
-from .models import CookbookPackageContent, CookbookRemote, CookbookPublisher
+from .models import CookbookPackageContent, CookbookPublication, CookbookPublisher, CookbookRemote
 
 
 class CookbookPackageContentSerializer(SingleArtifactContentSerializer):
@@ -85,3 +87,19 @@ class CookbookPublisherSerializer(PublisherSerializer):
     class Meta:
         fields = PublisherSerializer.Meta.fields
         model = CookbookPublisher
+
+
+class CookbookPublicationSerializer(PublicationSerializer):
+    """
+    Serializer for Cookbook Publications.
+    """
+
+    publisher = DetailRelatedField(
+        help_text=_("The publisher that created this publication."),
+        queryset=CookbookPublisher.objects.all(),
+        required=False,
+    )
+
+    class Meta:
+        fields = PublicationSerializer.Meta.fields + ("publisher",)
+        model = CookbookPublication

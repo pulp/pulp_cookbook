@@ -4,11 +4,15 @@
 
 """Utilities for cookbook plugin tests."""
 import functools
+from unittest import SkipTest
 
-from pulp_smash import utils
+from pulp_smash import api, selectors, utils
 from pulp_smash.pulp3.utils import get_added_content, get_content, get_removed_content
 
-from pulp_cookbook.tests.functional.constants import COOKBOOK_CONTENT_NAME
+from pulp_cookbook.tests.functional.constants import (
+    COOKBOOK_CONTENT_NAME,
+    COOKBOOK_PUBLICATION_PATH,
+)
 
 
 def gen_publisher(**kwargs):
@@ -44,3 +48,36 @@ def get_content_and_unit_paths(repo):
         )
 
     return [(cu, rel_path(cu)) for cu in get_cookbook_content(repo)]
+
+
+def create_publication(cfg, repo, version_href=None, publisher=None):
+    """Create a cookbook publication.
+
+    :param pulp_smash.config.PulpSmashConfig cfg: Information about the Pulp
+        host.
+    :param repo: A dict of information about the repository.
+    :param version_href: A href for the repo version to be published.
+    :param publisher: A dict of publisher info to use to publish.
+    :returns: A publication. A dict of information about the just created
+        publication.
+    """
+    if version_href:
+        body = {"repository_version": version_href}
+    else:
+        body = {"repository": repo["_href"]}
+
+    if publisher:
+        body["publisher"] = publisher["_href"]
+
+    client = api.Client(cfg, api.json_handler)
+    call_report = client.post(COOKBOOK_PUBLICATION_PATH, body)
+    tasks = tuple(api.poll_spawned_tasks(cfg, call_report))
+    return client.get(tasks[-1]["created_resources"][0])
+
+
+skip_if = functools.partial(selectors.skip_if, exc=SkipTest)  # pylint:disable=invalid-name
+"""The ``@skip_if`` decorator, customized for unittest.
+
+:func:`pulp_smash.selectors.skip_if` is test runner agnostic. This function is
+identical, except that ``exc`` has been set to ``unittest.SkipTest``.
+"""

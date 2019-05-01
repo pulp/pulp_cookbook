@@ -11,9 +11,8 @@ from pulp_smash import api, config
 from pulp_smash.pulp3.constants import REPO_PATH
 from pulp_smash.pulp3.utils import gen_repo
 
-from pulp_cookbook.tests.functional.api.utils import gen_publisher
+from pulp_cookbook.tests.functional.api.utils import gen_publisher, skip_if
 from pulp_cookbook.tests.functional.constants import COOKBOOK_PUBLISHER_PATH
-from pulp_cookbook.tests.functional.utils import skip_if
 
 
 class CRUDPublishersTestCase(unittest.TestCase):

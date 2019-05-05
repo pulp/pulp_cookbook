@@ -9,7 +9,7 @@ from random import choice
 from urllib.parse import urljoin
 
 from pulp_smash import api, config, exceptions, utils
-from pulp_smash.pulp3.constants import DISTRIBUTION_PATH, REPO_PATH
+from pulp_smash.pulp3.constants import REPO_PATH
 from pulp_smash.pulp3.utils import delete_orphans, gen_distribution, gen_remote, gen_repo, sync
 
 from pulp_cookbook.tests.functional.api.utils import (
@@ -20,6 +20,7 @@ from pulp_cookbook.tests.functional.api.utils import (
 )
 from pulp_cookbook.tests.functional.constants import (
     fixture_u1,
+    COOKBOOK_DISTRIBUTION_PATH,
     COOKBOOK_REMOTE_PATH,
     COOKBOOK_PUBLISHER_PATH,
     COOKBOOK_BASE_CONTENT_URL,
@@ -53,7 +54,7 @@ class DownloadContentTestCase(unittest.TestCase):
         # Create a distribution.
         body = gen_distribution()
         body["publication"] = publication["_href"]
-        response_dict = client.post(DISTRIBUTION_PATH, body)
+        response_dict = client.post(COOKBOOK_DISTRIBUTION_PATH, body)
         dist_task = client.get(response_dict["task"])
         distribution_href = dist_task["created_resources"][0]
         distribution = client.get(distribution_href)
@@ -66,10 +67,6 @@ class DownloadContentTestCase(unittest.TestCase):
         # all cookbooks
         distribution_base_url = cfg.get_hosts("api")[0].roles["api"]["scheme"]
         distribution_base_url += "://" + distribution["base_url"] + "/"
-
-        # TODO: HACK: can't set the base_url correctly currently
-        distribution_base_url = distribution_base_url.replace("/pulp/", "/pulp_cookbook/")
-
         universe_url = COOKBOOK_BASE_CONTENT_URL
         universe_url += distribution["base_path"] + "/universe"
 

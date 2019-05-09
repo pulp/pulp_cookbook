@@ -23,6 +23,7 @@ from pulpcore.plugin.tasking import enqueue_with_reservation
 from pulpcore.plugin.viewsets import (
     ContentFilter,
     ContentViewSet,
+    DistributionViewSet,
     RemoteViewSet,
     OperationPostponedResponse,
     PublicationViewSet,
@@ -30,8 +31,15 @@ from pulpcore.plugin.viewsets import (
 )
 
 from . import tasks
-from .models import CookbookPackageContent, CookbookRemote, CookbookPublication, CookbookPublisher
+from .models import (
+    CookbookDistribution,
+    CookbookPackageContent,
+    CookbookRemote,
+    CookbookPublication,
+    CookbookPublisher,
+)
 from .serializers import (
+    CookbookDistributionSerializer,
     CookbookPackageContentSerializer,
     CookbookRemoteSerializer,
     CookbookPublicationSerializer,
@@ -137,7 +145,7 @@ class CookbookPublicationViewSet(PublicationViewSet):
     """
 
     endpoint_name = "cookbook"
-    queryset = CookbookPublication.objects.all()
+    queryset = CookbookPublication.objects.exclude(complete=False)
     serializer_class = CookbookPublicationSerializer
 
     @swagger_auto_schema(
@@ -171,3 +179,11 @@ class CookbookPublicationViewSet(PublicationViewSet):
             },
         )
         return OperationPostponedResponse(result, request)
+
+
+class CookbookDistributionViewSet(DistributionViewSet):
+    """The ViewSet for the distribution endpoint."""
+
+    endpoint_name = "cookbook"
+    queryset = CookbookDistribution.objects.all()
+    serializer_class = CookbookDistributionSerializer

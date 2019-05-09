@@ -4,9 +4,10 @@
 
 from aiohttp import web
 
-from .handler import CookbookContentHandler, pulp_cookbook_content_path
-
 from pulpcore.plugin.content import app
+
+from pulp_cookbook.app.utils import pulp_cookbook_content_path
+from .handler import CookbookContentHandler
 
 
 app.add_routes(

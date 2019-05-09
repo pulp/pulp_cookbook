@@ -256,7 +256,7 @@ Create a Publication
 Create a Distribution at 'foo' for the Publication
 --------------------------------------------------
 
-``$ http POST http://localhost:24817/pulp/api/v3/distributions/ name='baz' base_path='foo' publication=$PUBLICATION_HREF``
+``$ http POST http://localhost:24817/pulp/api/v3/distributions/file/file/ name='baz' base_path='foo' publication=$PUBLICATION_HREF``
 
 You can have a look at the published "universe" metadata now:
 

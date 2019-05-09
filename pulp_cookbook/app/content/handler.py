@@ -11,15 +11,9 @@ from django.db import IntegrityError, transaction
 from pulpcore.plugin.content import Handler, PathNotResolved
 
 from pulp_cookbook.app.tasks.publishing import replace_all_paths
+from pulp_cookbook.app.utils import pulp_cookbook_content_path
 
 log = logging.getLogger(__name__)
-
-
-def pulp_cookbook_content_path():
-    """Get base cotent path from configuration."""
-    components = settings.CONTENT_PATH_PREFIX.split("/")
-    components[1] = "pulp_cookbook"
-    return "/".join(components)
 
 
 class CookbookContentHandler(Handler):

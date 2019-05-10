@@ -59,6 +59,11 @@ class DownloadContentTestCase(unittest.TestCase):
         distribution_href = dist_task["created_resources"][0]
         distribution = client.get(distribution_href)
         self.addCleanup(client.delete, distribution_href)
+
+        # Assert that the publication contains a reference to the distribution
+        publication = client.get(publication["_href"])
+        self.assertEqual(publication["distributions"], [distribution_href])
+
         return distribution
 
     def download_check(self, cfg, client, repo, distribution, policy):

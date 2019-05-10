@@ -6,7 +6,7 @@ import uuid
 
 from django.db import models
 
-from pulpcore.plugin.models import Content, Distribution, Publication, Publisher, Remote
+from pulpcore.plugin.models import Content, PublicationDistribution, Publication, Publisher, Remote
 from pulpcore.plugin.fields import JSONField
 
 
@@ -131,7 +131,7 @@ class CookbookPublication(Publication):
     TYPE = "cookbook"
 
 
-class CookbookDistribution(Distribution):
+class CookbookDistribution(PublicationDistribution):
     """
     Distribution for 'cookbook' content.
     """

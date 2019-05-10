@@ -9,9 +9,10 @@ from rest_framework import serializers
 
 from pulpcore.plugin.serializers import (
     DetailRelatedField,
-    DistributionSerializer,
+    PublicationDistributionSerializer,
     PublicationSerializer,
     PublisherSerializer,
+    RelatedField,
     RemoteSerializer,
     SingleArtifactContentSerializer,
 )
@@ -104,6 +105,15 @@ class CookbookPublicationSerializer(PublicationSerializer):
     Serializer for Cookbook Publications.
     """
 
+    distributions = RelatedField(
+        help_text=_(
+            "This publication is currently being served as defined by these distributions."
+        ),
+        source="cookbookdistribution_set",
+        many=True,
+        read_only=True,
+        view_name="distributions-cookbook/cookbook-detail",
+    )
     publisher = DetailRelatedField(
         help_text=_("The publisher that created this publication."),
         queryset=CookbookPublisher.objects.all(),
@@ -111,7 +121,7 @@ class CookbookPublicationSerializer(PublicationSerializer):
     )
 
     class Meta:
-        fields = PublicationSerializer.Meta.fields + ("publisher",)
+        fields = PublicationSerializer.Meta.fields + ("distributions", "publisher")
         model = CookbookPublication
 
 
@@ -127,15 +137,15 @@ class CookbookBaseURLField(serializers.CharField):
         return "/".join((host.strip("/"), prefix.strip("/"), base_path.lstrip("/")))
 
 
-class CookbookDistributionSerializer(DistributionSerializer):
+class CookbookDistributionSerializer(PublicationDistributionSerializer):
     """Serializer for the Distribution."""
 
     base_url = CookbookBaseURLField(
         source="base_path",
         read_only=True,
-        help_text=_("The URL for accessing the publication as defined by this distribution."),
+        help_text=_("The URL for accessing the universe API as defined by this distribution."),
     )
 
     class Meta:
-        fields = DistributionSerializer.Meta.fields
+        fields = PublicationDistributionSerializer.Meta.fields
         model = CookbookDistribution

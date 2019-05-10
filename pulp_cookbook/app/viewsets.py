@@ -23,7 +23,7 @@ from pulpcore.plugin.tasking import enqueue_with_reservation
 from pulpcore.plugin.viewsets import (
     ContentFilter,
     ContentViewSet,
-    DistributionViewSet,
+    BaseDistributionViewSet,
     RemoteViewSet,
     OperationPostponedResponse,
     PublicationViewSet,
@@ -181,7 +181,7 @@ class CookbookPublicationViewSet(PublicationViewSet):
         return OperationPostponedResponse(result, request)
 
 
-class CookbookDistributionViewSet(DistributionViewSet):
+class CookbookDistributionViewSet(BaseDistributionViewSet):
     """The ViewSet for the distribution endpoint."""
 
     endpoint_name = "cookbook"

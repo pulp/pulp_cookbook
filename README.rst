@@ -229,7 +229,7 @@ Create a ``cookbook`` Publisher
 
     {
         "_created": "2019-03-30T22:37:31.851159Z",
-        "_distributions": [],
+        "distributions": [],
         "_href": "/pulp/api/v3/publishers/cookbook/cookbook/a985c28b-c7be-4e66-b10e-d3f799c23726/",
         "_last_updated": "2019-03-30T22:37:31.851227Z",
         "_type": "cookbook.cookbook",
@@ -256,7 +256,7 @@ Create a Publication
 Create a Distribution at 'foo' for the Publication
 --------------------------------------------------
 
-``$ http POST http://localhost:24817/pulp/api/v3/distributions/file/file/ name='baz' base_path='foo' publication=$PUBLICATION_HREF``
+``$ http POST http://localhost:24817/pulp/api/v3/distributions/cookbook/cookbook/ name='baz' base_path='foo' publication=$PUBLICATION_HREF``
 
 You can have a look at the published "universe" metadata now:
 
@@ -391,7 +391,7 @@ And update the distribution:
 
 .. code:: bash
 
-    export DISTRIBUTION_HREF=$(http :24817/pulp/api/v3/distributions/ | jq -r '.results[] | select(.name == "baz") | ._href')
+    export DISTRIBUTION_HREF=$(http :24817/pulp/api/v3/distributions/cookbook/cookbook/ | jq -r '.results[] | select(.name == "baz") | ._href')
     export LATEST_VERSION_HREF=$(http :24817$REPO_HREF | jq -r '._latest_version_href')
     export LATEST_PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/cookbook/cookbook/ | jq --arg LVH "$LATEST_VERSION_HREF" -r '.results[] | select(.repository_version == $LVH) | ._href')
     http PATCH :24817$DISTRIBUTION_HREF publication=$LATEST_PUBLICATION_HREF
@@ -483,7 +483,7 @@ Create a ``supermarket`` Publisher
 
     {
         "_created": "2019-03-30T23:01:44.703651Z",
-        "_distributions": [],
+        "distributions": [],
         "_href": "/pulp/api/v3/publishers/cookbook/cookbook/b9df1aef-8eda-4370-8199-93539f14455e/",
         "_last_updated": "2019-03-30T23:01:44.703671Z",
         "_type": "cookbook.cookbook",
@@ -514,7 +514,7 @@ publication:
 Create a Distribution at 'supermarket' for the Publication
 ----------------------------------------------------------
 
-``$ http POST http://localhost:24817/pulp/api/v3/distributions/ name='supermarket' base_path='supermarket' publication=$PUBLICATION_HREF``
+``$ http POST http://localhost:24817/pulp/api/v3/distributions/cookbook/cookbook/ name='supermarket' base_path='supermarket' publication=$PUBLICATION_HREF``
 
 You can have a look at the published "universe" metadata now:
 

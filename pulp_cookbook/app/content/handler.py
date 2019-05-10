@@ -28,13 +28,13 @@ class CookbookContentHandler(Handler):
 
     async def handle_universe(self, request):
         """
-        Serve the '__universe__' metadata object at '/univere'.
+        Serve the '__universe__' metadata object at '/universe'.
 
         Since the '/universe' endpoint contains absolute URLs, translate
         the content of '__universe__' on the fly.
         """
         path = request.match_info["path"] + "/universe"
-        distribution = Handler._match_distribution(path)
+        distribution = Handler._match_distribution(path).cast()
         Handler._permit(request, distribution)
         publication = distribution.publication
         if not publication:

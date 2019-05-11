@@ -14,7 +14,6 @@ from pulp_smash.pulp3.utils import delete_orphans, gen_distribution, gen_remote,
 
 from pulp_cookbook.tests.functional.api.utils import (
     create_publication,
-    gen_publisher,
     get_content_and_unit_paths,
     get_cookbook_content,
 )
@@ -22,7 +21,6 @@ from pulp_cookbook.tests.functional.constants import (
     fixture_u1,
     COOKBOOK_DISTRIBUTION_PATH,
     COOKBOOK_REMOTE_PATH,
-    COOKBOOK_PUBLISHER_PATH,
     COOKBOOK_BASE_CONTENT_URL,
 )
 
@@ -43,12 +41,8 @@ class DownloadContentTestCase(unittest.TestCase):
 
     def create_distribution(self, cfg, client, repo):
         """Create a publication for the latest repo version and a distribution."""
-        # Create a publisher.
-        publisher = client.post(COOKBOOK_PUBLISHER_PATH, gen_publisher())
-        self.addCleanup(client.delete, publisher["_href"])
-
         # Create a publication.
-        publication = create_publication(cfg, repo, publisher=publisher)
+        publication = create_publication(cfg, repo)
         self.addCleanup(client.delete, publication["_href"])
 
         # Create a distribution.

@@ -13,17 +13,12 @@ from pulp_smash.exceptions import TaskReportError
 from pulp_smash.pulp3.constants import REPO_PATH
 from pulp_smash.pulp3.utils import delete_orphans, gen_remote, gen_repo, get_versions, sync
 
-from pulp_cookbook.tests.functional.api.utils import (
-    create_publication,
-    gen_publisher,
-    get_cookbook_content,
-)
+from pulp_cookbook.tests.functional.api.utils import create_publication, get_cookbook_content
 from pulp_cookbook.tests.functional.constants import (
     fixture_u1,
     fixture_u1_diff_digest,
     COOKBOOK_REMOTE_PATH,
     COOKBOOK_PUBLICATION_PATH,
-    COOKBOOK_PUBLISHER_PATH,
 )
 
 
@@ -68,9 +63,6 @@ class PublishAnyRepoVersionTestCase(unittest.TestCase):
         repo_content = get_cookbook_content(repo)
         self.assertTrue(repo_content)
 
-        publisher = client.post(COOKBOOK_PUBLISHER_PATH, gen_publisher())
-        self.addCleanup(client.delete, publisher["_href"])
-
         # Step 1
         repo = client.post(REPO_PATH, gen_repo())
         self.addCleanup(client.delete, repo["_href"])
@@ -80,13 +72,13 @@ class PublishAnyRepoVersionTestCase(unittest.TestCase):
         non_latest = choice(version_hrefs[:-1])
 
         # Step 2
-        publication = create_publication(cfg, repo, publisher=publisher)
+        publication = create_publication(cfg, repo)
 
         # Step 3
         self.assertEqual(publication["repository_version"], version_hrefs[-1])
 
         # Step 4
-        publication = create_publication(cfg, repo, publisher=publisher, version_href=non_latest)
+        publication = create_publication(cfg, repo, version_href=non_latest)
 
         # Step 5
         self.assertEqual(publication["repository_version"], non_latest)
@@ -135,7 +127,5 @@ class RepoVersionConstraintValidationTestCase(unittest.TestCase):
             repo_u1["_versions_href"], {"add_content_units": [content_u1_diff_digest[0]["_href"]]}
         )
 
-        publisher = client.post(COOKBOOK_PUBLISHER_PATH, gen_publisher())
-        self.addCleanup(client.delete, publisher["_href"])
         with self.assertRaisesRegex(TaskReportError, "would contain multiple versions"):
-            create_publication(cfg, repo_u1, publisher=publisher)
+            create_publication(cfg, repo_u1)

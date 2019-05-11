@@ -27,7 +27,6 @@ from pulpcore.plugin.viewsets import (
     RemoteViewSet,
     OperationPostponedResponse,
     PublicationViewSet,
-    PublisherViewSet,
 )
 
 from . import tasks
@@ -36,14 +35,12 @@ from .models import (
     CookbookPackageContent,
     CookbookRemote,
     CookbookPublication,
-    CookbookPublisher,
 )
 from .serializers import (
     CookbookDistributionSerializer,
     CookbookPackageContentSerializer,
     CookbookRemoteSerializer,
     CookbookPublicationSerializer,
-    CookbookPublisherSerializer,
 )
 
 from pulp_cookbook.metadata import CookbookMetadata
@@ -131,14 +128,6 @@ class CookbookRemoteViewSet(RemoteViewSet):
         return OperationPostponedResponse(result, request)
 
 
-class CookbookPublisherViewSet(PublisherViewSet):
-    """The ViewSet for the publisher endpoint."""
-
-    endpoint_name = "cookbook"
-    queryset = CookbookPublisher.objects.all()
-    serializer_class = CookbookPublisherSerializer
-
-
 class CookbookPublicationViewSet(PublicationViewSet):
     """
     ViewSet for Cookbook Publications.
@@ -163,20 +152,11 @@ class CookbookPublicationViewSet(PublicationViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         repository_version = serializer.validated_data.get("repository_version")
-        publisher = serializer.validated_data.get("publisher")
-
-        if publisher:
-            publisher_pk = str(publisher.pk)
-        else:
-            publisher_pk = ""
 
         result = enqueue_with_reservation(
             tasks.publish,
-            [repository_version.repository, publisher_pk],
-            kwargs={
-                "publisher_pk": publisher_pk,
-                "repository_version_pk": str(repository_version.pk),
-            },
+            [repository_version.repository],
+            kwargs={"repository_version_pk": str(repository_version.pk)},
         )
         return OperationPostponedResponse(result, request)
 

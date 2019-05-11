@@ -8,10 +8,8 @@ from django.conf import settings
 from rest_framework import serializers
 
 from pulpcore.plugin.serializers import (
-    DetailRelatedField,
     PublicationDistributionSerializer,
     PublicationSerializer,
-    PublisherSerializer,
     RelatedField,
     RemoteSerializer,
     SingleArtifactContentSerializer,
@@ -23,7 +21,6 @@ from .models import (
     CookbookDistribution,
     CookbookPackageContent,
     CookbookPublication,
-    CookbookPublisher,
     CookbookRemote,
 )
 
@@ -92,14 +89,6 @@ class CookbookRemoteSerializer(RemoteSerializer):
         )
 
 
-class CookbookPublisherSerializer(PublisherSerializer):
-    """Serializer for the publisher."""
-
-    class Meta:
-        fields = PublisherSerializer.Meta.fields
-        model = CookbookPublisher
-
-
 class CookbookPublicationSerializer(PublicationSerializer):
     """
     Serializer for Cookbook Publications.
@@ -114,14 +103,9 @@ class CookbookPublicationSerializer(PublicationSerializer):
         read_only=True,
         view_name="distributions-cookbook/cookbook-detail",
     )
-    publisher = DetailRelatedField(
-        help_text=_("The publisher that created this publication."),
-        queryset=CookbookPublisher.objects.all(),
-        required=False,
-    )
 
     class Meta:
-        fields = PublicationSerializer.Meta.fields + ("distributions", "publisher")
+        fields = PublicationSerializer.Meta.fields + ("distributions",)
         model = CookbookPublication
 
 

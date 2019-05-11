@@ -13,7 +13,7 @@ from django.db.models import Count
 from pulpcore.plugin.models import PublishedArtifact, PublishedMetadata, RepositoryVersion
 from pulpcore.plugin.tasking import WorkingDirectory
 
-from pulp_cookbook.app.models import CookbookPackageContent, CookbookPublication, CookbookPublisher
+from pulp_cookbook.app.models import CookbookPackageContent, CookbookPublication
 from pulp_cookbook.metadata import Entry, Universe
 
 log = logging.getLogger(__name__)
@@ -31,34 +31,22 @@ def replace_all_paths(content, base_url):
     return content.replace(BASE_PATH_MARKER, base_url)
 
 
-def publish(publisher_pk, repository_version_pk):
+def publish(repository_version_pk):
     """
-    Use provided publisher to create a Publication based on a RepositoryVersion.
+    Create a Publication based on a RepositoryVersion.
 
     Args:
-        publisher_pk (str): Use the publish settings provided by this publisher.
         repository_version_pk (str): Create a publication from this repository version.
     """
-    if publisher_pk:
-        publisher = CookbookPublisher.objects.get(pk=publisher_pk)
-        publisher_name = publisher.name
-    else:
-        publisher = None
-        publisher_name = ""
-
     repository_version = RepositoryVersion.objects.get(pk=repository_version_pk)
 
     log.info(
-        _("Publishing: repository=%(repository)s, version=%(version)d, publisher=%(publisher)s"),
-        {
-            "repository": repository_version.repository.name,
-            "version": repository_version.number,
-            "publisher": publisher_name,
-        },
+        _("Publishing: repository=%(repository)s, version=%(version)d"),
+        {"repository": repository_version.repository.name, "version": repository_version.number},
     )
 
     with WorkingDirectory():
-        with CookbookPublication.create(repository_version, publisher) as publication:
+        with CookbookPublication.create(repository_version) as publication:
             check_repo_version_constraint(publication)
             universe = Universe("__universe__")
             universe.write(populate(publication))

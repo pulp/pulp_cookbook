@@ -6,20 +6,13 @@
 import functools
 from unittest import SkipTest
 
-from pulp_smash import api, selectors, utils
+from pulp_smash import api, selectors
 from pulp_smash.pulp3.utils import get_added_content, get_content, get_removed_content
 
 from pulp_cookbook.tests.functional.constants import (
     COOKBOOK_CONTENT_NAME,
     COOKBOOK_PUBLICATION_PATH,
 )
-
-
-def gen_publisher(**kwargs):
-    """Return a semi-random dict for use in creating a publisher."""
-    data = {"name": utils.uuid4()}
-    data.update(kwargs)
-    return data
 
 
 def _filter_for_cookbook_content(get_func, *args, **kwargs):
@@ -50,14 +43,13 @@ def get_content_and_unit_paths(repo):
     return [(cu, rel_path(cu)) for cu in get_cookbook_content(repo)]
 
 
-def create_publication(cfg, repo, version_href=None, publisher=None):
+def create_publication(cfg, repo, version_href=None):
     """Create a cookbook publication.
 
     :param pulp_smash.config.PulpSmashConfig cfg: Information about the Pulp
         host.
     :param repo: A dict of information about the repository.
     :param version_href: A href for the repo version to be published.
-    :param publisher: A dict of publisher info to use to publish.
     :returns: A publication. A dict of information about the just created
         publication.
     """
@@ -65,9 +57,6 @@ def create_publication(cfg, repo, version_href=None, publisher=None):
         body = {"repository_version": version_href}
     else:
         body = {"repository": repo["_href"]}
-
-    if publisher:
-        body["publisher"] = publisher["_href"]
 
     client = api.Client(cfg, api.json_handler)
     call_report = client.post(COOKBOOK_PUBLICATION_PATH, body)

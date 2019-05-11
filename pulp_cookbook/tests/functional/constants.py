@@ -8,7 +8,6 @@ from urllib.parse import urljoin
 from pulp_smash.pulp3.constants import (
     BASE_DISTRIBUTION_PATH,
     BASE_PUBLICATION_PATH,
-    BASE_PUBLISHER_PATH,
     BASE_REMOTE_PATH,
     CONTENT_PATH,
 )
@@ -24,7 +23,6 @@ COOKBOOK_REMOTE_PATH = urljoin(BASE_REMOTE_PATH, "cookbook/cookbook/")
 
 COOKBOOK_DISTRIBUTION_PATH = urljoin(BASE_DISTRIBUTION_PATH, "cookbook/cookbook/")
 COOKBOOK_PUBLICATION_PATH = urljoin(BASE_PUBLICATION_PATH, "cookbook/cookbook/")
-COOKBOOK_PUBLISHER_PATH = urljoin(BASE_PUBLISHER_PATH, "cookbook/cookbook/")
 
 COOKBOOK_BASE_CONTENT_URL = "http://localhost:24816/pulp_cookbook/content/"
 

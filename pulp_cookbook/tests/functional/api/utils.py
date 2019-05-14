@@ -4,6 +4,7 @@
 
 """Utilities for cookbook plugin tests."""
 import functools
+from urllib.parse import urljoin
 from unittest import SkipTest
 
 from pulp_smash import api, selectors
@@ -62,6 +63,24 @@ def create_publication(cfg, repo, version_href=None):
     call_report = client.post(COOKBOOK_PUBLICATION_PATH, body)
     tasks = tuple(api.poll_spawned_tasks(cfg, call_report))
     return client.get(tasks[-1]["created_resources"][0])
+
+
+def sync_raw(cfg, remote, repo, **kwargs):
+    """Sync a repository and get a task report back (instead of the created resource).
+
+    :param pulp_smash.config.PulpSmashConfig cfg: Information about the Pulp
+        host.
+    :param remote: A dict of information about the remote of the repository
+        to be synced.
+    :param repo: A dict of information about the repository.
+    :param kwargs: Keyword arguments to be merged in to the request data.
+    :returns: The server's response. Call ``.json()`` on the response to get
+        a call report.
+    """
+    client = api.Client(cfg, api.json_handler)
+    data = {"repository": repo["_href"]}
+    data.update(kwargs)
+    return client.post(urljoin(remote["_href"], "sync/"), data)
 
 
 skip_if = functools.partial(selectors.skip_if, exc=SkipTest)  # pylint:disable=invalid-name

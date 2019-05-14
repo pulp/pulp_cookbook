@@ -21,6 +21,7 @@ from pulp_cookbook.tests.functional.api.utils import (
     get_cookbook_added_content,
     get_cookbook_content,
     get_cookbook_removed_content,
+    sync_raw,
 )
 
 
@@ -74,9 +75,9 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
 
         """
         if mirror is None:
-            sync_resp = sync(self.cfg, remote, repo)
+            sync_resp = sync_raw(self.cfg, remote, repo)
         else:
-            sync_resp = sync(self.cfg, remote, repo, mirror=mirror)
+            sync_resp = sync_raw(self.cfg, remote, repo, mirror=mirror)
         tasks = tuple(api.poll_spawned_tasks(self.cfg, sync_resp))
         self.assertEqual(len(tasks), 1)
         for report in tasks[0]["progress_reports"]:

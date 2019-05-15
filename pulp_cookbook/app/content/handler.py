@@ -10,6 +10,7 @@ from django.db import IntegrityError, transaction
 
 from pulpcore.plugin.content import Handler, PathNotResolved
 
+from pulp_cookbook.app.models import CookbookDistribution
 from pulp_cookbook.app.tasks.publishing import replace_all_paths
 from pulp_cookbook.app.utils import pulp_cookbook_content_path
 
@@ -26,6 +27,8 @@ class CookbookContentHandler(Handler):
        with the digest of the downloaded artifact.
     """
 
+    distribution_model = CookbookDistribution
+
     async def handle_universe(self, request):
         """
         Serve the '__universe__' metadata object at '/universe'.
@@ -34,7 +37,7 @@ class CookbookContentHandler(Handler):
         the content of '__universe__' on the fly.
         """
         path = request.match_info["path"] + "/universe"
-        distribution = Handler._match_distribution(path).cast()
+        distribution = Handler._match_distribution(path)
         Handler._permit(request, distribution)
         publication = distribution.publication
         if not publication:

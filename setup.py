@@ -7,13 +7,13 @@ with open("README.rst") as f:
 
 setup(
     name="pulp-cookbook",
-    version="0.0.4b2",
+    version="0.0.4b3",
     description="Cookbook plugin for the Pulp Project",
     long_description=long_description,
     author="Simon Baatz",
     author_email="gmbnomis@gmail.com",
     url="https://github.com/gmbnomis/pulp_cookbook/",
-    install_requires=["pulpcore-plugin~=0.1rc1"],
+    install_requires=["pulpcore-plugin~=0.1rc2"],
     extras_require={"postgres": ["pulpcore[postgres]"], "mysql": ["pulpcore[mysql]"]},
     include_package_data=True,
     packages=find_packages(exclude=["test"]),

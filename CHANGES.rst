@@ -1,6 +1,15 @@
 pulp-cookbook Changelog
 =======================
 
+Version 0.0.4b3
+---------------
+
+Released on May 20, 2019
+
+- Removed the publisher, publications can be created directly
+- Fix: distributions now return the correct ``base_url``
+- Adapt to pulpcore-plugin 0.1rc2
+
 Version 0.0.4b2
 ---------------
 

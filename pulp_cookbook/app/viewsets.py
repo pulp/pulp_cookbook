@@ -58,7 +58,7 @@ class CookbookPackageContentViewSet(ContentViewSet):
     """The ViewSet for the content endpoint."""
 
     endpoint_name = "cookbooks"
-    queryset = CookbookPackageContent.objects.all()
+    queryset = CookbookPackageContent.objects.order_by("_id").prefetch_related("_artifacts")
     serializer_class = CookbookPackageContentSerializer
     filterset_class = CookbookPackageContentFilter
 

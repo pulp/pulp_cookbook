@@ -2,3 +2,11 @@
 line-length = 100
 target-version = ["py36", "py37"]
 skip-numeric-underscore-normalization = true
+
+[tool.towncrier]
+package = "pulp_cookbook"
+filename = "CHANGES.rst"
+directory = "CHANGES/"
+title_format = "{version} ({project_date})"
+template = "CHANGES/.TEMPLATE.rst"
+issue_format = "`#{issue} <https://pulp.plan.io/issues/{issue}>`_"

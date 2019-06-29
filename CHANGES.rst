@@ -1,8 +1,18 @@
+=======================
 pulp-cookbook Changelog
 =======================
 
+..
+    You should *NOT* be adding new change log entries to this file, this
+    file is managed by towncrier. You *may* edit previous change logs to
+    fix problems like typo corrections or such.
+    To add a new change log entry, please see CONTRIBUTING.rst.
+
+.. towncrier release notes start
+
+
 Version 0.0.4b3
----------------
+===============
 
 Released on May 20, 2019
 
@@ -11,14 +21,14 @@ Released on May 20, 2019
 - Adapt to pulpcore-plugin 0.1rc2
 
 Version 0.0.4b2
----------------
+===============
 
 Released on Mar 31, 2019
 
 - Adapt to pulpcore-plugin 0.1rc1
 
 Version 0.0.4b1
----------------
+===============
 
 Released on Feb 5, 2019
 
@@ -32,7 +42,7 @@ Released on Feb 5, 2019
 
 
 Version 0.0.3a2
----------------
+===============
 
 Released on Dec 21, 2018
 
@@ -40,7 +50,7 @@ Released on Dec 21, 2018
 
 
 Version 0.0.3a1
----------------
+===============
 
 Released on Dec 19, 2018
 
@@ -48,7 +58,7 @@ Released on Dec 19, 2018
 
 
 Version 0.0.2a2
----------------
+===============
 
 Released on Sep 14, 2018
 

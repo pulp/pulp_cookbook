@@ -72,8 +72,10 @@ class CookbookPackageContentViewSetTestCase(TestCase):
                     self.assertIsNone(content["_artifact"])
                 else:
                     self.assertIsNotNone(content["_artifact"])
-            # 1 query for authentication, 1 for content count, 1 for content, and 1
+            # 2 queries for authentication, 1 for content count, 1 for content, and 1
             # for the Artifact prefetch
-            self.assertLessEqual(len(connection.queries), 4)
+            self.assertLessEqual(
+                len(connection.queries), 5, msg=f"More than 5 queries:\n {connection.queries}"
+            )
             next_url = content_result["next"]
         self.assertEqual(number_cookbooks, 101)

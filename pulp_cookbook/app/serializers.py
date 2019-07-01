@@ -7,6 +7,7 @@ from gettext import gettext as _
 from django.conf import settings
 from rest_framework import serializers
 
+from pulpcore.plugin import models
 from pulpcore.plugin.serializers import (
     PublicationDistributionSerializer,
     PublicationSerializer,
@@ -63,6 +64,15 @@ class CookbookPackageContentSerializer(SingleArtifactContentSerializer):
 
 class CookbookRemoteSerializer(RemoteSerializer):
     """Serializer for the remote pointing to a universe repo."""
+
+    policy = serializers.ChoiceField(
+        help_text=_(
+            "The policy to use when downloading content. The possible values include: "
+            "'immediate', 'on_demand', and 'streamed'. 'immediate' is the default."
+        ),
+        choices=models.Remote.POLICY_CHOICES,
+        default=models.Remote.IMMEDIATE,
+    )
 
     cookbooks = serializers.JSONField(
         help_text=_(

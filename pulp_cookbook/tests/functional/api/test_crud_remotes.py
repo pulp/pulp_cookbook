@@ -127,7 +127,5 @@ def _gen_verbose_remote():
     Note that 'username' and 'password' are write-only attributes.
     """
     attrs = gen_remote(choice((fixture_u1.url, COOKBOOK2_FIXTURE_URL)))
-    attrs.update(
-        {"password": utils.uuid4(), "username": utils.uuid4(), "validate": choice((False, True))}
-    )
+    attrs.update({"password": utils.uuid4(), "username": utils.uuid4()})
     return attrs

@@ -5,6 +5,8 @@ flake8
 flake8-docstrings
 flake8-tuple
 flake8-quotes
+# pin pydocstyle until https://gitlab.com/pycqa/flake8-docstrings/issues/36 is resolved
+pydocstyle<4
 mock
 git+https://github.com/PulpQE/pulp-smash.git#egg=pulp-smash
 pytest

@@ -7,6 +7,9 @@
 .. image:: https://img.shields.io/pypi/pyversions/pulp-cookbook.svg
    :target: https://pypi.python.org/pypi/pulp-cookbook
    :alt: PyPI - Python Version
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/ambv/black
+   :alt: Code style: black
 
 
 ``pulp_cookbook`` Plugin

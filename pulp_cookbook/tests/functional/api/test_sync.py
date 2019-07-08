@@ -7,7 +7,7 @@ import unittest
 
 from pulp_smash import api, config
 from pulp_smash.exceptions import TaskReportError
-from pulp_smash.pulp3.constants import DOWNLOAD_POLICIES as ALL_DOWNLOAD_POLICIES
+from pulp_smash.pulp3.constants import IMMEDIATE_DOWNLOAD_POLICIES, ON_DEMAND_DOWNLOAD_POLICIES
 from pulp_smash.pulp3.constants import REPO_PATH
 from pulp_smash.pulp3.utils import delete_orphans, gen_remote, gen_repo, sync
 
@@ -344,7 +344,7 @@ class SyncInvalidTestCase(unittest.TestCase):
         Test that we get a task failure when using an unsupported policy. See
         :meth:`do_test`.
         """
-        for policy in ALL_DOWNLOAD_POLICIES:
+        for policy in IMMEDIATE_DOWNLOAD_POLICIES + ON_DEMAND_DOWNLOAD_POLICIES:
             if policy not in DOWNLOAD_POLICIES:
                 context = self.do_test(fixture_u1.url, policy=policy)
                 self.assertIsNotNone(context.exception.task["error"]["description"])

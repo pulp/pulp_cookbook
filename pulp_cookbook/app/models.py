@@ -96,6 +96,7 @@ class CookbookPackageContent(Content):
         return models.Q(**self.repo_key_dict())
 
     class Meta:
+        default_related_name = "%(app_label)s_%(model_name)s"
         unique_together = ("name", "version", "content_id_type", "content_id")
 
 
@@ -114,6 +115,9 @@ class CookbookRemote(Remote):
         else:
             return set(self.cookbooks.keys())
 
+    class Meta:
+        default_related_name = "%(app_label)s_%(model_name)s"
+
 
 class CookbookPublication(Publication):
     """
@@ -122,6 +126,9 @@ class CookbookPublication(Publication):
 
     TYPE = "cookbook"
 
+    class Meta:
+        default_related_name = "%(app_label)s_%(model_name)s"
+
 
 class CookbookDistribution(PublicationDistribution):
     """
@@ -129,3 +136,6 @@ class CookbookDistribution(PublicationDistribution):
     """
 
     TYPE = "cookbook"
+
+    class Meta:
+        default_related_name = "%(app_label)s_%(model_name)s"

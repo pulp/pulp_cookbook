@@ -108,7 +108,7 @@ class CookbookPublicationSerializer(PublicationSerializer):
         help_text=_(
             "This publication is currently being served as defined by these distributions."
         ),
-        source="cookbookdistribution_set",
+        source="cookbook_cookbookdistribution",
         many=True,
         read_only=True,
         view_name="distributions-cookbook/cookbook-detail",

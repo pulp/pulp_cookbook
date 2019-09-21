@@ -91,7 +91,6 @@ Make and Run Migrations
 .. code-block:: bash
 
    export DJANGO_SETTINGS_MODULE=pulpcore.app.settings
-   django-admin makemigrations pulp_cookbook
    django-admin migrate pulp_cookbook
 
 Run Services

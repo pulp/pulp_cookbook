@@ -35,8 +35,8 @@ setup(
     author="Simon Baatz",
     author_email="gmbnomis@gmail.com",
     url="https://github.com/gmbnomis/pulp_cookbook/",
-    install_requires=["pulpcore-plugin~=0.1rc3"],
-    extras_require={"postgres": ["pulpcore[postgres]"], "mysql": ["pulpcore[mysql]"]},
+    install_requires=["pulpcore-plugin~=0.1rc5"],
+    extras_require={"postgres": ["pulpcore[postgres]"]},
     include_package_data=True,
     packages=find_packages(exclude=["test"]),
     classifiers=(

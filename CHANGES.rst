@@ -10,6 +10,26 @@ pulp-cookbook Changelog
 
 .. towncrier release notes start
 
+0.1.0b1 (2019-09-21)
+====================
+
+
+Features
+--------
+
+- - Migrations are checked in now.
+  `#39 <https://github.com/gmbnomis/pulp_cookbook/issues/39>`_
+
+
+Bugfixes
+--------
+
+- - Fix breaking changes introduced by DRF 3.10
+  `#36 <https://github.com/gmbnomis/pulp_cookbook/issues/36>`_
+
+
+----
+
 
 Version 0.0.4b3
 ===============

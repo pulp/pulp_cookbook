@@ -92,9 +92,9 @@ class DownloadContentTestCase(unittest.TestCase):
         cu_updated = client.get(cu["_href"]).json()
         if policy != "streamed":
             self.assertEqual(fixtures_hash, cu_updated["content_id"])
-            self.assertIsNotNone(cu_updated["_artifact"])
+            self.assertIsNotNone(cu_updated["artifact"])
         else:
-            self.assertIsNone(cu_updated["_artifact"])
+            self.assertIsNone(cu_updated["artifact"])
 
     def sync_and_download_check(self, policy):
         """Verify whether content served by pulp can be downloaded.

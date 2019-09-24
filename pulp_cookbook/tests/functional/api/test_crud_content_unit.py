@@ -20,7 +20,7 @@ def _gen_content_unit_attrs(artifact, name):
     :param: artifact: A dict of info about the artifact.
     :returns: A dict for use in creating a content unit.
     """
-    return {"_artifact": artifact["_href"], "name": name}
+    return {"artifact": artifact["_href"], "name": name}
 
 
 class ContentUnitTestCase(unittest.TestCase):
@@ -110,7 +110,7 @@ class ContentUnitTestCase(unittest.TestCase):
 
     def test_05_create_content_unit_without_artifact(self):
         """Create content unit without an artifact."""
-        attrs = {"name": "no_artifact", "_artifact": None}
+        attrs = {"name": "no_artifact", "artifact": None}
         with self.assertRaises(HTTPError) as exc:
             self.client.post(COOKBOOK_CONTENT_PATH, attrs)
         self.assertEqual(exc.exception.response.status_code, 400)

@@ -176,12 +176,12 @@ Create ``cookbook`` content from an Artifact
 
 Create a content unit for ubuntu 2.0.1:
 
-``$ http POST http://localhost:24817/pulp/api/v3/content/cookbook/cookbooks/ name="ubuntu" _artifact="$UBUNTU_ARTIFACT_HREF"``
+``$ http POST http://localhost:24817/pulp/api/v3/content/cookbook/cookbooks/ name="ubuntu" artifact="$UBUNTU_ARTIFACT_HREF"``
 
 .. code:: json
 
     {
-        "_artifact": "/pulp/api/v3/artifacts/f1469706-e8fe-4ecd-80d1-60a55b4f828c/",
+        "artifact": "/pulp/api/v3/artifacts/f1469706-e8fe-4ecd-80d1-60a55b4f828c/",
         "_created": "2019-03-30T22:36:05.331407Z",
         "_href": "/pulp/api/v3/content/cookbook/cookbooks/2ee7a09b-bfde-4d3c-a1bf-fc2a327fd15a/",
         "_type": "cookbook.cookbook",
@@ -197,12 +197,12 @@ Create a content unit for ubuntu 2.0.1:
 
 Create a content unit for apt 7.0.0:
 
-``$ http POST http://localhost:24817/pulp/api/v3/content/cookbook/cookbooks/ name="apt" _artifact="$APT_ARTIFACT_HREF"``
+``$ http POST http://localhost:24817/pulp/api/v3/content/cookbook/cookbooks/ name="apt" artifact="$APT_ARTIFACT_HREF"``
 
 .. code:: json
 
     {
-        "_artifact": "/pulp/api/v3/artifacts/250b94e1-2b6a-4de8-a8c5-0e27d56f4687/",
+        "artifact": "/pulp/api/v3/artifacts/250b94e1-2b6a-4de8-a8c5-0e27d56f4687/",
         "_created": "2019-03-30T22:36:46.013134Z",
         "_href": "/pulp/api/v3/content/cookbook/cookbooks/f5bde692-a440-4bf7-a873-1465c68c0932/",
         "_type": "cookbook.cookbook",

@@ -7,7 +7,7 @@ import uuid
 from django.db import models
 
 from pulpcore.plugin.models import Content, PublicationDistribution, Publication, Remote
-from pulpcore.plugin.fields import JSONField
+from django.contrib.postgres.fields import JSONField
 
 
 class CookbookPackageContent(Content):
@@ -107,10 +107,10 @@ class CookbookRemote(Remote):
 
     TYPE = "cookbook"
 
-    cookbooks = JSONField(blank=True)
+    cookbooks = JSONField(null=True)
 
     def specifier_cookbook_names(self):
-        if self.cookbooks == "":  # blank JSON field
+        if self.cookbooks is None:
             return None
         else:
             return set(self.cookbooks.keys())

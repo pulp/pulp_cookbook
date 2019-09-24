@@ -69,9 +69,9 @@ class CookbookPackageContentViewSetTestCase(TestCase):
             for content in content_result["results"]:
                 number_cookbooks += 1
                 if content["name"] == "c_wo_artifact":
-                    self.assertIsNone(content["_artifact"])
+                    self.assertIsNone(content["artifact"])
                 else:
-                    self.assertIsNotNone(content["_artifact"])
+                    self.assertIsNotNone(content["artifact"])
             # 2 queries for authentication, 1 for content count, 1 for content, and 1
             # for the Artifact prefetch
             self.assertLessEqual(

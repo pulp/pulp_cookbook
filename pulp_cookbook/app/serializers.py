@@ -45,14 +45,14 @@ class CookbookPackageContentSerializer(SingleArtifactContentSerializer):
     def validate(self, data):
         """Validate the CookbookPackageContent data."""
         data = super().validate(data)
-        data["_relative_path"] = CookbookPackageContent.relative_path_from_data(data)
+        data["relative_path"] = CookbookPackageContent.relative_path_from_data(data)
         return data
 
     def update(self, instance, validated_data):
         raise serializers.ValidationError("content is immutable")
 
     class Meta:
-        fields = tuple(set(SingleArtifactContentSerializer.Meta.fields) - {"_relative_path"}) + (
+        fields = tuple(set(SingleArtifactContentSerializer.Meta.fields) - {"relative_path"}) + (
             "name",
             "version",
             "dependencies",

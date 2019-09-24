@@ -10,7 +10,7 @@ from urllib.parse import urljoin
 
 from django.db.models import Prefetch, Q
 
-from pulpcore.plugin.models import Artifact, ContentArtifact, ProgressBar, Remote, Repository
+from pulpcore.plugin.models import Artifact, ContentArtifact, ProgressReport, Remote, Repository
 from pulpcore.plugin.stages import (
     DeclarativeArtifact,
     DeclarativeContent,
@@ -173,14 +173,16 @@ class CookbookFirstStage(Stage):
         using this specifier.
 
         """
-        with ProgressBar(message="Downloading Metadata", total=1) as pb:
+        with ProgressReport(
+            message="Downloading Metadata", code="downloading.metadata", total=1
+        ) as pb:
             downloader = self.remote.get_downloader(url=urljoin(self.remote.url + "/", "universe"))
             result = await downloader.run()
             pb.increment()
 
         cookbook_names = self.remote.specifier_cookbook_names()
 
-        with ProgressBar(message="Parsing Metadata") as pb:
+        with ProgressReport(message="Parsing Metadata", code="parsing.metadata") as pb:
             universe = Universe(result.path)
             for entry in universe.read():
                 if cookbook_names and entry.name not in cookbook_names:

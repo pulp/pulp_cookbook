@@ -56,14 +56,14 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
                     64,
                     msg=f"{cookbook} does not have a SHA256 content_id",
                 )
-                self.assertIsNotNone(cookbook["_artifact"])
+                self.assertIsNotNone(cookbook["artifact"])
             else:
                 self.assertEqual(
                     len(cookbook["content_id"]),
                     36,
                     msg=f"{cookbook} does not have a UUID conten_id",
                 )
-                self.assertIsNone(cookbook["_artifact"])
+                self.assertIsNone(cookbook["artifact"])
 
     def sync_and_inspect_task_report(
         self, remote, repo, download_count, mirror=None, policy="immediate"
@@ -309,9 +309,9 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
                     c_u1["name"] == c_u1_diff_digest["name"]
                     and c_u1["version"] == c_u1_diff_digest["version"]
                 ):
-                    artifact_u1 = client.get(c_u1["_artifact"])
+                    artifact_u1 = client.get(c_u1["artifact"])
                     self.assertEqual(c_u1["content_id"], artifact_u1["sha256"])
-                    artifact_u1_diff_digest = client.get(c_u1_diff_digest["_artifact"])
+                    artifact_u1_diff_digest = client.get(c_u1_diff_digest["artifact"])
                     self.assertEqual(
                         c_u1_diff_digest["content_id"], artifact_u1_diff_digest["sha256"]
                     )

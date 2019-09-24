@@ -66,9 +66,9 @@ class CookbookPackageContentViewSet(ContentViewSet):
     def create(self, request):
         data = request.data
         try:
-            artifact = self.get_resource(data["_artifact"], Artifact)
+            artifact = self.get_resource(data["artifact"], Artifact)
         except KeyError:
-            raise serializers.ValidationError(detail={"_artifact": _("This field is required")})
+            raise serializers.ValidationError(detail={"artifact": _("This field is required")})
 
         abs_filepath = os.path.join(settings.MEDIA_ROOT, artifact.file.name)
         try:
@@ -77,7 +77,7 @@ class CookbookPackageContentViewSet(ContentViewSet):
             raise serializers.ValidationError(detail={"name": _("This field is required")})
         except FileNotFoundError:
             raise serializers.ValidationError(
-                detail={"_artifact": _("No metadata.json found in cookbook tar")}
+                detail={"artifact": _("No metadata.json found in cookbook tar")}
             )
 
         try:

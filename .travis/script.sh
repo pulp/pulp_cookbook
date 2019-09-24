@@ -76,17 +76,12 @@ if [ "$TEST" = 'bindings' ]; then
   exit
 fi
 
-
-PULP_API_POD=$(sudo kubectl get pods | grep -E -o "pulp-api-(\w+)-(\w+)")
+# Aliases for running commands in the pulp-api container.
+export PULP_API_POD=$(sudo kubectl get pods | grep -E -o "pulp-api-(\w+)-(\w+)")
+# Run a command
 export CMD_PREFIX="sudo kubectl exec $PULP_API_POD --"
+# Run a command, and pass STDIN
 export CMD_STDIN_PREFIX="sudo kubectl exec -i $PULP_API_POD --"
-# Tests require additional modules, but users do not need them at runtime
-# (or to add plugins on top of pulpcore or pulp container images.)
-# So install test requirements here, rather than in the image Dockerfile.
-cat test_requirements.txt | $CMD_STDIN_PREFIX bash -c "cat > /tmp/test_requirements.txt"
-$CMD_PREFIX pip3 install -r /tmp/test_requirements.txt
-# Many functional tests require these
-$CMD_PREFIX dnf install -yq lsof which dnf-plugins-core
 # The alias does not seem to work in Travis / the scripting framework
 #alias pytest="$CMD_PREFIX pytest"
 

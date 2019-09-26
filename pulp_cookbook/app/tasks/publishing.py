@@ -50,12 +50,11 @@ def publish(repository_version_pk):
             check_repo_version_constraint(publication)
             universe = Universe("__universe__")
             universe.write(populate(publication))
-            metadata = PublishedMetadata(
+            PublishedMetadata.create_from_file(
                 relative_path=os.path.basename(universe.relative_path),
                 publication=publication,
                 file=File(open(universe.relative_path, "rb")),
             )
-            metadata.save()
 
     log.info(_("Publication: %(publication)s created"), {"publication": publication.pk})
 

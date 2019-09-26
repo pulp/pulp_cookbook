@@ -42,9 +42,10 @@ class CookbookContentHandler(Handler):
         publication = distribution.publication
         if not publication:
             raise PathNotResolved(path)
-        pm = publication.published_metadata.get(relative_path="__universe__")
+        pa = publication.published_artifact.get(relative_path="__universe__")
+        ca = pa.content_artifact
         try:
-            with pm.file.open("rb") as u:
+            with ca.artifact.file.open("rb") as u:
                 content = u.read().decode("utf-8")
         except FileNotFoundError:
             return PathNotResolved(path)

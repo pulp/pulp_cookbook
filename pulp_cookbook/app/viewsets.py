@@ -2,17 +2,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from gettext import gettext as _
-import os
-
-from django.conf import settings
-from django.db import transaction
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import action
-from rest_framework import serializers, status
-from rest_framework.response import Response
 
-from pulpcore.plugin.models import Artifact
 from pulpcore.plugin.serializers import (
     AsyncOperationResponseSerializer,
     RepositorySyncURLSerializer,
@@ -21,12 +13,12 @@ from pulpcore.plugin.serializers import (
 from pulpcore.plugin.tasking import enqueue_with_reservation
 
 from pulpcore.plugin.viewsets import (
-    ContentFilter,
-    ContentViewSet,
     BaseDistributionViewSet,
-    RemoteViewSet,
+    ContentFilter,
     OperationPostponedResponse,
     PublicationViewSet,
+    RemoteViewSet,
+    SingleArtifactContentUploadViewSet,
 )
 
 from . import tasks
@@ -43,8 +35,6 @@ from .serializers import (
     CookbookPublicationSerializer,
 )
 
-from pulp_cookbook.metadata import CookbookMetadata
-
 
 class CookbookPackageContentFilter(ContentFilter):
     """Filters for the content endpoint."""
@@ -54,49 +44,13 @@ class CookbookPackageContentFilter(ContentFilter):
         fields = ["name", "version", "content_id"]
 
 
-class CookbookPackageContentViewSet(ContentViewSet):
+class CookbookPackageContentViewSet(SingleArtifactContentUploadViewSet):
     """The ViewSet for the content endpoint."""
 
     endpoint_name = "cookbooks"
     queryset = CookbookPackageContent.objects.order_by("_id").prefetch_related("_artifacts")
     serializer_class = CookbookPackageContentSerializer
     filterset_class = CookbookPackageContentFilter
-
-    @transaction.atomic
-    def create(self, request):
-        data = request.data
-        try:
-            artifact = self.get_resource(data["artifact"], Artifact)
-        except KeyError:
-            raise serializers.ValidationError(detail={"artifact": _("This field is required")})
-
-        abs_filepath = os.path.join(settings.MEDIA_ROOT, artifact.file.name)
-        try:
-            metadata = CookbookMetadata.from_cookbook_file(abs_filepath, data["name"])
-        except KeyError:
-            raise serializers.ValidationError(detail={"name": _("This field is required")})
-        except FileNotFoundError:
-            raise serializers.ValidationError(
-                detail={"artifact": _("No metadata.json found in cookbook tar")}
-            )
-
-        try:
-            if data["version"] != metadata.version:
-                raise serializers.ValidationError(
-                    detail={"version": _("version does not correspond to version in cookbook tar")}
-                )
-        except KeyError:
-            pass
-        data["version"] = metadata.version
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(
-            dependencies=metadata.dependencies,
-            content_id_type=CookbookPackageContent.SHA256,
-            content_id=artifact.sha256,
-        )
-        headers = self.get_success_headers(request.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class CookbookRemoteViewSet(RemoteViewSet):

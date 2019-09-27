@@ -115,12 +115,13 @@ Create a repository ``foo``
 .. code:: json
 
     {
-        "_created": "2019-03-30T22:33:45.622911Z",
-        "_href": "/pulp/api/v3/repositories/4782fa5b-c36e-4a24-867d-5965525609e3/",
+        "_created": "2019-10-03T16:29:25.171311Z",
+        "_href": "/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/",
         "_latest_version_href": null,
-        "_versions_href": "/pulp/api/v3/repositories/4782fa5b-c36e-4a24-867d-5965525609e3/versions/",
-        "description": "",
-        "name": "foo"
+        "_versions_href": "/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/versions/",
+        "description": null,
+        "name": "foo",
+        "plugin_managed": false
     }
 
 ``$ export REPO_HREF=$(http :24817/pulp/api/v3/repositories/ | jq -r '.results[] | select(.name == "foo") | ._href')``
@@ -137,80 +138,15 @@ Download 'ubuntu' and 'apt' cookbooks (the 'ubuntu' cookbooks depends on the
 ``$ curl -Lo ubuntu-2.0.1.tgz https://supermarket.chef.io:443/api/v1/cookbooks/ubuntu/versions/2.0.1/download``
 ``$ curl -Lo apt-7.0.0.tgz https://supermarket.chef.io:443/api/v1/cookbooks/apt/versions/7.0.0/download``
 
-
-Create artifacts by uploading the cookbooks to Pulp. First, the artifact for the
-"ubuntu" cookbook:
-
-.. code:: bash
-
-    ubuntu_resp=$(http --form POST http://localhost:24817/pulp/api/v3/artifacts/ file@ubuntu-2.0.1.tgz)
-    echo "$ubuntu_resp" | jq .
-    export UBUNTU_ARTIFACT_HREF=$(echo "$ubuntu_resp" | jq -r '._href')
-
-
-.. code:: json
-
-    {
-    "_href": "/pulp/api/v3/artifacts/f1469706-e8fe-4ecd-80d1-60a55b4f828c/",
-    "_created": "2019-03-30T22:34:36.926220Z",
-    "file": "artifact/32/a7d3de4ff8f769eeab4ffc982eb8df845d91d49c01548d6f993b10e52b6f69",
-    "size": 3712,
-    "md5": "36b2b6e59dfd4ce8185042e384d73498",
-    "sha1": "e66700968de9441266e48178acfe63f605d04101",
-    "sha224": "60807a9415be340a0eaab792c85c0b143f48d18ee82a9e3774c82d18",
-    "sha256": "32a7d3de4ff8f769eeab4ffc982eb8df845d91d49c01548d6f993b10e52b6f69",
-    "sha384": "2c5ce13bce99a1f9321d52b7cd9e8a8f4388c7def8b6f977ba6a095bf68e723c4053b5b8687609fb26c8e5e06ec88f84",
-    "sha512": "b9311176f3cad3aad486717f96ed6a87e520fceb03f389dc5980499ebcef0388acea2106fe964a2e411f39abfbf194d56b96825d7befaef7d3ebbeeb0f5b4c6c"
-    }
-
-And then, the "apt" cookbook:
-
-.. code:: bash
-
-    apt_resp=$(http --form POST http://localhost:24817/pulp/api/v3/artifacts/ file@apt-7.0.0.tgz)
-    echo "$apt_resp" | jq .
-    export APT_ARTIFACT_HREF=$(echo "$apt_resp" | jq -r '._href')
-
-Create ``cookbook`` content from an Artifact
---------------------------------------------
-
 Create a content unit for ubuntu 2.0.1:
 
-``$ http POST http://localhost:24817/pulp/api/v3/content/cookbook/cookbooks/ name="ubuntu" artifact="$UBUNTU_ARTIFACT_HREF"``
-
-.. code:: json
-
-    {
-        "artifact": "/pulp/api/v3/artifacts/f1469706-e8fe-4ecd-80d1-60a55b4f828c/",
-        "_created": "2019-03-30T22:36:05.331407Z",
-        "_href": "/pulp/api/v3/content/cookbook/cookbooks/2ee7a09b-bfde-4d3c-a1bf-fc2a327fd15a/",
-        "_type": "cookbook.cookbook",
-        "content_id": "32a7d3de4ff8f769eeab4ffc982eb8df845d91d49c01548d6f993b10e52b6f69",
-        "dependencies": {
-            "apt": ">= 0.0.0"
-        },
-        "name": "ubuntu",
-        "version": "2.0.1"
-    }
+``$ http --form POST http://localhost:24817/pulp/api/v3/content/cookbook/cookbooks/ name="ubuntu" file@ubuntu-2.0.1.tgz``
 
 ``$ export UBUNTU_CONTENT_HREF=$(http :24817/pulp/api/v3/content/cookbook/cookbooks/?name=ubuntu | jq -r '.results[0]._href')``
 
 Create a content unit for apt 7.0.0:
 
-``$ http POST http://localhost:24817/pulp/api/v3/content/cookbook/cookbooks/ name="apt" artifact="$APT_ARTIFACT_HREF"``
-
-.. code:: json
-
-    {
-        "artifact": "/pulp/api/v3/artifacts/250b94e1-2b6a-4de8-a8c5-0e27d56f4687/",
-        "_created": "2019-03-30T22:36:46.013134Z",
-        "_href": "/pulp/api/v3/content/cookbook/cookbooks/f5bde692-a440-4bf7-a873-1465c68c0932/",
-        "_type": "cookbook.cookbook",
-        "content_id": "c1953292327871542d97a31989ff745c49f610c0f1a16b147d59bc4a60f6e7cd",
-        "dependencies": {},
-        "name": "apt",
-        "version": "7.0.0"
-    }
+``$ http --form POST http://localhost:24817/pulp/api/v3/content/cookbook/cookbooks/ name="apt" file@apt-7.0.0.tgz``
 
 ``$ export APT_CONTENT_HREF=$(http :24817/pulp/api/v3/content/cookbook/cookbooks/?name=apt | jq -r '.results[0]._href')``
 
@@ -304,9 +240,9 @@ Let's mirror the ``pulp`` and ``qpid`` cookbooks into our existing repo. First, 
 .. code:: json
 
     {
-        "_created": "2019-03-30T22:39:23.020585Z",
-        "_href": "/pulp/api/v3/remotes/cookbook/cookbook/2ccb7aed-1625-419f-bf4a-8dce87c43b63/",
-        "_last_updated": "2019-03-30T22:39:23.020603Z",
+        "_created": "2019-10-03T16:37:19.240581Z",
+        "_href": "/pulp/api/v3/remotes/cookbook/cookbook/601c0402-30ff-4209-9008-5bc0339419be/",
+        "_last_updated": "2019-10-03T16:37:19.240602Z",
         "_type": "cookbook.cookbook",
         "cookbooks": {
             "pulp": "",
@@ -315,10 +251,12 @@ Let's mirror the ``pulp`` and ``qpid`` cookbooks into our existing repo. First, 
         "download_concurrency": 20,
         "name": "foo_remote",
         "policy": "immediate",
-        "proxy_url": "",
+        "proxy_url": null,
+        "ssl_ca_certificate": null,
+        "ssl_client_certificate": null,
+        "ssl_client_key": null,
         "ssl_validation": true,
-        "url": "https://supermarket.chef.io/",
-        "validate": true
+        "url": "https://supermarket.chef.io/"
     }
 
 ``$ export REMOTE_HREF=$(http :24817/pulp/api/v3/remotes/cookbook/cookbook/ | jq -r '.results[] | select(.name == "foo_remote") | ._href')``
@@ -339,20 +277,20 @@ Look at the new Repository Version created
 .. code:: json
 
     {
-        "_created": "2019-03-30T22:40:09.204067Z",
-        "_href": "/pulp/api/v3/repositories/4782fa5b-c36e-4a24-867d-5965525609e3/versions/2/",
+        "_created": "2019-10-03T16:38:18.843201Z",
+        "_href": "/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/versions/2/",
         "base_version": null,
         "content_summary": {
             "added": {
                 "cookbook.cookbook": {
                     "count": 2,
-                    "href": "/pulp/api/v3/content/cookbook/cookbooks/?repository_version_added=/pulp/api/v3/repositories/4782fa5b-c36e-4a24-867d-5965525609e3/versions/2/"
+                    "href": "/pulp/api/v3/content/cookbook/cookbooks/?repository_version_added=/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/versions/2/"
                 }
             },
             "present": {
                 "cookbook.cookbook": {
                     "count": 4,
-                    "href": "/pulp/api/v3/content/cookbook/cookbooks/?repository_version=/pulp/api/v3/repositories/4782fa5b-c36e-4a24-867d-5965525609e3/versions/2/"
+                    "href": "/pulp/api/v3/content/cookbook/cookbooks/?repository_version=/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/versions/2/"
                 }
             },
             "removed": {}

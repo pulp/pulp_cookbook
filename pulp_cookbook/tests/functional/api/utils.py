@@ -4,10 +4,14 @@
 
 """Utilities for cookbook plugin tests."""
 import functools
+import hashlib
+import requests
 from urllib.parse import urljoin
+
 from unittest import SkipTest
 
 from pulp_smash import api, selectors
+from pulp_smash.log import logger
 from pulp_smash.pulp3.utils import get_added_content, get_content, get_removed_content
 
 from pulp_cookbook.tests.functional.constants import (
@@ -25,6 +29,28 @@ def _filter_for_cookbook_content(get_func, *args, **kwargs):
 get_cookbook_content = functools.partial(_filter_for_cookbook_content, get_content)
 get_cookbook_added_content = functools.partial(_filter_for_cookbook_content, get_added_content)
 get_cookbook_removed_content = functools.partial(_filter_for_cookbook_content, get_removed_content)
+
+
+def http_get_sha256(url, **kwargs):
+    """Issue a HTTP request to the ``url`` and return the SHA256 hexdigest of the content.
+
+    :param url: URL where the content should be get.
+    :param kwargs: additional kwargs to be passed to ``requests.get``.
+    :returns: SHA256 hexdigest of the body of the GET response to ``url``.
+    """
+    # GET the raw data by streaming (requests will try to decode according to
+    # "Content-Encoding" header by default)
+    resp = requests.get(url, stream=True, **kwargs)
+    resp.raise_for_status()
+    logger.debug("GET Request to %s finished with %s", url, resp)
+    sha256 = hashlib.sha256()
+    while True:
+        content = resp.raw.read(decode_content=False)
+        if len(content):
+            sha256.update(content)
+        else:
+            break
+    return sha256.hexdigest()
 
 
 def get_content_and_unit_paths(repo):

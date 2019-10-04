@@ -13,23 +13,25 @@ from pulpcore.plugin.serializers import (
     PublicationSerializer,
     RelatedField,
     RemoteSerializer,
-    SingleArtifactContentSerializer,
+    SingleArtifactContentUploadSerializer,
 )
 
 from pulp_cookbook.app.utils import pulp_cookbook_content_path
 
-from .models import (
+from pulp_cookbook.app.models import (
     CookbookDistribution,
     CookbookPackageContent,
     CookbookPublication,
     CookbookRemote,
 )
 
+from pulp_cookbook.metadata import CookbookMetadata
 
-class CookbookPackageContentSerializer(SingleArtifactContentSerializer):
+
+class CookbookPackageContentSerializer(SingleArtifactContentUploadSerializer):
     """Serializer for the cookbook content."""
 
-    name = serializers.CharField(help_text=_("name of the cookbook"))
+    name = serializers.CharField(help_text=_("name of the cookbook"), required=True)
     version = serializers.CharField(help_text=_("version of the cookbook"), required=False)
     dependencies = serializers.JSONField(
         help_text=_("dependencies of the cookbook"), read_only=True
@@ -45,20 +47,57 @@ class CookbookPackageContentSerializer(SingleArtifactContentSerializer):
     def validate(self, data):
         """Validate the CookbookPackageContent data."""
         data = super().validate(data)
+        return data
+
+    def deferred_validate(self, data):
+        """Validate that the artifact is a cookbook and extract it's meta-data."""
+        data = super().deferred_validate(data)
+
+        try:
+            metadata = CookbookMetadata.from_cookbook_file(
+                fileobj=data["artifact"].file, name=data["name"]
+            )
+        except FileNotFoundError:
+            raise serializers.ValidationError(
+                detail={"artifact": _("No metadata.json found in cookbook tar")}
+            )
+
+        try:
+            if data["version"] != metadata.version:
+                raise serializers.ValidationError(
+                    detail={"version": _("version does not correspond to version in cookbook tar")}
+                )
+        except KeyError:
+            pass
+        data["version"] = metadata.version
+        data["dependencies"] = metadata.dependencies
+        data["content_id_type"] = self.Meta.model.SHA256
+        data["content_id"] = data["artifact"].sha256
         data["relative_path"] = CookbookPackageContent.relative_path_from_data(data)
+
+        content = self.Meta.model.objects.filter(
+            content_id_type=data["content_id_type"],
+            content_id=data["content_id"],
+            name=data["name"],
+            version=data["version"],
+        )
+        if content.exists():
+            raise serializers.ValidationError(
+                _(
+                    "There is already a cookbook package '{name}-{version}'"
+                    " with sha256 '{content_id}'."
+                ).format(**data)
+            )
+
         return data
 
     def update(self, instance, validated_data):
         raise serializers.ValidationError("content is immutable")
 
     class Meta:
-        fields = tuple(set(SingleArtifactContentSerializer.Meta.fields) - {"relative_path"}) + (
-            "name",
-            "version",
-            "dependencies",
-            "content_id_type",
-            "content_id",
-        )
+        fields = tuple(
+            set(SingleArtifactContentUploadSerializer.Meta.fields) - {"relative_path"}
+        ) + ("name", "version", "dependencies", "content_id_type", "content_id")
         model = CookbookPackageContent
 
 

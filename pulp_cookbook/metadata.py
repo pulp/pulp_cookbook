@@ -31,12 +31,12 @@ class CookbookMetadata:
         return self.metadata["dependencies"]
 
     @classmethod
-    def from_cookbook_file(cls, file_name, name):
+    def from_cookbook_file(cls, fileobj, name):
         """
         Construct a CookbookMetadata instance from a cookbook tar archive.
 
         Args:
-            file_name (str): filename of the cookbook tar archive
+            fileobj: file object of the cookbook tar archive
             name (str): name of the cookbook ("metadata.json" file
                         is expected to be in the directoy `<name>`)
 
@@ -44,7 +44,7 @@ class CookbookMetadata:
             CookbookMetadata: Instance containing the extracted metadata
 
         """
-        tf = tarfile.open(file_name)
+        tf = tarfile.open(fileobj=fileobj)
         for element in tf:
             if element.isfile() and element.name == name + "/metadata.json":
                 metadata = json.load(tf.extractfile(element))

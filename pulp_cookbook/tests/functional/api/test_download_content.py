@@ -3,12 +3,11 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 """Tests that verify download of content served by Pulp."""
-import hashlib
 import unittest
 from random import choice
 from urllib.parse import urljoin
 
-from pulp_smash import api, config, exceptions, utils
+from pulp_smash import api, config, exceptions
 from pulp_smash.pulp3.constants import REPO_PATH
 from pulp_smash.pulp3.utils import delete_orphans, gen_distribution, gen_remote, gen_repo, sync
 
@@ -16,6 +15,7 @@ from pulp_cookbook.tests.functional.api.utils import (
     create_publication,
     get_content_and_unit_paths,
     get_cookbook_content,
+    http_get_sha256,
 )
 from pulp_cookbook.tests.functional.constants import (
     fixture_u1,
@@ -76,16 +76,14 @@ class DownloadContentTestCase(unittest.TestCase):
 
         # Pick a cookbook, and download it from Fixtures…
         cu, unit_path = choice(get_content_and_unit_paths(repo))
-        fixtures_hash = hashlib.sha256(
-            utils.http_get(urljoin(fixture_u1.url, unit_path))
-        ).hexdigest()
+        fixtures_hash = http_get_sha256(urljoin(fixture_u1.url, unit_path))
 
         # …and Pulp content
         client.response_handler = api.safe_handler
 
         unit_url = urljoin(distribution_base_url, unit_path)
+        pulp_hash = http_get_sha256(unit_url)
 
-        pulp_hash = hashlib.sha256(client.get(unit_url).content).hexdigest()
         self.assertEqual(fixtures_hash, pulp_hash)
 
         # Verify that the content unit contains the right sha256

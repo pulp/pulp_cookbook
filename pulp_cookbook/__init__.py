@@ -2,6 +2,6 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-__version__ = "0.1.0b2.dev"
+__version__ = "0.1.0b2"
 
 default_app_config = "pulp_cookbook.app.PulpCookbookPluginAppConfig"

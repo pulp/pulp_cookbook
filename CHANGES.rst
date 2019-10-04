@@ -10,6 +10,33 @@ pulp-cookbook Changelog
 
 .. towncrier release notes start
 
+0.1.0b2 (2019-10-04)
+====================
+
+
+Features
+--------
+
+- Use the new SingleArtifactContentUploadSerializer to implement the content upload function (single shot upload).
+  `#18 <https://github.com/gmbnomis/pulp_cookbook/issues/18>`_
+
+
+Deprecations and Removals
+-------------------------
+
+- Change `_artifact` field to `artifact` for cookbook content.
+  `#46 <https://github.com/gmbnomis/pulp_cookbook/issues/46>`_
+
+
+Misc
+----
+
+- `#48 <https://github.com/gmbnomis/pulp_cookbook/issues/48>`_
+
+
+----
+
+
 0.1.0b1 (2019-09-21)
 ====================
 

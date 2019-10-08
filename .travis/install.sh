@@ -51,13 +51,8 @@ fi
 PLUGIN=pulp_cookbook
 
 
-# For pulpcore, and any other repo that might check out a pulp-certguard PR
-if [ -e $TRAVIS_BUILD_DIR/../pulp-certguard ]; then
-  PULP_CERTGUARD=./pulp-certguard
-else
-  # Otherwise, master branch release
-  PULP_CERTGUARD=git+https://github.com/pulp/pulp-certguard.git
-fi
+# For pulpcore, and any other repo that might check out some plugin PR
+
 
 if [ -n "$TRAVIS_TAG" ]; then
   # Install the plugin only and use published PyPI packages for the rest
@@ -68,8 +63,8 @@ images:
       image_name: $PLUGIN
       tag: $TAG
       plugins:
-        - pulp-certguard
         - ./$PLUGIN
+        
 VARSYAML
 else
   cat > vars/vars.yaml << VARSYAML
@@ -81,8 +76,8 @@ images:
       pulpcore: ./pulpcore
       pulpcore_plugin: ./pulpcore-plugin
       plugins:
-        - $PULP_CERTGUARD
         - ./$PLUGIN
+        
 VARSYAML
 fi
 

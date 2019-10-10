@@ -67,7 +67,7 @@ class CookbookPackageContent(Content):
         """
         return ("name", "version")
 
-    def repo_key(self):
+    def repo_key_value(self):
         """
         Get the model's repo key based on repo_key_fields().
 

@@ -112,7 +112,7 @@ class QueryExistingRepoContentAndArtifacts(Stage):
             m_type = type(declarative_content.content)
             unit_q = declarative_content.content.repo_q()
             content_q_by_type[m_type] = content_q_by_type[m_type] | unit_q
-            d_c_by_mt_rk[m_type][declarative_content.content.repo_key()] = declarative_content
+            d_c_by_mt_rk[m_type][declarative_content.content.repo_key_value()] = declarative_content
 
         for model_type in content_q_by_type:
             self._associate_model_type(
@@ -135,7 +135,7 @@ class QueryExistingRepoContentAndArtifacts(Stage):
             )
         )
         for content in content_filter:
-            repo_key = content.repo_key()
+            repo_key = content.repo_key_value()
             try:
                 declarative_content = d_c_by_repo_key[repo_key]
             except KeyError:

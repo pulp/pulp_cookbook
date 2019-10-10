@@ -49,10 +49,10 @@ class UpdateContentWithDownloadResult(Stage):
                     # new content unit instead of modifying the existing
                     # content.
                     # To copy multiple inheritance models, we need to set both
-                    # pk and _id to None and, as stages look at _state.adding,
+                    # pk and pulp_id to None and, as stages look at _state.adding,
                     # reset that as well...
                     d_content.content.pk = None
-                    d_content.content._id = None
+                    d_content.content.pulp_id = None
                     d_content.content._state.adding = True
                     d_content.content.set_sha256_digest(download_sha256)
             await self.put(d_content)

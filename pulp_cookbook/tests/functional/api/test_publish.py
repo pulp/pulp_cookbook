@@ -53,22 +53,22 @@ class PublishAnyRepoVersionTestCase(unittest.TestCase):
         client = api.Client(cfg, api.json_handler)
         body = gen_remote(fixture_u1.url, cookbooks={fixture_u1.example1_name: ""})
         remote = client.post(COOKBOOK_REMOTE_PATH, body)
-        self.addCleanup(client.delete, remote["_href"])
+        self.addCleanup(client.delete, remote["pulp_href"])
 
         repo = client.post(REPO_PATH, gen_repo())
-        self.addCleanup(client.delete, repo["_href"])
+        self.addCleanup(client.delete, repo["pulp_href"])
 
         sync(cfg, remote, repo, mirror=True)
-        repo = client.get(repo["_href"])
+        repo = client.get(repo["pulp_href"])
         repo_content = get_cookbook_content(repo)
         self.assertTrue(repo_content)
 
         # Step 1
         repo = client.post(REPO_PATH, gen_repo())
-        self.addCleanup(client.delete, repo["_href"])
+        self.addCleanup(client.delete, repo["pulp_href"])
         for cookbook in repo_content:
-            client.post(repo["_versions_href"], {"add_content_units": [cookbook["_href"]]})
-        version_hrefs = tuple(ver["_href"] for ver in get_versions(repo))
+            client.post(repo["_versions_href"], {"add_content_units": [cookbook["pulp_href"]]})
+        version_hrefs = tuple(ver["pulp_href"] for ver in get_versions(repo))
         non_latest = choice(version_hrefs[:-1])
 
         # Step 2
@@ -85,7 +85,7 @@ class PublishAnyRepoVersionTestCase(unittest.TestCase):
 
         # Step 6
         with self.assertRaises(HTTPError):
-            body = {"repository": repo["_href"], "repository_version": non_latest}
+            body = {"repository": repo["pulp_href"], "repository_version": non_latest}
             client.post(COOKBOOK_PUBLICATION_PATH, body)
 
 
@@ -100,31 +100,32 @@ class RepoVersionConstraintValidationTestCase(unittest.TestCase):
 
         # Create repo u1 and sync partially
         repo_u1 = client.post(REPO_PATH, gen_repo())
-        self.addCleanup(client.delete, repo_u1["_href"])
+        self.addCleanup(client.delete, repo_u1["pulp_href"])
 
         body = gen_remote(fixture_u1.url, cookbooks={fixture_u1.example1_name: ""})
         remote_u1 = client.post(COOKBOOK_REMOTE_PATH, body)
-        self.addCleanup(client.delete, remote_u1["_href"])
+        self.addCleanup(client.delete, remote_u1["pulp_href"])
 
         sync(cfg, remote_u1, repo_u1, mirror=True)
-        repo_u1 = client.get(repo_u1["_href"])
+        repo_u1 = client.get(repo_u1["pulp_href"])
 
         # Create repo u1_diff_digest and sync partially
         repo_u1_diff_digest = client.post(REPO_PATH, gen_repo())
-        self.addCleanup(client.delete, repo_u1_diff_digest["_href"])
+        self.addCleanup(client.delete, repo_u1_diff_digest["pulp_href"])
 
         body = gen_remote(fixture_u1_diff_digest.url, cookbooks={fixture_u1.example1_name: ""})
         remote_u1_diff_digest = client.post(COOKBOOK_REMOTE_PATH, body)
-        self.addCleanup(client.delete, remote_u1_diff_digest["_href"])
+        self.addCleanup(client.delete, remote_u1_diff_digest["pulp_href"])
 
         sync(cfg, remote_u1_diff_digest, repo_u1_diff_digest, mirror=True)
-        repo_u1_diff_digest = client.get(repo_u1_diff_digest["_href"])
+        repo_u1_diff_digest = client.get(repo_u1_diff_digest["pulp_href"])
 
         # Add a content unit from u1_diff_digest to u1 (duplicate name&version)
         content_u1_diff_digest = get_cookbook_content(repo_u1_diff_digest)
         self.assertTrue(content_u1_diff_digest)
         client.post(
-            repo_u1["_versions_href"], {"add_content_units": [content_u1_diff_digest[0]["_href"]]}
+            repo_u1["_versions_href"],
+            {"add_content_units": [content_u1_diff_digest[0]["pulp_href"]]},
         )
 
         with self.assertRaisesRegex(TaskReportError, "would contain multiple versions"):

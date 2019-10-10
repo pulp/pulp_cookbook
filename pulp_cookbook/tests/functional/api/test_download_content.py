@@ -30,24 +30,24 @@ class DownloadContentTestCase(unittest.TestCase):
 
     def create_and_sync_repo(self, cfg, client, policy):
         repo = client.post(REPO_PATH, gen_repo())
-        self.addCleanup(client.delete, repo["_href"])
+        self.addCleanup(client.delete, repo["pulp_href"])
 
         body = gen_remote(fixture_u1.url, policy=policy)
         remote = client.post(COOKBOOK_REMOTE_PATH, body)
-        self.addCleanup(client.delete, remote["_href"])
+        self.addCleanup(client.delete, remote["pulp_href"])
 
         sync(cfg, remote, repo, mirror=True)
-        return client.get(repo["_href"])
+        return client.get(repo["pulp_href"])
 
     def create_distribution(self, cfg, client, repo):
         """Create a publication for the latest repo version and a distribution."""
         # Create a publication.
         publication = create_publication(cfg, repo)
-        self.addCleanup(client.delete, publication["_href"])
+        self.addCleanup(client.delete, publication["pulp_href"])
 
         # Create a distribution.
         body = gen_distribution()
-        body["publication"] = publication["_href"]
+        body["publication"] = publication["pulp_href"]
         response_dict = client.post(COOKBOOK_DISTRIBUTION_PATH, body)
         dist_task = client.get(response_dict["task"])
         distribution_href = dist_task["created_resources"][0]
@@ -55,7 +55,7 @@ class DownloadContentTestCase(unittest.TestCase):
         self.addCleanup(client.delete, distribution_href)
 
         # Assert that the publication contains a reference to the distribution
-        publication = client.get(publication["_href"])
+        publication = client.get(publication["pulp_href"])
         self.assertEqual(publication["distributions"], [distribution_href])
 
         return distribution
@@ -87,7 +87,7 @@ class DownloadContentTestCase(unittest.TestCase):
         self.assertEqual(fixtures_hash, pulp_hash)
 
         # Verify that the content unit contains the right sha256
-        cu_updated = client.get(cu["_href"]).json()
+        cu_updated = client.get(cu["pulp_href"]).json()
         if policy != "streamed":
             self.assertEqual(fixtures_hash, cu_updated["content_id"])
             self.assertIsNotNone(cu_updated["artifact"])
@@ -145,9 +145,9 @@ class DownloadContentTestCase(unittest.TestCase):
 
         cb_content = get_cookbook_content(repo2)
         client.post(
-            repo["_versions_href"], {"add_content_units": [cb["_href"] for cb in cb_content]}
+            repo["_versions_href"], {"add_content_units": [cb["pulp_href"] for cb in cb_content]}
         )
-        repo = client.get(repo["_href"])
+        repo = client.get(repo["pulp_href"])
         distribution = self.create_distribution(cfg, client, repo)
         self.download_check(cfg, client, repo, distribution, policy)
 

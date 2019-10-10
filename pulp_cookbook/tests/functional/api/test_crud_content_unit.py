@@ -13,11 +13,7 @@ from pulp_smash import api, config, exceptions, utils
 from pulp_smash.pulp3.constants import ARTIFACTS_PATH, REPO_PATH
 from pulp_smash.pulp3.utils import delete_orphans, gen_repo
 
-from pulp_cookbook.tests.functional.constants import (
-    fixture_u1,
-    COOKBOOK_CONTENT_NAME,
-    COOKBOOK_CONTENT_PATH,
-)
+from pulp_cookbook.tests.functional.constants import fixture_u1, COOKBOOK_CONTENT_PATH
 
 
 def _gen_content_unit_attrs(artifact, name):
@@ -26,7 +22,7 @@ def _gen_content_unit_attrs(artifact, name):
     :param: artifact: A dict of info about the artifact.
     :returns: A dict for use in creating a content unit.
     """
-    return {"artifact": artifact["_href"], "name": name}
+    return {"artifact": artifact["pulp_href"], "name": name}
 
 
 def _gen_file_content_upload_attrs(name):
@@ -76,9 +72,12 @@ class CommonsForContentTestCases(unittest.TestCase):
         if repo_href:
             # We get back a list: the new content unit and the new repo version
             for resource in resources:
-                if resource.get("_type") == COOKBOOK_CONTENT_NAME:
+                if resource["pulp_href"].startswith("/pulp/api/v3/content/"):
                     self.content_unit.update(resource)
                 else:
+                    self.assertRegex(
+                        resource["pulp_href"], "^/pulp/api/v3/repositories/.*/versions/"
+                    )
                     repo_version = resource
                     self.assertEqual(
                         repo_version["content_summary"]["added"]["cookbook.cookbook"]["count"], 1
@@ -101,7 +100,7 @@ class CommonsForContentTestCases(unittest.TestCase):
 
     def read_content_unit(self):
         """Read a content unit by its href."""
-        content_unit = self.client.get(self.content_unit["_href"])
+        content_unit = self.client.get(self.content_unit["pulp_href"])
         for key, val in self.content_unit.items():
             with self.subTest(key=key):
                 self.assertEqual(content_unit[key], val)
@@ -124,7 +123,7 @@ class CommonsForContentTestCases(unittest.TestCase):
         """
         attrs = _gen_content_unit_attrs(self.artifact, fixture_u1.example1_name)
         with self.assertRaises(HTTPError) as exc:
-            self.client.patch(self.content_unit["_href"], attrs)
+            self.client.patch(self.content_unit["pulp_href"], attrs)
         self.assertEqual(exc.exception.response.status_code, 405)
 
     def fully_update(self):
@@ -134,7 +133,7 @@ class CommonsForContentTestCases(unittest.TestCase):
         """
         attrs = _gen_content_unit_attrs(self.artifact, fixture_u1.example1_name)
         with self.assertRaises(HTTPError) as exc:
-            self.client.put(self.content_unit["_href"], attrs)
+            self.client.put(self.content_unit["pulp_href"], attrs)
         self.assertEqual(exc.exception.response.status_code, 405)
 
     def delete(self):
@@ -143,7 +142,7 @@ class CommonsForContentTestCases(unittest.TestCase):
         This HTTP method is not supported and a HTTP exception is expected.
         """
         with self.assertRaises(HTTPError) as exc:
-            self.client.delete(self.content_unit["_href"])
+            self.client.delete(self.content_unit["pulp_href"])
         self.assertEqual(exc.exception.response.status_code, 405)
 
     def create_content_unit_without_artifact(self):
@@ -223,12 +222,12 @@ class ContentUnitUploadNewRepoVersionTestCase(CommonsForContentTestCases):
         Create a repo.
         """
         repo = client.post(REPO_PATH, gen_repo())
-        self.addCleanup(client.delete, repo["_href"])
+        self.addCleanup(client.delete, repo["pulp_href"])
         return repo
 
     def test_01_create_content_unit(self):
         repo = self.do_create_repo(self.client)
-        self.create_and_verify_content_unit_from_file(repo_href=repo["_href"])
+        self.create_and_verify_content_unit_from_file(repo_href=repo["pulp_href"])
 
     def test_02_read_content_unit(self):
         self.read_content_unit()

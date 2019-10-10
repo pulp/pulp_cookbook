@@ -49,10 +49,10 @@ class UpdateContentWithDownloadResult(Stage):
                     # new content unit instead of modifying the existing
                     # content.
                     # To copy multiple inheritance models, we need to set both
-                    # pk and _id to None and, as stages look at _state.adding,
+                    # pk and pulp_id to None and, as stages look at _state.adding,
                     # reset that as well...
                     d_content.content.pk = None
-                    d_content.content._id = None
+                    d_content.content.pulp_id = None
                     d_content.content._state.adding = True
                     d_content.content.set_sha256_digest(download_sha256)
             await self.put(d_content)
@@ -112,7 +112,7 @@ class QueryExistingRepoContentAndArtifacts(Stage):
             m_type = type(declarative_content.content)
             unit_q = declarative_content.content.repo_q()
             content_q_by_type[m_type] = content_q_by_type[m_type] | unit_q
-            d_c_by_mt_rk[m_type][declarative_content.content.repo_key()] = declarative_content
+            d_c_by_mt_rk[m_type][declarative_content.content.repo_key_value()] = declarative_content
 
         for model_type in content_q_by_type:
             self._associate_model_type(
@@ -135,7 +135,7 @@ class QueryExistingRepoContentAndArtifacts(Stage):
             )
         )
         for content in content_filter:
-            repo_key = content.repo_key()
+            repo_key = content.repo_key_value()
             try:
                 declarative_content = d_c_by_repo_key[repo_key]
             except KeyError:

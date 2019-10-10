@@ -99,11 +99,11 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         number of content units.
         """
         repo = client.post(REPO_PATH, gen_repo())
-        self.addCleanup(client.delete, repo["_href"])
+        self.addCleanup(client.delete, repo["pulp_href"])
 
         body = gen_remote(fixture_u1.url, policy=policy)
         remote = client.post(COOKBOOK_REMOTE_PATH, body)
-        self.addCleanup(client.delete, remote["_href"])
+        self.addCleanup(client.delete, remote["pulp_href"])
 
         # Sync the full repository.
         self.assertIsNone(repo["_latest_version_href"])
@@ -111,7 +111,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         all_cookbook_count = fixture_u1.cookbook_count()
         task = self.sync_and_inspect_task_report(remote, repo, all_cookbook_count, policy=policy)
 
-        repo = client.get(repo["_href"])
+        repo = client.get(repo["pulp_href"])
 
         latest_version_href = repo["_latest_version_href"]
         self.assertIsNotNone(latest_version_href)
@@ -136,7 +136,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         latest_version_href = repo["_latest_version_href"]
 
         body = gen_remote(fixture_u1.url, policy=second_policy)
-        client.patch(remote["_href"], body)
+        client.patch(remote["pulp_href"], body)
 
         # Sync the full repository again using the second policy.
         exp_download_count = 0
@@ -148,7 +148,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         self.sync_and_inspect_task_report(
             remote, repo, exp_download_count, policy=second_policy, mirror=True
         )
-        repo = client.get(repo["_href"])
+        repo = client.get(repo["pulp_href"])
         self.assertNotEqual(latest_version_href, repo["_latest_version_href"])
         # When we download the actual artifacts, the respective content unit will be replaced.
         # This looks like adding/deleting all cookbooks.
@@ -185,20 +185,20 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         all_cookbook_count = fixture_u1.cookbook_count()
         latest_version_href = repo["_latest_version_href"]
 
-        client.patch(remote["_href"], {"cookbooks": {fixture_u1.example1_name: ""}})
+        client.patch(remote["pulp_href"], {"cookbooks": {fixture_u1.example1_name: ""}})
         self.sync_and_inspect_task_report(remote, repo, 0, policy=policy, mirror=True)
-        repo = client.get(repo["_href"])
+        repo = client.get(repo["pulp_href"])
         self.assertNotEqual(latest_version_href, repo["_latest_version_href"])
         example1_count = fixture_u1.cookbook_count([fixture_u1.example1_name])
         self.verify_counts(repo, example1_count, 0, all_cookbook_count - example1_count)
 
         # Sync the repository with another filter and add cookbooks (additive mode (default).
-        client.patch(remote["_href"], {"cookbooks": {fixture_u1.example2_name: ""}})
+        client.patch(remote["pulp_href"], {"cookbooks": {fixture_u1.example2_name: ""}})
         # Although cookbook content is already present, it is not present in the
         # repository. Thus, it must be downloaded again.
         example2_count = fixture_u1.cookbook_count([fixture_u1.example2_name])
         self.sync_and_inspect_task_report(remote, repo, example2_count, policy=policy)
-        repo = client.get(repo["_href"])
+        repo = client.get(repo["pulp_href"])
         self.assertNotEqual(latest_version_href, repo["_latest_version_href"])
         self.verify_counts(
             repo,
@@ -248,29 +248,29 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
 
         # Create repo u1 and sync partially
         repo_u1 = client.post(REPO_PATH, gen_repo())
-        self.addCleanup(client.delete, repo_u1["_href"])
+        self.addCleanup(client.delete, repo_u1["pulp_href"])
 
         body = gen_remote(fixture_u1.url, cookbooks={fixture_u1.example1_name: ""})
         remote_u1 = client.post(COOKBOOK_REMOTE_PATH, body)
-        self.addCleanup(client.delete, remote_u1["_href"])
+        self.addCleanup(client.delete, remote_u1["pulp_href"])
 
         self.assertIsNone(repo_u1["_latest_version_href"])
 
         example1_count = fixture_u1.cookbook_count([fixture_u1.example1_name])
         self.sync_and_inspect_task_report(remote_u1, repo_u1, example1_count)
 
-        repo_u1 = client.get(repo_u1["_href"])
+        repo_u1 = client.get(repo_u1["pulp_href"])
         self.verify_counts(
             repo_u1, all_count=example1_count, added_count=example1_count, removed_count=0
         )
 
         # Create repo u1_diff_digest and do a full sync
         repo_u1_diff_digest = client.post(REPO_PATH, gen_repo())
-        self.addCleanup(client.delete, repo_u1_diff_digest["_href"])
+        self.addCleanup(client.delete, repo_u1_diff_digest["pulp_href"])
 
         body = gen_remote(fixture_u1_diff_digest.url)
         remote_u1_diff_digest = client.post(COOKBOOK_REMOTE_PATH, body)
-        self.addCleanup(client.delete, remote_u1_diff_digest["_href"])
+        self.addCleanup(client.delete, remote_u1_diff_digest["pulp_href"])
 
         self.assertIsNone(repo_u1_diff_digest["_latest_version_href"])
 
@@ -280,7 +280,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
             remote_u1_diff_digest, repo_u1_diff_digest, cookbook_count
         )
 
-        repo_u1_diff_digest = client.get(repo_u1_diff_digest["_href"])
+        repo_u1_diff_digest = client.get(repo_u1_diff_digest["pulp_href"])
         self.verify_counts(
             repo_u1_diff_digest,
             all_count=cookbook_count,
@@ -289,10 +289,10 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         )
 
         # Full sync u1
-        client.patch(remote_u1["_href"], {"cookbooks": {}})
+        client.patch(remote_u1["pulp_href"], {"cookbooks": {}})
         all_cookbook_count = fixture_u1.cookbook_count()
         self.sync_and_inspect_task_report(remote_u1, repo_u1, all_cookbook_count - example1_count)
-        repo_u1 = client.get(repo_u1["_href"])
+        repo_u1 = client.get(repo_u1["pulp_href"])
         self.verify_counts(
             repo_u1,
             all_count=all_cookbook_count,
@@ -352,10 +352,10 @@ class SyncInvalidTestCase(unittest.TestCase):
     def do_test(self, url, **remote_kwargs):
         """Sync a repository given ``url`` on the remote."""
         repo = self.client.post(REPO_PATH, gen_repo())
-        self.addCleanup(self.client.delete, repo["_href"])
+        self.addCleanup(self.client.delete, repo["pulp_href"])
         body = gen_remote(url=url, **remote_kwargs)
         remote = self.client.post(COOKBOOK_REMOTE_PATH, body)
-        self.addCleanup(self.client.delete, remote["_href"])
+        self.addCleanup(self.client.delete, remote["pulp_href"])
         with self.assertRaises(TaskReportError) as context:
             sync(self.cfg, remote, repo, mirror=True)
         return context

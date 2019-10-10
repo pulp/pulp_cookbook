@@ -115,8 +115,8 @@ Create a repository ``foo``
 .. code:: json
 
     {
-        "_created": "2019-10-03T16:29:25.171311Z",
-        "_href": "/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/",
+        "pulp_created": "2019-10-03T16:29:25.171311Z",
+        "pulp_href": "/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/",
         "_latest_version_href": null,
         "_versions_href": "/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/versions/",
         "description": null,
@@ -124,7 +124,7 @@ Create a repository ``foo``
         "plugin_managed": false
     }
 
-``$ export REPO_HREF=$(http :24817/pulp/api/v3/repositories/ | jq -r '.results[] | select(.name == "foo") | ._href')``
+``$ export REPO_HREF=$(http :24817/pulp/api/v3/repositories/ | jq -r '.results[] | select(.name == "foo") | .pulp_href')``
 
 Upload cookbooks to Pulp
 ------------------------
@@ -142,13 +142,13 @@ Create a content unit for ubuntu 2.0.1:
 
 ``$ http --form POST http://localhost:24817/pulp/api/v3/content/cookbook/cookbooks/ name="ubuntu" file@ubuntu-2.0.1.tgz``
 
-``$ export UBUNTU_CONTENT_HREF=$(http :24817/pulp/api/v3/content/cookbook/cookbooks/?name=ubuntu | jq -r '.results[0]._href')``
+``$ export UBUNTU_CONTENT_HREF=$(http :24817/pulp/api/v3/content/cookbook/cookbooks/?name=ubuntu | jq -r '.results[0].pulp_href')``
 
 Create a content unit for apt 7.0.0:
 
 ``$ http --form POST http://localhost:24817/pulp/api/v3/content/cookbook/cookbooks/ name="apt" file@apt-7.0.0.tgz``
 
-``$ export APT_CONTENT_HREF=$(http :24817/pulp/api/v3/content/cookbook/cookbooks/?name=apt | jq -r '.results[0]._href')``
+``$ export APT_CONTENT_HREF=$(http :24817/pulp/api/v3/content/cookbook/cookbooks/?name=apt | jq -r '.results[0].pulp_href')``
 
 
 Add content to repository ``foo``
@@ -169,7 +169,7 @@ Create a Publication
         "task": "/pulp/api/v3/tasks/cd37e3dd-fb9b-4fa3-a32b-174bcb860c79/"
     }
 
-``$ export PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/cookbook/cookbook/ | jq --arg LVH "$LATEST_VERSION_HREF" -r '.results[] | select(.repository_version == $LVH) | ._href')``
+``$ export PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/cookbook/cookbook/ | jq --arg LVH "$LATEST_VERSION_HREF" -r '.results[] | select(.repository_version == $LVH) | .pulp_href')``
 
 
 Create a Distribution at 'foo' for the Publication
@@ -240,9 +240,9 @@ Let's mirror the ``pulp`` and ``qpid`` cookbooks into our existing repo. First, 
 .. code:: json
 
     {
-        "_created": "2019-10-03T16:37:19.240581Z",
-        "_href": "/pulp/api/v3/remotes/cookbook/cookbook/601c0402-30ff-4209-9008-5bc0339419be/",
-        "_last_updated": "2019-10-03T16:37:19.240602Z",
+        "pulp_created": "2019-10-03T16:37:19.240581Z",
+        "pulp_href": "/pulp/api/v3/remotes/cookbook/cookbook/601c0402-30ff-4209-9008-5bc0339419be/",
+        "pulp_last_updated": "2019-10-03T16:37:19.240602Z",
         "_type": "cookbook.cookbook",
         "cookbooks": {
             "pulp": "",
@@ -259,7 +259,7 @@ Let's mirror the ``pulp`` and ``qpid`` cookbooks into our existing repo. First, 
         "url": "https://supermarket.chef.io/"
     }
 
-``$ export REMOTE_HREF=$(http :24817/pulp/api/v3/remotes/cookbook/cookbook/ | jq -r '.results[] | select(.name == "foo_remote") | ._href')``
+``$ export REMOTE_HREF=$(http :24817/pulp/api/v3/remotes/cookbook/cookbook/ | jq -r '.results[] | select(.name == "foo_remote") | .pulp_href')``
 
 Sync repository ``foo`` using remote ``foo_remote``
 ----------------------------------------------------
@@ -277,8 +277,8 @@ Look at the new Repository Version created
 .. code:: json
 
     {
-        "_created": "2019-10-03T16:38:18.843201Z",
-        "_href": "/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/versions/2/",
+        "pulp_created": "2019-10-03T16:38:18.843201Z",
+        "pulp_href": "/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/versions/2/",
         "base_version": null,
         "content_summary": {
             "added": {
@@ -312,9 +312,9 @@ And update the distribution:
 
 .. code:: bash
 
-    export DISTRIBUTION_HREF=$(http :24817/pulp/api/v3/distributions/cookbook/cookbook/ | jq -r '.results[] | select(.name == "baz") | ._href')
+    export DISTRIBUTION_HREF=$(http :24817/pulp/api/v3/distributions/cookbook/cookbook/ | jq -r '.results[] | select(.name == "baz") | .pulp_href')
     export LATEST_VERSION_HREF=$(http :24817$REPO_HREF | jq -r '._latest_version_href')
-    export LATEST_PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/cookbook/cookbook/ | jq --arg LVH "$LATEST_VERSION_HREF" -r '.results[] | select(.repository_version == $LVH) | ._href')
+    export LATEST_PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/cookbook/cookbook/ | jq --arg LVH "$LATEST_VERSION_HREF" -r '.results[] | select(.repository_version == $LVH) | .pulp_href')
     http PATCH :24817$DISTRIBUTION_HREF publication=$LATEST_PUBLICATION_HREF
 
 Now, the universe endpoint
@@ -339,8 +339,8 @@ Create a repository ``supermarket``
 .. code:: json
 
     {
-        "_created": "2019-03-30T22:59:02.569833Z",
-        "_href": "/pulp/api/v3/repositories/80f03582-ae58-406d-b456-bbb33e718f8f/",
+        "pulp_created": "2019-03-30T22:59:02.569833Z",
+        "pulp_href": "/pulp/api/v3/repositories/80f03582-ae58-406d-b456-bbb33e718f8f/",
         "_latest_version_href": null,
         "_versions_href": "/pulp/api/v3/repositories/80f03582-ae58-406d-b456-bbb33e718f8f/versions/",
         "description": "",
@@ -348,7 +348,7 @@ Create a repository ``supermarket``
     }
 
 
-``$ export REPO_HREF=$(http :24817/pulp/api/v3/repositories/ | jq -r '.results[] | select(.name == "supermarket") | ._href')``
+``$ export REPO_HREF=$(http :24817/pulp/api/v3/repositories/ | jq -r '.results[] | select(.name == "supermarket") | .pulp_href')``
 
 
 Create a new remote ``supermarket``
@@ -359,9 +359,9 @@ Create a new remote ``supermarket``
 .. code:: json
 
     {
-        "_created": "2019-03-30T22:59:35.618466Z",
-        "_href": "/pulp/api/v3/remotes/cookbook/cookbook/472c73b9-0132-4c1b-8814-816fd237a40a/",
-        "_last_updated": "2019-03-30T22:59:35.618484Z",
+        "pulp_created": "2019-03-30T22:59:35.618466Z",
+        "pulp_href": "/pulp/api/v3/remotes/cookbook/cookbook/472c73b9-0132-4c1b-8814-816fd237a40a/",
+        "pulp_last_updated": "2019-03-30T22:59:35.618484Z",
         "_type": "cookbook.cookbook",
         "cookbooks": "",
         "download_concurrency": 20,
@@ -374,7 +374,7 @@ Create a new remote ``supermarket``
     }
 
 
-``$ export REMOTE_HREF=$(http :24817/pulp/api/v3/remotes/cookbook/cookbook/ | jq -r '.results[] | select(.name == "supermarket") | ._href')``
+``$ export REMOTE_HREF=$(http :24817/pulp/api/v3/remotes/cookbook/cookbook/ | jq -r '.results[] | select(.name == "supermarket") | .pulp_href')``
 
 
 Sync repository ``supermarket`` using remote ``supermarket``
@@ -411,7 +411,7 @@ Create a Publication
 Again, this may take some time. When the task is finished, get the URL of the
 publication:
 
-``$ export PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/cookbook/cookbook/ | jq --arg LVH "$LATEST_VERSION_HREF" -r '.results[] | select(.repository_version == $LVH) | ._href')``
+``$ export PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/cookbook/cookbook/ | jq --arg LVH "$LATEST_VERSION_HREF" -r '.results[] | select(.repository_version == $LVH) | .pulp_href')``
 
 
 Create a Distribution at 'supermarket' for the Publication

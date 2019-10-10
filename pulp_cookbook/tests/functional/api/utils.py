@@ -83,7 +83,7 @@ def create_publication(cfg, repo, version_href=None):
     if version_href:
         body = {"repository_version": version_href}
     else:
-        body = {"repository": repo["_href"]}
+        body = {"repository": repo["pulp_href"]}
 
     client = api.Client(cfg, api.json_handler)
     call_report = client.post(COOKBOOK_PUBLICATION_PATH, body)
@@ -104,9 +104,9 @@ def sync_raw(cfg, remote, repo, **kwargs):
         a call report.
     """
     client = api.Client(cfg, api.json_handler)
-    data = {"repository": repo["_href"]}
+    data = {"repository": repo["pulp_href"]}
     data.update(kwargs)
-    return client.post(urljoin(remote["_href"], "sync/"), data)
+    return client.post(urljoin(remote["pulp_href"], "sync/"), data)
 
 
 skip_if = functools.partial(selectors.skip_if, exc=SkipTest)  # pylint:disable=invalid-name

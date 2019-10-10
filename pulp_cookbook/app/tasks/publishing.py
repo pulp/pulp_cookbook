@@ -94,7 +94,7 @@ def populate(publication):
     """
     for content in CookbookPackageContent.objects.filter(
         pk__in=publication.repository_version.content
-    ).order_by("-_created"):
+    ).order_by("-pulp_created"):
         relative_path = "cookbook_files/{}/{}/".format(
             content.name, content.version.replace(".", "_")
         )

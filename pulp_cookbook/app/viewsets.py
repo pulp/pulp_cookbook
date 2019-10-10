@@ -48,7 +48,7 @@ class CookbookPackageContentViewSet(SingleArtifactContentUploadViewSet):
     """The ViewSet for the content endpoint."""
 
     endpoint_name = "cookbooks"
-    queryset = CookbookPackageContent.objects.order_by("_id").prefetch_related("_artifacts")
+    queryset = CookbookPackageContent.objects.order_by("pulp_id").prefetch_related("_artifacts")
     serializer_class = CookbookPackageContentSerializer
     filterset_class = CookbookPackageContentFilter
 
@@ -61,7 +61,7 @@ class CookbookRemoteViewSet(RemoteViewSet):
     serializer_class = CookbookRemoteSerializer
 
     @swagger_auto_schema(
-        operation_description="Trigger an asynchronous task to sync cookbook " "content.",
+        operation_description="Trigger an asynchronous task to sync cookbook content.",
         responses={202: AsyncOperationResponseSerializer},
     )
     @action(detail=True, methods=["post"], serializer_class=RepositorySyncURLSerializer)

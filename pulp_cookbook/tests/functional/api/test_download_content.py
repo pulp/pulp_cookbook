@@ -145,7 +145,7 @@ class DownloadContentTestCase(unittest.TestCase):
 
         cb_content = get_cookbook_content(repo2)
         client.post(
-            repo["_versions_href"], {"add_content_units": [cb["pulp_href"] for cb in cb_content]}
+            repo["versions_href"], {"add_content_units": [cb["pulp_href"] for cb in cb_content]}
         )
         repo = client.get(repo["pulp_href"])
         distribution = self.create_distribution(cfg, client, repo)

@@ -117,8 +117,8 @@ Create a repository ``foo``
     {
         "pulp_created": "2019-10-03T16:29:25.171311Z",
         "pulp_href": "/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/",
-        "_latest_version_href": null,
-        "_versions_href": "/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/versions/",
+        "latest_version_href": null,
+        "versions_href": "/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/versions/",
         "description": null,
         "name": "foo",
         "plugin_managed": false
@@ -156,7 +156,7 @@ Add content to repository ``foo``
 
 ``$ http POST :24817$REPO_HREF'versions/' add_content_units:="[\"$UBUNTU_CONTENT_HREF\",\"$APT_CONTENT_HREF\"]"``
 
-``$ export LATEST_VERSION_HREF=$(http :24817$REPO_HREF | jq -r '._latest_version_href')``
+``$ export LATEST_VERSION_HREF=$(http :24817$REPO_HREF | jq -r '.latest_version_href')``
 
 Create a Publication
 --------------------
@@ -313,7 +313,7 @@ And update the distribution:
 .. code:: bash
 
     export DISTRIBUTION_HREF=$(http :24817/pulp/api/v3/distributions/cookbook/cookbook/ | jq -r '.results[] | select(.name == "baz") | .pulp_href')
-    export LATEST_VERSION_HREF=$(http :24817$REPO_HREF | jq -r '._latest_version_href')
+    export LATEST_VERSION_HREF=$(http :24817$REPO_HREF | jq -r '.latest_version_href')
     export LATEST_PUBLICATION_HREF=$(http :24817/pulp/api/v3/publications/cookbook/cookbook/ | jq --arg LVH "$LATEST_VERSION_HREF" -r '.results[] | select(.repository_version == $LVH) | .pulp_href')
     http PATCH :24817$DISTRIBUTION_HREF publication=$LATEST_PUBLICATION_HREF
 
@@ -341,8 +341,8 @@ Create a repository ``supermarket``
     {
         "pulp_created": "2019-03-30T22:59:02.569833Z",
         "pulp_href": "/pulp/api/v3/repositories/80f03582-ae58-406d-b456-bbb33e718f8f/",
-        "_latest_version_href": null,
-        "_versions_href": "/pulp/api/v3/repositories/80f03582-ae58-406d-b456-bbb33e718f8f/versions/",
+        "latest_version_href": null,
+        "versions_href": "/pulp/api/v3/repositories/80f03582-ae58-406d-b456-bbb33e718f8f/versions/",
         "description": "",
         "name": "supermarket"
     }
@@ -398,7 +398,7 @@ the example above, use ``http
 Create a Publication
 --------------------
 
-``$ export LATEST_VERSION_HREF=$(http :24817$REPO_HREF | jq -r '._latest_version_href')``
+``$ export LATEST_VERSION_HREF=$(http :24817$REPO_HREF | jq -r '.latest_version_href')``
 
 ``$ http POST http://localhost:24817/pulp/api/v3/publications/cookbook/cookbook/ repository_version=$LATEST_VERSION_HREF``
 

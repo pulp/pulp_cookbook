@@ -28,6 +28,16 @@ from pulp_cookbook.app.models import (
 from pulp_cookbook.metadata import CookbookMetadata
 
 
+def plugin_ref_name(cls):
+    """Class decorator setting 'ref_name' for a serializer's Meta class.
+
+    This class decorator sets the 'ref_name' attribute according to the
+    best practice, i.e. '<app label>_<model name>'
+    """
+    cls.ref_name = f"{cls.model._meta.app_label}_{cls.model._meta.model_name}"
+    return cls
+
+
 class CookbookPackageContentSerializer(SingleArtifactContentUploadSerializer):
     """Serializer for the cookbook content."""
 
@@ -94,6 +104,7 @@ class CookbookPackageContentSerializer(SingleArtifactContentUploadSerializer):
     def update(self, instance, validated_data):
         raise serializers.ValidationError("content is immutable")
 
+    @plugin_ref_name
     class Meta:
         fields = tuple(
             set(SingleArtifactContentUploadSerializer.Meta.fields) - {"relative_path"}
@@ -122,6 +133,7 @@ class CookbookRemoteSerializer(RemoteSerializer):
         required=False,
     )
 
+    @plugin_ref_name
     class Meta:
         fields = RemoteSerializer.Meta.fields + ("cookbooks",)
         model = CookbookRemote
@@ -153,6 +165,7 @@ class CookbookPublicationSerializer(PublicationSerializer):
         view_name="distributions-cookbook/cookbook-detail",
     )
 
+    @plugin_ref_name
     class Meta:
         fields = PublicationSerializer.Meta.fields + ("distributions",)
         model = CookbookPublication
@@ -179,6 +192,7 @@ class CookbookDistributionSerializer(PublicationDistributionSerializer):
         help_text=_("The URL for accessing the universe API as defined by this distribution."),
     )
 
+    @plugin_ref_name
     class Meta:
         fields = PublicationDistributionSerializer.Meta.fields
         model = CookbookDistribution

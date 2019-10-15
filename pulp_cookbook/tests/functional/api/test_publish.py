@@ -67,7 +67,7 @@ class PublishAnyRepoVersionTestCase(unittest.TestCase):
         repo = client.post(REPO_PATH, gen_repo())
         self.addCleanup(client.delete, repo["pulp_href"])
         for cookbook in repo_content:
-            client.post(repo["_versions_href"], {"add_content_units": [cookbook["pulp_href"]]})
+            client.post(repo["versions_href"], {"add_content_units": [cookbook["pulp_href"]]})
         version_hrefs = tuple(ver["pulp_href"] for ver in get_versions(repo))
         non_latest = choice(version_hrefs[:-1])
 
@@ -124,7 +124,7 @@ class RepoVersionConstraintValidationTestCase(unittest.TestCase):
         content_u1_diff_digest = get_cookbook_content(repo_u1_diff_digest)
         self.assertTrue(content_u1_diff_digest)
         client.post(
-            repo_u1["_versions_href"],
+            repo_u1["versions_href"],
             {"add_content_units": [content_u1_diff_digest[0]["pulp_href"]]},
         )
 

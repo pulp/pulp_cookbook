@@ -106,14 +106,14 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         self.addCleanup(client.delete, remote["pulp_href"])
 
         # Sync the full repository.
-        self.assertIsNone(repo["_latest_version_href"])
+        self.assertIsNone(repo["latest_version_href"])
 
         all_cookbook_count = fixture_u1.cookbook_count()
         task = self.sync_and_inspect_task_report(remote, repo, all_cookbook_count, policy=policy)
 
         repo = client.get(repo["pulp_href"])
 
-        latest_version_href = repo["_latest_version_href"]
+        latest_version_href = repo["latest_version_href"]
         self.assertIsNotNone(latest_version_href)
         self.assertEqual(latest_version_href, task["created_resources"][0])
         self.verify_counts(repo, all_cookbook_count, all_cookbook_count, 0)
@@ -133,7 +133,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         all_cookbook_count = fixture_u1.cookbook_count()
 
         repo, remote = self.do_create_repo_and_sync(client, policy)
-        latest_version_href = repo["_latest_version_href"]
+        latest_version_href = repo["latest_version_href"]
 
         body = gen_remote(fixture_u1.url, policy=second_policy)
         client.patch(remote["pulp_href"], body)
@@ -149,7 +149,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
             remote, repo, exp_download_count, policy=second_policy, mirror=True
         )
         repo = client.get(repo["pulp_href"])
-        self.assertNotEqual(latest_version_href, repo["_latest_version_href"])
+        self.assertNotEqual(latest_version_href, repo["latest_version_href"])
         # When we download the actual artifacts, the respective content unit will be replaced.
         # This looks like adding/deleting all cookbooks.
         self.verify_counts(repo, all_cookbook_count, exp_download_count, exp_download_count)
@@ -183,12 +183,12 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
 
         # Sync the repository with a filter (use mirror mode).
         all_cookbook_count = fixture_u1.cookbook_count()
-        latest_version_href = repo["_latest_version_href"]
+        latest_version_href = repo["latest_version_href"]
 
         client.patch(remote["pulp_href"], {"cookbooks": {fixture_u1.example1_name: ""}})
         self.sync_and_inspect_task_report(remote, repo, 0, policy=policy, mirror=True)
         repo = client.get(repo["pulp_href"])
-        self.assertNotEqual(latest_version_href, repo["_latest_version_href"])
+        self.assertNotEqual(latest_version_href, repo["latest_version_href"])
         example1_count = fixture_u1.cookbook_count([fixture_u1.example1_name])
         self.verify_counts(repo, example1_count, 0, all_cookbook_count - example1_count)
 
@@ -199,7 +199,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         example2_count = fixture_u1.cookbook_count([fixture_u1.example2_name])
         self.sync_and_inspect_task_report(remote, repo, example2_count, policy=policy)
         repo = client.get(repo["pulp_href"])
-        self.assertNotEqual(latest_version_href, repo["_latest_version_href"])
+        self.assertNotEqual(latest_version_href, repo["latest_version_href"])
         self.verify_counts(
             repo,
             fixture_u1.cookbook_count([fixture_u1.example1_name, fixture_u1.example2_name]),
@@ -254,7 +254,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         remote_u1 = client.post(COOKBOOK_REMOTE_PATH, body)
         self.addCleanup(client.delete, remote_u1["pulp_href"])
 
-        self.assertIsNone(repo_u1["_latest_version_href"])
+        self.assertIsNone(repo_u1["latest_version_href"])
 
         example1_count = fixture_u1.cookbook_count([fixture_u1.example1_name])
         self.sync_and_inspect_task_report(remote_u1, repo_u1, example1_count)
@@ -272,7 +272,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         remote_u1_diff_digest = client.post(COOKBOOK_REMOTE_PATH, body)
         self.addCleanup(client.delete, remote_u1_diff_digest["pulp_href"])
 
-        self.assertIsNone(repo_u1_diff_digest["_latest_version_href"])
+        self.assertIsNone(repo_u1_diff_digest["latest_version_href"])
 
         # u1 and u1_diff_digest must not share content: all cookbooks are added
         cookbook_count = fixture_u1_diff_digest.cookbook_count()

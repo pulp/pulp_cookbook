@@ -10,6 +10,22 @@ pulp-cookbook Changelog
 
 .. towncrier release notes start
 
+0.1.0b3 (2019-10-15)
+====================
+
+
+Deprecations and Removals
+-------------------------
+
+- Change `_id`, `_created`, `_last_updated`, `_href` to `pulp_id`, `pulp_created`, `pulp_last_updated`, `pulp_href`. Remove `_type` field from content serializer.
+  `#56 <https://github.com/gmbnomis/pulp_cookbook/issues/56>`_
+- Remove "_" from `_versions_href`, `_latest_version_href`
+  `#58 <https://github.com/gmbnomis/pulp_cookbook/issues/58>`_
+
+
+----
+
+
 0.1.0b2 (2019-10-04)
 ====================
 

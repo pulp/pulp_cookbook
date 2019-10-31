@@ -16,7 +16,7 @@ python:
   - "3.7"
 env:
   matrix:
-    - DB=postgres TEST=pulp
+    - TEST=pulp
 services:
   - postgresql
   - redis-server

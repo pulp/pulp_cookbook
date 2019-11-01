@@ -160,6 +160,7 @@ class CookbookFirstStage(Stage):
 
         Args:
             remote (CookbookRemote): The remote data to be used when syncing
+
         """
         super().__init__(*args, **kwargs)
         self.remote = remote

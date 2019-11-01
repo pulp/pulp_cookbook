@@ -37,6 +37,7 @@ def publish(repository_version_pk):
 
     Args:
         repository_version_pk (str): Create a publication from this repository version.
+
     """
     repository_version = RepositoryVersion.objects.get(pk=repository_version_pk)
 

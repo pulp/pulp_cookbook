@@ -10,10 +10,14 @@ import unittest
 from requests.exceptions import HTTPError
 
 from pulp_smash import api, config, exceptions, utils
-from pulp_smash.pulp3.constants import ARTIFACTS_PATH, REPO_PATH
+from pulp_smash.pulp3.constants import ARTIFACTS_PATH
 from pulp_smash.pulp3.utils import delete_orphans, gen_repo
 
-from pulp_cookbook.tests.functional.constants import fixture_u1, COOKBOOK_CONTENT_PATH
+from pulp_cookbook.tests.functional.constants import (
+    fixture_u1,
+    COOKBOOK_CONTENT_PATH,
+    COOKBOOK_REPO_PATH,
+)
 
 
 def _gen_content_unit_attrs(artifact, name):
@@ -221,7 +225,7 @@ class ContentUnitUploadNewRepoVersionTestCase(CommonsForContentTestCases):
         """
         Create a repo.
         """
-        repo = client.post(REPO_PATH, gen_repo())
+        repo = client.post(COOKBOOK_REPO_PATH, gen_repo())
         self.addCleanup(client.delete, repo["pulp_href"])
         return repo
 

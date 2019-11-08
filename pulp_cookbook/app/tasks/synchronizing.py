@@ -10,7 +10,7 @@ from urllib.parse import urljoin
 
 from django.db.models import Prefetch, Q
 
-from pulpcore.plugin.models import Artifact, ContentArtifact, ProgressReport, Remote, Repository
+from pulpcore.plugin.models import Artifact, ContentArtifact, ProgressReport, Remote
 from pulpcore.plugin.stages import (
     DeclarativeArtifact,
     DeclarativeContent,
@@ -23,7 +23,7 @@ from pulpcore.plugin.stages import (
     ContentSaver,
 )
 
-from pulp_cookbook.app.models import CookbookPackageContent, CookbookRemote
+from pulp_cookbook.app.models import CookbookPackageContent, CookbookRemote, CookbookRepository
 from pulp_cookbook.metadata import Universe
 
 log = logging.getLogger(__name__)
@@ -241,7 +241,7 @@ def synchronize(remote_pk, repository_pk, mirror):
 
     """
     remote = CookbookRemote.objects.get(pk=remote_pk)
-    repository = Repository.objects.get(pk=repository_pk)
+    repository = CookbookRepository.objects.get(pk=repository_pk)
     if not remote.url:
         raise ValueError(_("A remote must have a url specified to synchronize."))
 

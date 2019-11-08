@@ -110,21 +110,21 @@ Example: Import cookbooks and synchronize from remote
 Create a repository ``foo``
 ---------------------------
 
-``$ http POST http://localhost:24817/pulp/api/v3/repositories/ name=foo``
+``$ http POST http://localhost:24817/pulp/api/v3/repositories/cookbook/cookbook/ name=foo``
 
 .. code:: json
 
     {
-        "pulp_created": "2019-10-03T16:29:25.171311Z",
-        "pulp_href": "/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/",
-        "latest_version_href": null,
-        "versions_href": "/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/versions/",
         "description": null,
+        "latest_version_href": null,
         "name": "foo",
-        "plugin_managed": false
+        "plugin_managed": false,
+        "pulp_created": "2019-11-10T18:48:15.746461Z",
+        "pulp_href": "/pulp/api/v3/repositories/cookbook/cookbook/8f8228d4-0d76-477e-800c-61077c0dd888/",
+        "versions_href": "/pulp/api/v3/repositories/cookbook/cookbook/8f8228d4-0d76-477e-800c-61077c0dd888/versions/"
     }
 
-``$ export REPO_HREF=$(http :24817/pulp/api/v3/repositories/ | jq -r '.results[] | select(.name == "foo") | .pulp_href')``
+``$ export REPO_HREF=$(http :24817/pulp/api/v3/repositories/cookbook/cookbook/ | jq -r '.results[] | select(.name == "foo") | .pulp_href')``
 
 Upload cookbooks to Pulp
 ------------------------
@@ -154,7 +154,7 @@ Create a content unit for apt 7.0.0:
 Add content to repository ``foo``
 ---------------------------------
 
-``$ http POST :24817$REPO_HREF'versions/' add_content_units:="[\"$UBUNTU_CONTENT_HREF\",\"$APT_CONTENT_HREF\"]"``
+``$ http POST :24817$REPO_HREF'modify/' add_content_units:="[\"$UBUNTU_CONTENT_HREF\",\"$APT_CONTENT_HREF\"]"``
 
 ``$ export LATEST_VERSION_HREF=$(http :24817$REPO_HREF | jq -r '.latest_version_href')``
 
@@ -240,10 +240,6 @@ Let's mirror the ``pulp`` and ``qpid`` cookbooks into our existing repo. First, 
 .. code:: json
 
     {
-        "pulp_created": "2019-10-03T16:37:19.240581Z",
-        "pulp_href": "/pulp/api/v3/remotes/cookbook/cookbook/601c0402-30ff-4209-9008-5bc0339419be/",
-        "pulp_last_updated": "2019-10-03T16:37:19.240602Z",
-        "_type": "cookbook.cookbook",
         "cookbooks": {
             "pulp": "",
             "qpid": ""
@@ -252,6 +248,9 @@ Let's mirror the ``pulp`` and ``qpid`` cookbooks into our existing repo. First, 
         "name": "foo_remote",
         "policy": "immediate",
         "proxy_url": null,
+        "pulp_created": "2019-11-10T19:09:14.593404Z",
+        "pulp_href": "/pulp/api/v3/remotes/cookbook/cookbook/6c90b3c5-2dde-4da3-8796-e4c1512b58a2/",
+        "pulp_last_updated": "2019-11-10T19:09:14.593425Z",
         "ssl_ca_certificate": null,
         "ssl_client_certificate": null,
         "ssl_client_key": null,
@@ -267,7 +266,7 @@ Sync repository ``foo`` using remote ``foo_remote``
 We don't want to delete the ``apt`` and ``ubuntu`` coobooks imported previously.
 Therefore, we sync in 'additive' mode by setting ``mirror`` to false.
 
-``$ http POST :24817$REMOTE_HREF'sync/' repository=$REPO_HREF mirror:=false``
+``$ http POST :24817$REPO_HREF'sync/' remote=$REMOTE_HREF mirror:=false``
 
 Look at the new Repository Version created
 ------------------------------------------
@@ -277,25 +276,25 @@ Look at the new Repository Version created
 .. code:: json
 
     {
-        "pulp_created": "2019-10-03T16:38:18.843201Z",
-        "pulp_href": "/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/versions/2/",
         "base_version": null,
         "content_summary": {
             "added": {
                 "cookbook.cookbook": {
                     "count": 2,
-                    "href": "/pulp/api/v3/content/cookbook/cookbooks/?repository_version_added=/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/versions/2/"
+                    "href": "/pulp/api/v3/content/cookbook/cookbooks/?repository_version_added=/pulp/api/v3/repositories/cookbook/cookbook/8f8228d4-0d76-477e-800c-61077c0dd888/versions/2/"
                 }
             },
             "present": {
                 "cookbook.cookbook": {
                     "count": 4,
-                    "href": "/pulp/api/v3/content/cookbook/cookbooks/?repository_version=/pulp/api/v3/repositories/200118d5-dc92-4e2d-b970-df7edec122ea/versions/2/"
+                    "href": "/pulp/api/v3/content/cookbook/cookbooks/?repository_version=/pulp/api/v3/repositories/cookbook/cookbook/8f8228d4-0d76-477e-800c-61077c0dd888/versions/2/"
                 }
             },
             "removed": {}
         },
-        "number": 2
+        "number": 2,
+        "pulp_created": "2019-11-10T19:10:23.055048Z",
+        "pulp_href": "/pulp/api/v3/repositories/cookbook/cookbook/8f8228d4-0d76-477e-800c-61077c0dd888/versions/2/"
     }
 
 At the time of writing, there was only a single version of the ``pulp`` and
@@ -321,6 +320,50 @@ Now, the universe endpoint
 ``http://localhost:24816/pulp_cookbook/content/foo/universe`` will show the
 content of the new repo version.
 
+.. code:: json
+
+    {
+        "apt": {
+            "7.0.0": {
+                "dependencies": {},
+                "download_url": "http://localhost:24816/pulp_cookbook/content/foo/cookbook_files/apt/7_0_0/apt-7.0.0.tar.gz",
+                "location_path": "http://localhost:24816/pulp_cookbook/content/foo/cookbook_files/apt/7_0_0/apt-7.0.0.tar.gz",
+                "location_type": "uri"
+            }
+        },
+        "pulp": {
+            "0.1.1": {
+                "dependencies": {
+                    "qpid": ">= 0.0.0"
+                },
+                "download_url": "http://localhost:24816/pulp_cookbook/content/foo/cookbook_files/pulp/0_1_1/pulp-0.1.1.tar.gz",
+                "location_path": "http://localhost:24816/pulp_cookbook/content/foo/cookbook_files/pulp/0_1_1/pulp-0.1.1.tar.gz",
+                "location_type": "uri"
+            }
+        },
+        "qpid": {
+            "0.1.3": {
+                "dependencies": {
+                    "yum": ">= 0.0.0",
+                    "yum-epel": ">= 0.0.0"
+                },
+                "download_url": "http://localhost:24816/pulp_cookbook/content/foo/cookbook_files/qpid/0_1_3/qpid-0.1.3.tar.gz",
+                "location_path": "http://localhost:24816/pulp_cookbook/content/foo/cookbook_files/qpid/0_1_3/qpid-0.1.3.tar.gz",
+                "location_type": "uri"
+            }
+        },
+        "ubuntu": {
+            "2.0.1": {
+                "dependencies": {
+                    "apt": ">= 0.0.0"
+                },
+                "download_url": "http://localhost:24816/pulp_cookbook/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz",
+                "location_path": "http://localhost:24816/pulp_cookbook/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz",
+                "location_type": "uri"
+            }
+        }
+    }
+
 
 Example: Snapshot of Chef Supermarket
 =====================================
@@ -334,21 +377,22 @@ download, the cookbooks are stored locally for faster retrieval.
 Create a repository ``supermarket``
 -----------------------------------
 
-``$ http POST http://localhost:24817/pulp/api/v3/repositories/ name=supermarket``
+``$ http POST http://localhost:24817/pulp/api/v3/repositories/cookbook/cookbook/ name=supermarket``
 
 .. code:: json
 
     {
-        "pulp_created": "2019-03-30T22:59:02.569833Z",
-        "pulp_href": "/pulp/api/v3/repositories/80f03582-ae58-406d-b456-bbb33e718f8f/",
+        "description": null,
         "latest_version_href": null,
-        "versions_href": "/pulp/api/v3/repositories/80f03582-ae58-406d-b456-bbb33e718f8f/versions/",
-        "description": "",
-        "name": "supermarket"
+        "name": "supermarket",
+        "plugin_managed": false,
+        "pulp_created": "2019-11-10T19:14:00.942419Z",
+        "pulp_href": "/pulp/api/v3/repositories/cookbook/cookbook/80cdec2c-dcae-42ee-9b4a-2f23ef0ebf44/",
+        "versions_href": "/pulp/api/v3/repositories/cookbook/cookbook/80cdec2c-dcae-42ee-9b4a-2f23ef0ebf44/versions/"
     }
 
 
-``$ export REPO_HREF=$(http :24817/pulp/api/v3/repositories/ | jq -r '.results[] | select(.name == "supermarket") | .pulp_href')``
+``$ export REPO_HREF=$(http :24817/pulp/api/v3/repositories/cookbook/cookbook/ | jq -r '.results[] | select(.name == "supermarket") | .pulp_href')``
 
 
 Create a new remote ``supermarket``
@@ -359,18 +403,19 @@ Create a new remote ``supermarket``
 .. code:: json
 
     {
-        "pulp_created": "2019-03-30T22:59:35.618466Z",
-        "pulp_href": "/pulp/api/v3/remotes/cookbook/cookbook/472c73b9-0132-4c1b-8814-816fd237a40a/",
-        "pulp_last_updated": "2019-03-30T22:59:35.618484Z",
-        "_type": "cookbook.cookbook",
-        "cookbooks": "",
+        "cookbooks": null,
         "download_concurrency": 20,
         "name": "supermarket",
         "policy": "on_demand",
-        "proxy_url": "",
+        "proxy_url": null,
+        "pulp_created": "2019-11-10T19:15:05.899367Z",
+        "pulp_href": "/pulp/api/v3/remotes/cookbook/cookbook/e1599387-4be3-40f1-83b2-5c42d1769a55/",
+        "pulp_last_updated": "2019-11-10T19:15:05.899406Z",
+        "ssl_ca_certificate": null,
+        "ssl_client_certificate": null,
+        "ssl_client_key": null,
         "ssl_validation": true,
-        "url": "https://supermarket.chef.io/",
-        "validate": true
+        "url": "https://supermarket.chef.io/"
     }
 
 
@@ -381,7 +426,7 @@ Sync repository ``supermarket`` using remote ``supermarket``
 ------------------------------------------------------------
 
 
-``$ http POST :24817$REMOTE_HREF'sync/' repository=$REPO_HREF mirror:=true``
+``$ http POST :24817$REPO_HREF'sync/' remote=$REMOTE_HREF mirror:=true``
 
 .. code:: json
 

@@ -18,6 +18,8 @@ from pulpcore.plugin.viewsets import (
     OperationPostponedResponse,
     PublicationViewSet,
     RemoteViewSet,
+    RepositoryViewSet,
+    RepositoryVersionViewSet,
     SingleArtifactContentUploadViewSet,
 )
 
@@ -26,12 +28,14 @@ from .models import (
     CookbookDistribution,
     CookbookPackageContent,
     CookbookRemote,
+    CookbookRepository,
     CookbookPublication,
 )
 from .serializers import (
     CookbookDistributionSerializer,
     CookbookPackageContentSerializer,
     CookbookRemoteSerializer,
+    CookbookRepositorySerializer,
     CookbookPublicationSerializer,
 )
 
@@ -45,7 +49,12 @@ class CookbookPackageContentFilter(ContentFilter):
 
 
 class CookbookPackageContentViewSet(SingleArtifactContentUploadViewSet):
-    """The ViewSet for the content endpoint."""
+    """Cookbook Content Endpoint.
+
+    <!-- User-facing documentation, rendered as html-->
+    CookbookContent represents a single cookbook, which can be added and removed
+    from repositories.
+    """
 
     endpoint_name = "cookbooks"
     queryset = CookbookPackageContent.objects.order_by("pulp_id").prefetch_related("_artifacts")
@@ -53,12 +62,18 @@ class CookbookPackageContentViewSet(SingleArtifactContentUploadViewSet):
     filterset_class = CookbookPackageContentFilter
 
 
-class CookbookRemoteViewSet(RemoteViewSet):
-    """The ViewSet for the remote endpoint."""
+class CookbookRepositoryViewSet(RepositoryViewSet):
+    """
+    Cookbook Repository Endpoint.
+
+    <!-- User-facing documentation, rendered as html-->
+    CookbookRepository represents a single cookbook repository, to which content can
+    be synced, added, or removed.
+    """
 
     endpoint_name = "cookbook"
-    queryset = CookbookRemote.objects.all()
-    serializer_class = CookbookRemoteSerializer
+    queryset = CookbookRepository.objects.all()
+    serializer_class = CookbookRepositorySerializer
 
     @swagger_auto_schema(
         operation_description="Trigger an asynchronous task to sync cookbook content.",
@@ -67,13 +82,17 @@ class CookbookRemoteViewSet(RemoteViewSet):
     @action(detail=True, methods=["post"], serializer_class=RepositorySyncURLSerializer)
     def sync(self, request, pk):
         """
-        Synchronizes a repository. The ``repository`` field has to be provided.
+        Synchronizes a Cookbook repository.
+
+        The ``repository`` field has to be provided.
         """
-        remote = self.get_object()
         serializer = RepositorySyncURLSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        repository = serializer.validated_data.get("repository")
-        mirror = serializer.validated_data["mirror"]
+
+        repository = self.get_object()
+        remote = serializer.validated_data.get("remote")
+
+        mirror = serializer.validated_data.get("mirror", False)
         result = enqueue_with_reservation(
             tasks.synchronize,
             [repository, remote],
@@ -82,9 +101,40 @@ class CookbookRemoteViewSet(RemoteViewSet):
         return OperationPostponedResponse(result, request)
 
 
-class CookbookPublicationViewSet(PublicationViewSet):
+class CookbookRepositoryVersionViewSet(RepositoryVersionViewSet):
+    """Cookbook Repository Version Endpoint.
+
+    <!-- User-facing documentation, rendered as html-->
+    CookbookRepositoryVersion represents a single cookbook repository version.
     """
-    ViewSet for Cookbook Publications.
+
+    parent_viewset = CookbookRepositoryViewSet
+
+
+class CookbookRemoteViewSet(RemoteViewSet):
+    """Cookbook Remote Endpoint.
+
+    <!-- User-facing documentation, rendered as html-->
+    CookbookRemote represents an external source of <a
+    href="#tag/content:-cookbooks">Cookbook Content</a>.  The target url of a
+    CookbookRemote must point to a <a
+    href="https://docs.chef.io/supermarket_api.html">universe API</a> endpont.
+    """
+
+    endpoint_name = "cookbook"
+    queryset = CookbookRemote.objects.all()
+    serializer_class = CookbookRemoteSerializer
+
+
+class CookbookPublicationViewSet(PublicationViewSet):
+    """File Publication Endpoint.
+
+    <!-- User-facing documentation, rendered as html-->
+    A CookbookPublication contains metadata about all the <a
+    href="#tag/content:-cookbooks">Cookbook Content</a> in a particular <a
+    href="#tag/repositories:-cookbook-versions">Cookbook Repository Version.</a>
+    Once a CookbookPublication has been created, it can be hosted using the <a
+    href="#tag/distributions:-cookbook">Cookbook Distribution API.</a>
     """
 
     endpoint_name = "cookbook"
@@ -116,7 +166,17 @@ class CookbookPublicationViewSet(PublicationViewSet):
 
 
 class CookbookDistributionViewSet(BaseDistributionViewSet):
-    """The ViewSet for the distribution endpoint."""
+    """Cookbook Distreibution Endpoint.
+
+    <!-- User-facing documentation, rendered as html-->
+    CookbookDistributions host <a href="#tag/publications:-cookbook">Cookbook
+    Publications</a> which makes the metadata and the referenced <a
+    href="#tag/content:-cookbooks">Cookbook Content</a> available to clients
+    like berkshelf. Additionally, a CookbookDistribution with an associated
+    CookbookPublication can be the target url of a <a
+    href="#tag/remotes:-cookbook">Cookbook Remote</a> , allowing another
+    instance of Pulp to sync the content.
+    """
 
     endpoint_name = "cookbook"
     queryset = CookbookDistribution.objects.all()

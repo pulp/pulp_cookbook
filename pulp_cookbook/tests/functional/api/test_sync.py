@@ -8,12 +8,12 @@ import unittest
 from pulp_smash import api, config
 from pulp_smash.exceptions import TaskReportError
 from pulp_smash.pulp3.constants import IMMEDIATE_DOWNLOAD_POLICIES, ON_DEMAND_DOWNLOAD_POLICIES
-from pulp_smash.pulp3.constants import REPO_PATH
 from pulp_smash.pulp3.utils import delete_orphans, gen_remote, gen_repo, sync
 
 from pulp_cookbook.tests.functional.constants import (
     fixture_u1,
     fixture_u1_diff_digest,
+    COOKBOOK_REPO_PATH,
     COOKBOOK_REMOTE_PATH,
     DOWNLOAD_POLICIES,
 )
@@ -98,7 +98,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         Verify that a new version was created, the number of downloads and the
         number of content units.
         """
-        repo = client.post(REPO_PATH, gen_repo())
+        repo = client.post(COOKBOOK_REPO_PATH, gen_repo())
         self.addCleanup(client.delete, repo["pulp_href"])
 
         body = gen_remote(fixture_u1.url, policy=policy)
@@ -247,7 +247,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         client = api.Client(self.cfg, api.json_handler)
 
         # Create repo u1 and sync partially
-        repo_u1 = client.post(REPO_PATH, gen_repo())
+        repo_u1 = client.post(COOKBOOK_REPO_PATH, gen_repo())
         self.addCleanup(client.delete, repo_u1["pulp_href"])
 
         body = gen_remote(fixture_u1.url, cookbooks={fixture_u1.example1_name: ""})
@@ -265,7 +265,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         )
 
         # Create repo u1_diff_digest and do a full sync
-        repo_u1_diff_digest = client.post(REPO_PATH, gen_repo())
+        repo_u1_diff_digest = client.post(COOKBOOK_REPO_PATH, gen_repo())
         self.addCleanup(client.delete, repo_u1_diff_digest["pulp_href"])
 
         body = gen_remote(fixture_u1_diff_digest.url)
@@ -351,7 +351,7 @@ class SyncInvalidTestCase(unittest.TestCase):
 
     def do_test(self, url, **remote_kwargs):
         """Sync a repository given ``url`` on the remote."""
-        repo = self.client.post(REPO_PATH, gen_repo())
+        repo = self.client.post(COOKBOOK_REPO_PATH, gen_repo())
         self.addCleanup(self.client.delete, repo["pulp_href"])
         body = gen_remote(url=url, **remote_kwargs)
         remote = self.client.post(COOKBOOK_REMOTE_PATH, body)

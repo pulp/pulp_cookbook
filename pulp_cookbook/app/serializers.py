@@ -177,9 +177,9 @@ class CookbookBaseURLField(serializers.CharField):
 
     def to_representation(self, value):
         base_path = value
-        host = settings.CONTENT_HOST
+        origin = settings.CONTENT_ORIGIN
         prefix = pulp_cookbook_content_path()
-        return "/".join((host.strip("/"), prefix.strip("/"), base_path.lstrip("/")))
+        return "/".join((origin.strip("/"), prefix.strip("/"), base_path.lstrip("/")))
 
 
 class CookbookDistributionSerializer(PublicationDistributionSerializer):

@@ -71,8 +71,7 @@ class DownloadContentTestCase(unittest.TestCase):
         """Verify the '/universe' endpoint, download and check a cookbook."""
         # pulp_cookbook universe live endpoint contains
         # all cookbooks
-        distribution_base_url = cfg.get_hosts("api")[0].roles["api"]["scheme"]
-        distribution_base_url += "://" + distribution["base_url"] + "/"
+        distribution_base_url = distribution["base_url"] + "/"
         universe_url = COOKBOOK_BASE_CONTENT_URL
         universe_url += distribution["base_path"] + "/universe"
 

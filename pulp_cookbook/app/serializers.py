@@ -13,6 +13,7 @@ from pulpcore.plugin.serializers import (
     PublicationSerializer,
     RelatedField,
     RemoteSerializer,
+    RepositorySerializer,
     SingleArtifactContentUploadSerializer,
 )
 
@@ -23,6 +24,7 @@ from pulp_cookbook.app.models import (
     CookbookPackageContent,
     CookbookPublication,
     CookbookRemote,
+    CookbookRepository,
 )
 
 from pulp_cookbook.metadata import CookbookMetadata
@@ -101,6 +103,16 @@ class CookbookPackageContentSerializer(SingleArtifactContentUploadSerializer):
         model = CookbookPackageContent
 
 
+class CookbookRepositorySerializer(RepositorySerializer):
+    """
+    Serializer for Cookbook Repositories.
+    """
+
+    class Meta:
+        fields = RepositorySerializer.Meta.fields
+        model = CookbookRepository
+
+
 class CookbookRemoteSerializer(RemoteSerializer):
     """Serializer for the remote pointing to a universe repo."""
 
@@ -165,9 +177,9 @@ class CookbookBaseURLField(serializers.CharField):
 
     def to_representation(self, value):
         base_path = value
-        host = settings.CONTENT_HOST
+        origin = settings.CONTENT_ORIGIN
         prefix = pulp_cookbook_content_path()
-        return "/".join((host.strip("/"), prefix.strip("/"), base_path.lstrip("/")))
+        return "/".join((origin.strip("/"), prefix.strip("/"), base_path.lstrip("/")))
 
 
 class CookbookDistributionSerializer(PublicationDistributionSerializer):

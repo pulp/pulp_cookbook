@@ -104,9 +104,9 @@ def sync_raw(cfg, remote, repo, **kwargs):
         a call report.
     """
     client = api.Client(cfg, api.json_handler)
-    data = {"repository": repo["pulp_href"]}
+    data = {"remote": remote["pulp_href"]}
     data.update(kwargs)
-    return client.post(urljoin(remote["pulp_href"], "sync/"), data)
+    return client.post(urljoin(repo["pulp_href"], "sync/"), data)
 
 
 skip_if = functools.partial(selectors.skip_if, exc=SkipTest)  # pylint:disable=invalid-name

@@ -6,7 +6,7 @@ import uuid
 
 from django.db import models
 
-from pulpcore.plugin.models import Content, PublicationDistribution, Publication, Remote
+from pulpcore.plugin.models import Content, PublicationDistribution, Publication, Remote, Repository
 from django.contrib.postgres.fields import JSONField
 
 
@@ -98,6 +98,17 @@ class CookbookPackageContent(Content):
     class Meta:
         default_related_name = "%(app_label)s_%(model_name)s"
         unique_together = ("name", "version", "content_id_type", "content_id")
+
+
+class CookbookRepository(Repository):
+    """
+    The "cookbook" repository type.
+    """
+
+    TYPE = "cookbook"
+
+    class Meta:
+        default_related_name = "%(app_label)s_%(model_name)s"
 
 
 class CookbookRemote(Remote):

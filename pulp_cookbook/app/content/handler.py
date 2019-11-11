@@ -75,10 +75,9 @@ class CookbookContentHandler(Handler):
         return new_artifact
 
     def _get_content_base_url(self, request):
-        if settings.CONTENT_HOST:
-            host = settings.CONTENT_HOST
+        if settings.CONTENT_ORIGIN:
+            origin = settings.CONTENT_ORIGIN
         else:
-            host = request.host
-        host = "{}://{}".format(request.scheme, host)
+            origin = f"{request.scheme}://{request.host}:24816"
 
-        return host + pulp_cookbook_content_path()
+        return origin + pulp_cookbook_content_path()

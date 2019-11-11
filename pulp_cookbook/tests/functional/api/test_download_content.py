@@ -8,8 +8,14 @@ from random import choice
 from urllib.parse import urljoin
 
 from pulp_smash import api, config, exceptions
-from pulp_smash.pulp3.constants import REPO_PATH
-from pulp_smash.pulp3.utils import delete_orphans, gen_distribution, gen_remote, gen_repo, sync
+from pulp_smash.pulp3.utils import (
+    delete_orphans,
+    gen_distribution,
+    gen_remote,
+    gen_repo,
+    modify_repo,
+    sync,
+)
 
 from pulp_cookbook.tests.functional.api.utils import (
     create_publication,
@@ -21,6 +27,7 @@ from pulp_cookbook.tests.functional.constants import (
     fixture_u1,
     COOKBOOK_DISTRIBUTION_PATH,
     COOKBOOK_REMOTE_PATH,
+    COOKBOOK_REPO_PATH,
     COOKBOOK_BASE_CONTENT_URL,
 )
 
@@ -29,7 +36,7 @@ class DownloadContentTestCase(unittest.TestCase):
     """Verify whether content served by pulp can be downloaded."""
 
     def create_and_sync_repo(self, cfg, client, policy):
-        repo = client.post(REPO_PATH, gen_repo())
+        repo = client.post(COOKBOOK_REPO_PATH, gen_repo())
         self.addCleanup(client.delete, repo["pulp_href"])
 
         body = gen_remote(fixture_u1.url, policy=policy)
@@ -64,8 +71,7 @@ class DownloadContentTestCase(unittest.TestCase):
         """Verify the '/universe' endpoint, download and check a cookbook."""
         # pulp_cookbook universe live endpoint contains
         # all cookbooks
-        distribution_base_url = cfg.get_hosts("api")[0].roles["api"]["scheme"]
-        distribution_base_url += "://" + distribution["base_url"] + "/"
+        distribution_base_url = distribution["base_url"] + "/"
         universe_url = COOKBOOK_BASE_CONTENT_URL
         universe_url += distribution["base_path"] + "/universe"
 
@@ -144,9 +150,8 @@ class DownloadContentTestCase(unittest.TestCase):
         repo2 = self.create_and_sync_repo(cfg, client, policy)
 
         cb_content = get_cookbook_content(repo2)
-        client.post(
-            repo["versions_href"], {"add_content_units": [cb["pulp_href"] for cb in cb_content]}
-        )
+        modify_repo(cfg, repo, add_units=cb_content)
+
         repo = client.get(repo["pulp_href"])
         distribution = self.create_distribution(cfg, client, repo)
         self.download_check(cfg, client, repo, distribution, policy)

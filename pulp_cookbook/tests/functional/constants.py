@@ -9,7 +9,8 @@ from pulp_smash.pulp3.constants import (
     BASE_DISTRIBUTION_PATH,
     BASE_PUBLICATION_PATH,
     BASE_REMOTE_PATH,
-    CONTENT_PATH,
+    BASE_REPO_PATH,
+    BASE_CONTENT_PATH,
 )
 
 DOWNLOAD_POLICIES = ["immediate", "on_demand", "streamed"]
@@ -17,9 +18,11 @@ DOWNLOAD_POLICIES = ["immediate", "on_demand", "streamed"]
 FIXTURES_BASE_URL = "https://pulpcookbook.s3.wasabisys.com/"
 
 COOKBOOK_CONTENT_NAME = "cookbook.cookbook"
-COOKBOOK_CONTENT_PATH = urljoin(CONTENT_PATH, "cookbook/cookbooks/")
+COOKBOOK_CONTENT_PATH = urljoin(BASE_CONTENT_PATH, "cookbook/cookbooks/")
 
 COOKBOOK_REMOTE_PATH = urljoin(BASE_REMOTE_PATH, "cookbook/cookbook/")
+
+COOKBOOK_REPO_PATH = urljoin(BASE_REPO_PATH, "cookbook/cookbook/")
 
 COOKBOOK_DISTRIBUTION_PATH = urljoin(BASE_DISTRIBUTION_PATH, "cookbook/cookbook/")
 COOKBOOK_PUBLICATION_PATH = urljoin(BASE_PUBLICATION_PATH, "cookbook/cookbook/")

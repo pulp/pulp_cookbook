@@ -5,6 +5,8 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import action
 
+from pulpcore.plugin.actions import ModifyRepositoryActionMixin
+
 from pulpcore.plugin.serializers import (
     AsyncOperationResponseSerializer,
     RepositorySyncURLSerializer,
@@ -62,7 +64,7 @@ class CookbookPackageContentViewSet(SingleArtifactContentUploadViewSet):
     filterset_class = CookbookPackageContentFilter
 
 
-class CookbookRepositoryViewSet(RepositoryViewSet):
+class CookbookRepositoryViewSet(ModifyRepositoryActionMixin, RepositoryViewSet):
     """
     Cookbook Repository Endpoint.
 

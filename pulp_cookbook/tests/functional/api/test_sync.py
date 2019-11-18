@@ -145,14 +145,20 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
             exp_download_count = all_cookbook_count
         if policy == "immediate":
             exp_policy = "immediate"
-        self.sync_and_inspect_task_report(
+        report = self.sync_and_inspect_task_report(
             remote, repo, exp_download_count, policy=second_policy, mirror=True
         )
         repo = client.get(repo["pulp_href"])
-        self.assertNotEqual(latest_version_href, repo["latest_version_href"])
-        # When we download the actual artifacts, the respective content unit will be replaced.
-        # This looks like adding/deleting all cookbooks.
-        self.verify_counts(repo, all_cookbook_count, exp_download_count, exp_download_count)
+        if exp_download_count:
+            # When we download the actual artifacts, the respective content unit will be replaced.
+            # This looks like adding/deleting all cookbooks.
+            self.assertNotEqual(latest_version_href, repo["latest_version_href"])
+            self.assertListEqual(report["created_resources"], [repo["latest_version_href"]])
+            self.verify_counts(repo, all_cookbook_count, exp_download_count, exp_download_count)
+        else:
+            # When we don't download anything, no new repo version is created
+            self.assertEqual(latest_version_href, repo["latest_version_href"])
+            self.assertListEqual(report["created_resources"], [])
         self.verify_ids_and_artifacts(repo, exp_policy)
 
         return repo, remote

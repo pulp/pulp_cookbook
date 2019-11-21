@@ -70,7 +70,7 @@ class QueryExistingRepoContentAndArtifacts(Stage):
     existing saved Content units with the same key. The search is constrained to
     the content of the given repository version `new_version` and use the query
     :class:`~pulpcore.plugin.models.Content.repo_q()` and the key
-    :class:`~pulpcore.plugin.models.Content.repo_key_fields()`.
+    :class:`~pulpcore.plugin.models.Content.repo_key_fields`.
 
     Any existing Content objects found replace their "unsaved" counterpart in
     the :class:`~pulpcore.plugin.stages.DeclarativeContent` object.

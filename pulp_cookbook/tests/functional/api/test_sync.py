@@ -8,7 +8,7 @@ import unittest
 from pulp_smash import api, config
 from pulp_smash.exceptions import TaskReportError
 from pulp_smash.pulp3.constants import IMMEDIATE_DOWNLOAD_POLICIES, ON_DEMAND_DOWNLOAD_POLICIES
-from pulp_smash.pulp3.utils import delete_orphans, gen_remote, gen_repo, sync
+from pulp_smash.pulp3.utils import delete_orphans, gen_remote, gen_repo, modify_repo, sync
 
 from pulp_cookbook.tests.functional.constants import (
     fixture_u1,
@@ -150,7 +150,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         )
         repo = client.get(repo["pulp_href"])
         if exp_download_count:
-            # When we download the actual artifacts, the respective content unit will be replaced.
+            # When we download the actual artifacts, the respective content units will be replaced.
             # This looks like adding/deleting all cookbooks.
             self.assertNotEqual(latest_version_href, repo["latest_version_href"])
             self.assertListEqual(report["created_resources"], [repo["latest_version_href"]])
@@ -365,3 +365,41 @@ class SyncInvalidTestCase(unittest.TestCase):
         with self.assertRaises(TaskReportError) as context:
             sync(self.cfg, remote, repo, mirror=True)
         return context
+
+
+class RepoVersionConstraintValidationTestCase(unittest.TestCase):
+    """Test the check for repo version constraints."""
+
+    def test_publish_invalid_repo_version(self):
+        """Repo version containing two units with the same name and version can't be created."""
+        cfg = config.get_config()
+        delete_orphans(cfg)
+        client = api.Client(cfg, api.json_handler)
+
+        # Create repo u1 and sync partially
+        repo_u1 = client.post(COOKBOOK_REPO_PATH, gen_repo())
+        self.addCleanup(client.delete, repo_u1["pulp_href"])
+
+        body = gen_remote(fixture_u1.url, cookbooks={fixture_u1.example1_name: ""})
+        remote_u1 = client.post(COOKBOOK_REMOTE_PATH, body)
+        self.addCleanup(client.delete, remote_u1["pulp_href"])
+
+        sync(cfg, remote_u1, repo_u1, mirror=True)
+        repo_u1 = client.get(repo_u1["pulp_href"])
+
+        # Create repo u1_diff_digest and sync partially
+        repo_u1_diff_digest = client.post(COOKBOOK_REPO_PATH, gen_repo())
+        self.addCleanup(client.delete, repo_u1_diff_digest["pulp_href"])
+
+        body = gen_remote(fixture_u1_diff_digest.url, cookbooks={fixture_u1.example1_name: ""})
+        remote_u1_diff_digest = client.post(COOKBOOK_REMOTE_PATH, body)
+        self.addCleanup(client.delete, remote_u1_diff_digest["pulp_href"])
+
+        sync(cfg, remote_u1_diff_digest, repo_u1_diff_digest, mirror=True)
+        repo_u1_diff_digest = client.get(repo_u1_diff_digest["pulp_href"])
+
+        # Add a content unit from u1_diff_digest to u1 (duplicate name&version)
+        content_u1_diff_digest = get_cookbook_content(repo_u1_diff_digest)
+        self.assertTrue(content_u1_diff_digest)
+        with self.assertRaisesRegex(TaskReportError, "would contain multiple versions"):
+            modify_repo(cfg, repo_u1, add_units=[content_u1_diff_digest[0]])

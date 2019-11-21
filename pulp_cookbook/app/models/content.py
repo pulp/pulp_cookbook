@@ -1,4 +1,4 @@
-# (C) Copyright 2018 Simon Baatz <gmbnomis@gmail.com>
+# (C) Copyright 2019 Simon Baatz <gmbnomis@gmail.com>
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -6,8 +6,9 @@ import uuid
 
 from django.db import models
 
-from pulpcore.plugin.models import Content, PublicationDistribution, Publication, Remote, Repository
 from django.contrib.postgres.fields import JSONField
+
+from pulpcore.plugin.models import Content
 
 
 class CookbookPackageContent(Content):
@@ -36,6 +37,10 @@ class CookbookPackageContent(Content):
     )
 
     TYPE = "cookbook"
+    repo_key_fields = (
+        "name",
+        "version",
+    )  # key fields that must be unique within a repository version.
 
     name = models.TextField(blank=False, null=False)
     version = models.TextField(blank=False, null=False)
@@ -56,26 +61,15 @@ class CookbookPackageContent(Content):
         self.content_id_type = self.SHA256
         self.content_id = sha256_digest
 
-    @classmethod
-    def repo_key_fields(self):
-        """
-        Returns a tuple of the key fields that must be unique within a repository version.
-
-        Returns:
-            tuple: The repo key field names.
-
-        """
-        return ("name", "version")
-
     def repo_key_value(self):
         """
-        Get the model's repo key based on repo_key_fields().
+        Get the model's repo key based on self.repo_key_fields.
 
         Returns:
             tuple: The repo key.
 
         """
-        return tuple(getattr(self, f) for f in self.repo_key_fields())
+        return tuple(getattr(self, f) for f in self.repo_key_fields)
 
     def repo_key_dict(self):
         """
@@ -85,7 +79,7 @@ class CookbookPackageContent(Content):
             dict: The repo key.
 
         """
-        return {key: getattr(self, key) for key in self.repo_key_fields()}
+        return {key: getattr(self, key) for key in self.repo_key_fields}
 
     def repo_q(self):
         """
@@ -98,55 +92,3 @@ class CookbookPackageContent(Content):
     class Meta:
         default_related_name = "%(app_label)s_%(model_name)s"
         unique_together = ("name", "version", "content_id_type", "content_id")
-
-
-class CookbookRepository(Repository):
-    """
-    The "cookbook" repository type.
-    """
-
-    TYPE = "cookbook"
-
-    class Meta:
-        default_related_name = "%(app_label)s_%(model_name)s"
-
-
-class CookbookRemote(Remote):
-    """
-    Remote for "cookbook" content.
-    """
-
-    TYPE = "cookbook"
-
-    cookbooks = JSONField(null=True)
-
-    def specifier_cookbook_names(self):
-        if self.cookbooks is None:
-            return None
-        else:
-            return set(self.cookbooks.keys())
-
-    class Meta:
-        default_related_name = "%(app_label)s_%(model_name)s"
-
-
-class CookbookPublication(Publication):
-    """
-    Publication for 'cookbook' content.
-    """
-
-    TYPE = "cookbook"
-
-    class Meta:
-        default_related_name = "%(app_label)s_%(model_name)s"
-
-
-class CookbookDistribution(PublicationDistribution):
-    """
-    Distribution for 'cookbook' content.
-    """
-
-    TYPE = "cookbook"
-
-    class Meta:
-        default_related_name = "%(app_label)s_%(model_name)s"

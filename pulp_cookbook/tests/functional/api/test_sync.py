@@ -91,6 +91,14 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
                 self.fail("Could not find 'Downloading Artifacts' stage in task report")
         return tasks[0]
 
+    def assert_initial_repo(self, repo):
+        """
+        Assert that we have an initial repo.
+
+        Initially, the latest version is the (special) empty version 0.
+        """
+        self.assertEqual(repo["latest_version_href"], repo["versions_href"] + "0/")
+
     def do_create_repo_and_sync(self, client, policy):
         """
         Create a repo and remote (fixture_u1) using `policy`. Sync the repo.
@@ -105,8 +113,9 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         remote = client.post(COOKBOOK_REMOTE_PATH, body)
         self.addCleanup(client.delete, remote["pulp_href"])
 
-        # Sync the full repository.
-        self.assertIsNone(repo["latest_version_href"])
+        # Sync the full repository:
+
+        self.assert_initial_repo(repo)
 
         all_cookbook_count = fixture_u1.cookbook_count()
         task = self.sync_and_inspect_task_report(remote, repo, all_cookbook_count, policy=policy)
@@ -260,7 +269,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         remote_u1 = client.post(COOKBOOK_REMOTE_PATH, body)
         self.addCleanup(client.delete, remote_u1["pulp_href"])
 
-        self.assertIsNone(repo_u1["latest_version_href"])
+        self.assert_initial_repo(repo_u1)
 
         example1_count = fixture_u1.cookbook_count([fixture_u1.example1_name])
         self.sync_and_inspect_task_report(remote_u1, repo_u1, example1_count)
@@ -278,7 +287,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         remote_u1_diff_digest = client.post(COOKBOOK_REMOTE_PATH, body)
         self.addCleanup(client.delete, remote_u1_diff_digest["pulp_href"])
 
-        self.assertIsNone(repo_u1_diff_digest["latest_version_href"])
+        self.assert_initial_repo(repo_u1_diff_digest)
 
         # u1 and u1_diff_digest must not share content: all cookbooks are added
         cookbook_count = fixture_u1_diff_digest.cookbook_count()

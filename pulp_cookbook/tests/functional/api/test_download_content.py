@@ -172,8 +172,9 @@ class DownloadContentTestCase(unittest.TestCase):
 
     def test_download_merged_on_demand_policy(self):
         #  When using non-immediate policy, content units can't be merged
-        #  (sha256 is unknown). Therefore, the publish task must fail.
+        #  (sha256 is unknown). Therefore, creating a repository version must fail.
         with self.assertRaisesRegex(
-            exceptions.TaskReportError, r"Publication would contain multiple versions of cookbooks:"
+            exceptions.TaskReportError,
+            r"repository version would contain multiple versions of cookbooks:",
         ):
             self.sync_merge_and_download_check(policy="on_demand")

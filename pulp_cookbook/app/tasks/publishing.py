@@ -8,7 +8,6 @@ import os
 from gettext import gettext as _
 
 from django.core.files import File
-from django.db.models import Count
 
 from pulpcore.plugin.models import PublishedArtifact, PublishedMetadata, RepositoryVersion
 from pulpcore.plugin.tasking import WorkingDirectory
@@ -48,7 +47,6 @@ def publish(repository_version_pk):
 
     with WorkingDirectory():
         with CookbookPublication.create(repository_version) as publication:
-            check_repo_version_constraint(publication)
             universe = Universe("__universe__")
             universe.write(populate(publication))
             PublishedMetadata.create_from_file(
@@ -58,26 +56,6 @@ def publish(repository_version_pk):
             )
 
     log.info(_("Publication: %(publication)s created"), {"publication": publication.pk})
-
-
-def check_repo_version_constraint(publication):
-    """
-    Ensure that repo version to publish fulfills repo_key_fields() uniqueness.
-
-    Raises:
-        ValueError: When constraint is violated
-
-    """
-    fields = CookbookPackageContent.repo_key_fields()
-    qs_content = CookbookPackageContent.objects.filter(
-        pk__in=publication.repository_version.content
-    )
-    qs = qs_content.values(*fields).annotate(num_cookbooks=Count("pk")).filter(num_cookbooks__gt=1)
-    duplicates = [f"{res['name']} {res['version']}" for res in qs]
-    if duplicates:
-        raise ValueError(
-            f"Publication would contain multiple versions of cookbooks: {', '.join(duplicates)}"
-        )
 
 
 def populate(publication):

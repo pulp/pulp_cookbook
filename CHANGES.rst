@@ -10,6 +10,42 @@ pulp-cookbook Changelog
 
 .. towncrier release notes start
 
+0.1.0b4 (2019-11-22)
+====================
+
+
+Features
+--------
+
+- Make repositories "typed". Repositories now live at a detail endpoint, i.e.
+  ``/pulp/api/v3/repositories/cookbook/cookbook/``. Sync is performed by POSTing
+  to ``{repo_href}/sync/ remote={remote_href}`` instead of POSTing to the
+  ``{remote_href}/sync/ repository={repo_href}`` endpoint. Creating a new
+  repository version (adding & removing content) is performed by POSTing to
+  ``{repo_href}/modify/``
+  `#65 <https://github.com/gmbnomis/pulp_cookbook/issues/65>`_
+- Add validation to repository versions: A repository version must not have
+  entries with duplicate repo_keys. Remove the current check done at publication
+  time.
+  `#68 <https://github.com/gmbnomis/pulp_cookbook/issues/68>`_
+
+
+Deprecations and Removals
+-------------------------
+
+- Sync is no longer available at the ``{remote_href}/sync/ repository={repo_href}`` endpoint.
+  `#65 <https://github.com/gmbnomis/pulp_cookbook/issues/65>`_
+
+
+Misc
+----
+
+- `#66 <https://github.com/gmbnomis/pulp_cookbook/issues/66>`_
+
+
+----
+
+
 0.1.0b3 (2019-10-15)
 ====================
 

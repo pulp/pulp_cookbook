@@ -7,6 +7,7 @@ from django.contrib.postgres.fields import JSONField
 
 from pulpcore.plugin.models import Remote, Repository
 
+from pulp_cookbook.app.models.content import CookbookPackageContent
 from pulp_cookbook.app.repo_version_utils import check_repo_version_constraint
 
 
@@ -16,6 +17,7 @@ class CookbookRepository(Repository):
     """
 
     TYPE = "cookbook"
+    CONTENT_TYPES = [CookbookPackageContent]
 
     def finalize_new_version(self, new_version):
         """

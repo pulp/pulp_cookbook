@@ -16,6 +16,7 @@ class CheckRepoVersionConstraintTestCase(TestCase):
     def new_version_content(self):
         repository_version = Mock()
         repository_version.content = CookbookPackageContent.objects.all()
+        repository_version.repository.CONTENT_TYPES = [CookbookPackageContent]
         return repository_version
 
     def test_check_repo_version_constraint_ok(self):
@@ -47,7 +48,10 @@ class CheckRepoVersionConstraintTestCase(TestCase):
         CookbookPackageContent.objects.create(
             name="c1", version="1.0.1", content_id_type="sha256", content_id="1", dependencies={}
         )
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(
+            ValueError,
+            r"contain multiple versions of cookbooks: (c1 1.0.0, c2 1.0.0|c2 1.0.0, c1 1.0.0)",
+        ):
             check_repo_version_constraint(self.new_version_content())
 
     def test_check_repo_version_constraint_same_and_different_id_types_not_ok(self):
@@ -59,5 +63,5 @@ class CheckRepoVersionConstraintTestCase(TestCase):
             name="c1", version="1.0.1", content_id_type="sha256", content_id="2", dependencies={}
         )
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, "would contain multiple versions of cookbooks"):
             check_repo_version_constraint(self.new_version_content())

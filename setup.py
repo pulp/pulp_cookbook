@@ -38,7 +38,7 @@ setup(
     install_requires=["pulpcore>=3.0rc8,<3.2"],
     include_package_data=True,
     packages=find_packages(exclude=["test"]),
-    classifiers=(
+    classifiers=[
         "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
         "Operating System :: POSIX :: Linux",
         "Development Status :: 4 - Beta",
@@ -47,6 +47,6 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
-    ),
+    ],
     entry_points={"pulpcore.plugin": ["pulp_cookbook = pulp_cookbook:default_app_config"]},
 )

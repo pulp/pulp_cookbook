@@ -33,7 +33,7 @@ class UpdateContentWithDownloadResult(Stage):
     """
     A stage that sets the content_id (SHA256 from the artifact).
 
-    Sate the content_id to the SHA256 checksum for "unsaved" content or, if
+    Set the content_id to the SHA256 checksum for "unsaved" content or, if
     saved content has no/a different checksum, create a new content instance
     with a SHA256 content_id.
     """
@@ -146,6 +146,7 @@ class QueryExistingRepoContentAndArtifacts(Stage):
                     for d_a in declarative_content.d_artifacts:
                         if d_a.relative_path == c_a.relative_path:
                             d_a.artifact = c_a.artifact
+                del content.c_as_with_artifact
 
 
 class CookbookFirstStage(Stage):

@@ -10,6 +10,20 @@ pulp-cookbook Changelog
 
 .. towncrier release notes start
 
+0.1.0b5 (2019-12-13)
+====================
+
+
+Features
+--------
+
+- Adapt to pulpcore 3.0.0 release.
+  `#72 <https://github.com/gmbnomis/pulp_cookbook/issues/72>`_
+
+
+----
+
+
 0.1.0b4 (2019-11-22)
 ====================
 

@@ -1,0 +1,1 @@
+Speed up "create publication". PublishedArtifacts were created one by one. Use prefetching and bulk creation to speed up publishing.

@@ -4,12 +4,14 @@
 additional_plugins: []
 black: true
 check_commit_message: false
+cherry_pick_automation: false
 coverage: false
 deploy_client_to_pypi: false
 deploy_client_to_rubygems: false
 deploy_daily_client_to_pypi: false
 deploy_daily_client_to_rubygems: false
 deploy_to_pypi: false
+docker_fixtures: false
 docs_test: false
 plugin_app_label: cookbook
 plugin_camel: PulpCookbook
@@ -20,9 +22,11 @@ plugin_dash: pulp-cookbook
 plugin_dash_short: cookbook
 plugin_name: pulp_cookbook
 plugin_snake: pulp_cookbook
-pulp_settings:
+pulp_settings: null
+pulpcore_branch: master
 pydocstyle: true
 pypi_username: null
+stable_branch: null
 test_bindings: false
 test_performance: false
 travis_notifications: null

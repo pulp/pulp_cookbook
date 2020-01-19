@@ -10,9 +10,7 @@
 set -euv
 
 if [ "$TEST" = 'docs' ]; then
-
   pip install -r ../pulpcore/doc_requirements.txt
-
   pip install -r doc_requirements.txt
 fi
 
@@ -48,37 +46,34 @@ else
 fi
 
 
-PLUGIN=pulp_cookbook
-
-
-# For pulpcore, and any other repo that might check out some plugin PR
 if [ -n "$TRAVIS_TAG" ]; then
   # Install the plugin only and use published PyPI packages for the rest
   cat > vars/vars.yaml << VARSYAML
 ---
 images:
-  - ${PLUGIN}-${TAG}:
-      image_name: $PLUGIN
+  - pulp_cookbook-${TAG}:
+      image_name: pulp_cookbook
       tag: $TAG
       plugins:
-        - ./$PLUGIN
+        - ./pulp_cookbook
 VARSYAML
 else
   cat > vars/vars.yaml << VARSYAML
 ---
 images:
-  - ${PLUGIN}-${TAG}:
-      image_name: $PLUGIN
+  - pulp_cookbook-${TAG}:
+      image_name: pulp_cookbook
       tag: $TAG
       pulpcore: ./pulpcore
       plugins:
-        - ./$PLUGIN
+        - ./pulp_cookbook
 VARSYAML
 fi
-ansible-playbook build.yaml
+ansible-playbook -v build.yaml
 
 cd $TRAVIS_BUILD_DIR/../pulp-operator
 # Tell pulp-perator to deploy our image
+# NOTE: With k3s 1.17, $TAG must be quoted. So that 3.0 does not become 3.
 cat > deploy/crds/pulpproject_v1alpha1_pulp_cr.yaml << CRYAML
 apiVersion: pulpproject.org/v1alpha1
 kind: Pulp
@@ -90,15 +85,12 @@ spec:
     access_mode: "ReadWriteOnce"
     # We have a little over 40GB free on Travis VMs/instances
     size: "40Gi"
-  image: $PLUGIN
-  tag: $TAG
+  image: pulp_cookbook
+  tag: "${TAG}"
   database_connection:
     username: pulp
     password: pulp
     admin_password: pulp
-  pulp_settings:
-     content_host: $(hostname):24816
-
 CRYAML
 
 # Install k3s, lightweight Kubernetes

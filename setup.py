@@ -35,7 +35,7 @@ setup(
     author="Simon Baatz",
     author_email="gmbnomis@gmail.com",
     url="https://github.com/gmbnomis/pulp_cookbook/",
-    install_requires=["pulpcore~=3.1.0"],
+    install_requires=["pulpcore>=3.1.0,<3.3"],
     include_package_data=True,
     packages=find_packages(exclude=["test"]),
     classifiers=[

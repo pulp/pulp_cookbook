@@ -10,6 +10,20 @@ pulp-cookbook Changelog
 
 .. towncrier release notes start
 
+0.1.0b6 (2020-02-09)
+====================
+
+
+Features
+--------
+
+- Speed up "create publication". PublishedArtifacts were created one by one. Use prefetching and bulk creation to speed up publishing.
+  `#75 <https://github.com/gmbnomis/pulp_cookbook/issues/75>`_
+
+
+----
+
+
 0.1.0b5 (2019-12-13)
 ====================
 

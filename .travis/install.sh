@@ -54,6 +54,7 @@ images:
   - pulp_cookbook-${TAG}:
       image_name: pulp_cookbook
       tag: $TAG
+      pulpcore: pulpcore
       plugins:
         - ./pulp_cookbook
 VARSYAML

@@ -10,6 +10,16 @@ pulp-cookbook Changelog
 
 .. towncrier release notes start
 
+0.1.0b7 (2020-04-03)
+====================
+
+
+No significant changes.
+
+
+----
+
+
 0.1.0b6 (2020-02-09)
 ====================
 

@@ -24,10 +24,12 @@ plugin_name: pulp_cookbook
 plugin_snake: pulp_cookbook
 pulp_settings: null
 pulpcore_branch: master
+pulpcore_pip_version_specifier: null
 pydocstyle: true
 pypi_username: null
 stable_branch: null
 test_bindings: false
 test_performance: false
+travis_addtl_services: []
 travis_notifications: null
 

@@ -27,8 +27,6 @@ COOKBOOK_REPO_PATH = urljoin(BASE_REPO_PATH, "cookbook/cookbook/")
 COOKBOOK_DISTRIBUTION_PATH = urljoin(BASE_DISTRIBUTION_PATH, "cookbook/cookbook/")
 COOKBOOK_PUBLICATION_PATH = urljoin(BASE_PUBLICATION_PATH, "cookbook/cookbook/")
 
-COOKBOOK_BASE_CONTENT_URL = "http://localhost:24816/pulp_cookbook/content/"
-
 
 class CookbookFixture:
     """Class holding information about a universe cookbook repo fixture."""

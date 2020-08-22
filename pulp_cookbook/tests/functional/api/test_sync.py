@@ -172,7 +172,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
 
         return repo, remote
 
-    def do_sync_check(self, policy):
+    def do_sync_check(self, policy, repo_stores_remote=False):
         """Sync repository with the cookbook plugin.
 
         In order to sync a repository a remote has to be associated within
@@ -182,6 +182,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         Do the following:
 
         1.  Delete orphan content units, create a repository, and an remote.
+            If repo_stores_remote is true, store the remote in the repo
         2.  Assert that repository version is None
         3.  Sync the remote.
         4.  Assert that repository version is not None and the artifact/content counts
@@ -195,13 +196,18 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         client = api.Client(self.cfg, api.json_handler)
 
         repo, remote = self.do_create_repo_and_sync(client, policy)
+        if repo_stores_remote:
+            client.patch(repo["pulp_href"], {"remote": remote["pulp_href"]})
+            sync_remote_param = None
+        else:
+            sync_remote_param = remote
 
         # Sync the repository with a filter (use mirror mode).
         all_cookbook_count = fixture_u1.cookbook_count()
         latest_version_href = repo["latest_version_href"]
 
         client.patch(remote["pulp_href"], {"cookbooks": {fixture_u1.example1_name: ""}})
-        self.sync_and_inspect_task_report(remote, repo, 0, policy=policy, mirror=True)
+        self.sync_and_inspect_task_report(sync_remote_param, repo, 0, policy=policy, mirror=True)
         repo = client.get(repo["pulp_href"])
         self.assertNotEqual(latest_version_href, repo["latest_version_href"])
         example1_count = fixture_u1.cookbook_count([fixture_u1.example1_name])
@@ -212,7 +218,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         # Although cookbook content is already present, it is not present in the
         # repository. Thus, it must be downloaded again.
         example2_count = fixture_u1.cookbook_count([fixture_u1.example2_name])
-        self.sync_and_inspect_task_report(remote, repo, example2_count, policy=policy)
+        self.sync_and_inspect_task_report(sync_remote_param, repo, example2_count, policy=policy)
         repo = client.get(repo["pulp_href"])
         self.assertNotEqual(latest_version_href, repo["latest_version_href"])
         self.verify_counts(
@@ -228,6 +234,9 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
 
     def test_sync_immediate(self):
         self.do_sync_check("immediate")
+
+    def test_sync_immediate_repo_stores_remote(self):
+        self.do_sync_check("immediate", repo_stores_remote=True)
 
     def test_sync_on_demand(self):
         self.do_sync_check("on_demand")

@@ -1,3 +1,4 @@
 include LICENSE
 include CHANGES.rst
 include pulp_cookbook/app/webserver_snippets/*.conf
+include pyproject.toml

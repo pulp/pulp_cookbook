@@ -28,7 +28,6 @@ from pulp_cookbook.tests.functional.constants import (
     COOKBOOK_DISTRIBUTION_PATH,
     COOKBOOK_REMOTE_PATH,
     COOKBOOK_REPO_PATH,
-    COOKBOOK_BASE_CONTENT_URL,
 )
 
 
@@ -72,8 +71,7 @@ class DownloadContentTestCase(unittest.TestCase):
         # pulp_cookbook universe live endpoint contains
         # all cookbooks
         distribution_base_url = distribution["base_url"] + "/"
-        universe_url = COOKBOOK_BASE_CONTENT_URL
-        universe_url += distribution["base_path"] + "/universe"
+        universe_url = distribution_base_url + "universe"
 
         universe = client.get(universe_url)
         for content, publication_path in get_content_and_unit_paths(repo):

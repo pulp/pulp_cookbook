@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 
 from pulpcore.plugin.actions import ModifyRepositoryActionMixin
@@ -77,8 +77,8 @@ class CookbookRepositoryViewSet(ModifyRepositoryActionMixin, RepositoryViewSet):
     queryset = CookbookRepository.objects.all()
     serializer_class = CookbookRepositorySerializer
 
-    @swagger_auto_schema(
-        operation_description="Trigger an asynchronous task to sync cookbook content.",
+    @extend_schema(
+        description="Trigger an asynchronous task to sync cookbook content.",
         responses={202: AsyncOperationResponseSerializer},
     )
     @action(detail=True, methods=["post"], serializer_class=RepositorySyncURLSerializer)
@@ -145,8 +145,8 @@ class CookbookPublicationViewSet(PublicationViewSet):
     queryset = CookbookPublication.objects.exclude(complete=False)
     serializer_class = CookbookPublicationSerializer
 
-    @swagger_auto_schema(
-        operation_description="Trigger an asynchronous task to publish cookbook content.",
+    @extend_schema(
+        description="Trigger an asynchronous task to publish cookbook content.",
         responses={202: AsyncOperationResponseSerializer},
     )
     def create(self, request):

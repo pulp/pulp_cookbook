@@ -10,6 +10,20 @@ pulp-cookbook Changelog
 
 .. towncrier release notes start
 
+0.1.0b8 (2020-08-29)
+====================
+
+
+Features
+--------
+
+- Added ability for users to add Remote to Repository and automatically use it when syncing.
+  `#84 <https://github.com/gmbnomis/pulp_cookbook/issues/84>`_
+
+
+----
+
+
 0.1.0b7 (2020-04-03)
 ====================
 

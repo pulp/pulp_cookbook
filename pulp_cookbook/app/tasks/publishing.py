@@ -85,7 +85,8 @@ def populate(publication, progress_report=None, batch_size=BATCH_SIZE):
 
     """
     content_batches = publication.repository_version.content_batch_qs(
-        content_qs=CookbookPackageContent.objects.all(), batch_size=batch_size,
+        content_qs=CookbookPackageContent.objects.all(),
+        batch_size=batch_size,
     )
 
     for content_slice_qs in content_batches:

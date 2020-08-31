@@ -1,0 +1,30 @@
+{
+    "child_tasks": [],
+    "created_resources": [
+        "/pulp/api/v3/publications/cookbook/cookbook/6f6ac342-6fdf-4ad1-8b93-449786093d36/"
+    ],
+    "error": null,
+    "finished_at": "2020-08-31T18:59:40.138601Z",
+    "name": "pulp_cookbook.app.tasks.publishing.publish",
+    "parent_task": null,
+    "progress_reports": [
+        {
+            "code": "publishing.content",
+            "done": 25910,
+            "message": "Publishing Content",
+            "state": "completed",
+            "suffix": null,
+            "total": null
+        }
+    ],
+    "pulp_created": "2020-08-31T18:59:05.653566Z",
+    "pulp_href": "/pulp/api/v3/tasks/992dc136-d38b-4a25-af05-98ca91b4f807/",
+    "reserved_resources_record": [
+        "/pulp/api/v3/repositories/cookbook/cookbook/cefae475-f693-4122-9b33-60b883b793c7/"
+    ],
+    "started_at": "2020-08-31T18:59:05.871864Z",
+    "state": "completed",
+    "task_group": null,
+    "worker": "/pulp/api/v3/workers/714038d7-7077-43c5-b980-c9be814dcaa0/"
+}
+

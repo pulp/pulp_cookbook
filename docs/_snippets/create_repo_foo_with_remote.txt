@@ -1,0 +1,10 @@
+{
+    "description": null,
+    "latest_version_href": "/pulp/api/v3/repositories/cookbook/cookbook/84be8c38-0889-4135-81c5-3ebb7a490e20/versions/0/",
+    "name": "foo",
+    "pulp_created": "2020-08-31T18:55:53.983398Z",
+    "pulp_href": "/pulp/api/v3/repositories/cookbook/cookbook/84be8c38-0889-4135-81c5-3ebb7a490e20/",
+    "remote": "/pulp/api/v3/remotes/cookbook/cookbook/4fb67e84-1c87-454a-9cc9-d70f747b78de/",
+    "versions_href": "/pulp/api/v3/repositories/cookbook/cookbook/84be8c38-0889-4135-81c5-3ebb7a490e20/versions/"
+}
+

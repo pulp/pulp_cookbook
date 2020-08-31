@@ -1,0 +1,146 @@
+{
+    "pulp": {
+        "0.1.1": {
+            "dependencies": {
+                "qpid": ">= 0.0.0"
+            },
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/pulp/0_1_1/pulp-0.1.1.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/pulp/0_1_1/pulp-0.1.1.tar.gz",
+            "location_type": "uri"
+        }
+    },
+    "qpid": {
+        "0.1.3": {
+            "dependencies": {
+                "yum": ">= 0.0.0",
+                "yum-epel": ">= 0.0.0"
+            },
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/qpid/0_1_3/qpid-0.1.3.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/qpid/0_1_3/qpid-0.1.3.tar.gz",
+            "location_type": "uri"
+        }
+    },
+    "ubuntu": {
+        "0.7.0": {
+            "dependencies": {
+                "apt": ">= 0.0.0"
+            },
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/0_7_0/ubuntu-0.7.0.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/0_7_0/ubuntu-0.7.0.tar.gz",
+            "location_type": "uri"
+        },
+        "0.99.0": {
+            "dependencies": {
+                "apt": ">= 0.0.0"
+            },
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/0_99_0/ubuntu-0.99.0.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/0_99_0/ubuntu-0.99.0.tar.gz",
+            "location_type": "uri"
+        },
+        "1.0.0": {
+            "dependencies": {
+                "apt": ">= 0.0.0"
+            },
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_0_0/ubuntu-1.0.0.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_0_0/ubuntu-1.0.0.tar.gz",
+            "location_type": "uri"
+        },
+        "1.1.0": {
+            "dependencies": {
+                "apt": ">= 0.0.0"
+            },
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_1_0/ubuntu-1.1.0.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_1_0/ubuntu-1.1.0.tar.gz",
+            "location_type": "uri"
+        },
+        "1.1.2": {
+            "dependencies": {
+                "apt": ">= 0.0.0"
+            },
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_1_2/ubuntu-1.1.2.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_1_2/ubuntu-1.1.2.tar.gz",
+            "location_type": "uri"
+        },
+        "1.1.4": {
+            "dependencies": {
+                "apt": ">= 0.0.0"
+            },
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_1_4/ubuntu-1.1.4.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_1_4/ubuntu-1.1.4.tar.gz",
+            "location_type": "uri"
+        },
+        "1.1.6": {
+            "dependencies": {
+                "apt": ">= 0.0.0"
+            },
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_1_6/ubuntu-1.1.6.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_1_6/ubuntu-1.1.6.tar.gz",
+            "location_type": "uri"
+        },
+        "1.1.8": {
+            "dependencies": {
+                "apt": ">= 0.0.0"
+            },
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_1_8/ubuntu-1.1.8.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_1_8/ubuntu-1.1.8.tar.gz",
+            "location_type": "uri"
+        },
+        "1.2.0": {
+            "dependencies": {
+                "apt": ">= 0.0.0"
+            },
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_2_0/ubuntu-1.2.0.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_2_0/ubuntu-1.2.0.tar.gz",
+            "location_type": "uri"
+        },
+        "1.2.1": {
+            "dependencies": {
+                "apt": ">= 0.0.0"
+            },
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_2_1/ubuntu-1.2.1.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/1_2_1/ubuntu-1.2.1.tar.gz",
+            "location_type": "uri"
+        },
+        "2.0.0": {
+            "dependencies": {
+                "apt": ">= 0.0.0"
+            },
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/2_0_0/ubuntu-2.0.0.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/2_0_0/ubuntu-2.0.0.tar.gz",
+            "location_type": "uri"
+        },
+        "2.0.1": {
+            "dependencies": {
+                "apt": ">= 0.0.0"
+            },
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/2_0_1/ubuntu-2.0.1.tar.gz",
+            "location_type": "uri"
+        },
+        "3.0.0": {
+            "dependencies": {},
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/3_0_0/ubuntu-3.0.0.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/3_0_0/ubuntu-3.0.0.tar.gz",
+            "location_type": "uri"
+        },
+        "3.0.1": {
+            "dependencies": {},
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/3_0_1/ubuntu-3.0.1.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/3_0_1/ubuntu-3.0.1.tar.gz",
+            "location_type": "uri"
+        },
+        "3.0.2": {
+            "dependencies": {},
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/3_0_2/ubuntu-3.0.2.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/3_0_2/ubuntu-3.0.2.tar.gz",
+            "location_type": "uri"
+        },
+        "3.0.3": {
+            "dependencies": {},
+            "download_url": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/3_0_3/ubuntu-3.0.3.tar.gz",
+            "location_path": "http://pulp3-source-fedora32.gandalf.example.com/pulp_cookbook/content/foo/cookbook_files/ubuntu/3_0_3/ubuntu-3.0.3.tar.gz",
+            "location_type": "uri"
+        }
+    }
+}
+

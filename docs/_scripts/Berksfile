@@ -1,0 +1,3 @@
+source 'http://localhost/pulp_cookbook/content/foo/'
+
+cookbook 'ubuntu'

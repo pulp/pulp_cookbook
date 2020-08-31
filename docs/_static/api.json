@@ -1,0 +1,3619 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Pulp 3 API",
+        "version": "v3",
+        "description": "Fetch, Upload, Organize, and Distribute Software Packages",
+        "contact": {
+            "name": "Pulp Team",
+            "email": "pulp-list@redhat.com",
+            "url": "https://pulpproject.org"
+        },
+        "license": {
+            "name": "GPLv2+",
+            "url": "https://raw.githubusercontent.com/pulp/pulpcore/master/LICENSE"
+        },
+        "x-logo": {
+            "url": "https://pulp.plan.io/attachments/download/517478/pulp_logo_word_rectangle.svg"
+        }
+    },
+    "paths": {
+        "/pulp/api/v3/content/cookbook/cookbooks/": {
+            "get": {
+                "operationId": "content_cookbook_cookbooks_list",
+                "description": "Cookbook Content Endpoint.\n\n<!-- User-facing documentation, rendered as html-->\nCookbookContent represents a single cookbook, which can be added and removed\nfrom repositories.",
+                "summary": "List cookbook package contents",
+                "parameters": [
+                    {
+                        "name": "content_id",
+                        "required": false,
+                        "in": "query",
+                        "description": "content_id",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "required": false,
+                        "in": "query",
+                        "description": "name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "required": false,
+                        "in": "query",
+                        "description": "The initial index from which to return the results.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "repository_version",
+                        "required": false,
+                        "in": "query",
+                        "description": "repository_version",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "repository_version_added",
+                        "required": false,
+                        "in": "query",
+                        "description": "repository_version_added",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "repository_version_removed",
+                        "required": false,
+                        "in": "query",
+                        "description": "repository_version_removed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "version",
+                        "required": false,
+                        "in": "query",
+                        "description": "version",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to include in the response."
+                    },
+                    {
+                        "in": "query",
+                        "name": "exclude_fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to exclude from the response."
+                    }
+                ],
+                "tags": [
+                    "Content: Cookbooks"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer",
+                                            "example": 123
+                                        },
+                                        "next": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "previous": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "results": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/cookbook.CookbookPackageContentResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "operationId": "content_cookbook_cookbooks_create",
+                "description": "Trigger an asynchronous task to create content,optionally create new repository version.",
+                "summary": "Create a cookbook package content",
+                "tags": [
+                    "Content: Cookbooks"
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookPackageContent"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookPackageContent"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "{cookbook_cookbook_package_content_href}": {
+            "get": {
+                "operationId": "content_cookbook_cookbooks_read",
+                "description": "Cookbook Content Endpoint.\n\n<!-- User-facing documentation, rendered as html-->\nCookbookContent represents a single cookbook, which can be added and removed\nfrom repositories.",
+                "summary": "Inspect a cookbook package content",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_package_content_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to include in the response."
+                    },
+                    {
+                        "in": "query",
+                        "name": "exclude_fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to exclude from the response."
+                    }
+                ],
+                "tags": [
+                    "Content: Cookbooks"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/cookbook.CookbookPackageContentResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/pulp/api/v3/distributions/cookbook/cookbook/": {
+            "get": {
+                "operationId": "distributions_cookbook_cookbook_list",
+                "description": "Cookbook Distreibution Endpoint.\n\n<!-- User-facing documentation, rendered as html-->\nCookbookDistributions host <a href=\"#tag/publications:-cookbook\">Cookbook\nPublications</a> which makes the metadata and the referenced <a\nhref=\"#tag/content:-cookbooks\">Cookbook Content</a> available to clients\nlike berkshelf. Additionally, a CookbookDistribution with an associated\nCookbookPublication can be the target url of a <a\nhref=\"#tag/remotes:-cookbook\">Cookbook Remote</a> , allowing another\ninstance of Pulp to sync the content.",
+                "summary": "List cookbook distributions",
+                "parameters": [
+                    {
+                        "name": "base_path",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "base_path__contains",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path__contains",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "base_path__icontains",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path__icontains",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "base_path__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "required": false,
+                        "in": "query",
+                        "description": "name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "name__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "required": false,
+                        "in": "query",
+                        "description": "The initial index from which to return the results.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to include in the response."
+                    },
+                    {
+                        "in": "query",
+                        "name": "exclude_fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to exclude from the response."
+                    }
+                ],
+                "tags": [
+                    "Distributions: Cookbook"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer",
+                                            "example": 123
+                                        },
+                                        "next": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "previous": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "results": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/cookbook.CookbookDistributionResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "operationId": "distributions_cookbook_cookbook_create",
+                "description": "Trigger an asynchronous create task",
+                "summary": "Create a cookbook distribution",
+                "tags": [
+                    "Distributions: Cookbook"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookDistribution"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookDistribution"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookDistribution"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "{cookbook_cookbook_distribution_href}": {
+            "get": {
+                "operationId": "distributions_cookbook_cookbook_read",
+                "description": "Cookbook Distreibution Endpoint.\n\n<!-- User-facing documentation, rendered as html-->\nCookbookDistributions host <a href=\"#tag/publications:-cookbook\">Cookbook\nPublications</a> which makes the metadata and the referenced <a\nhref=\"#tag/content:-cookbooks\">Cookbook Content</a> available to clients\nlike berkshelf. Additionally, a CookbookDistribution with an associated\nCookbookPublication can be the target url of a <a\nhref=\"#tag/remotes:-cookbook\">Cookbook Remote</a> , allowing another\ninstance of Pulp to sync the content.",
+                "summary": "Inspect a cookbook distribution",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_distribution_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to include in the response."
+                    },
+                    {
+                        "in": "query",
+                        "name": "exclude_fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to exclude from the response."
+                    }
+                ],
+                "tags": [
+                    "Distributions: Cookbook"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/cookbook.CookbookDistributionResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "operationId": "distributions_cookbook_cookbook_update",
+                "description": "Trigger an asynchronous update task",
+                "summary": "Update a cookbook distribution",
+                "parameters": [
+                    {
+                        "name": "base_path",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "base_path__contains",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path__contains",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "base_path__icontains",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path__icontains",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "base_path__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_distribution_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "name",
+                        "required": false,
+                        "in": "query",
+                        "description": "name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "name__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Distributions: Cookbook"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookDistribution"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookDistribution"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookDistribution"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "distributions_cookbook_cookbook_partial_update",
+                "description": "Trigger an asynchronous partial update task",
+                "summary": "Update a cookbook distribution",
+                "parameters": [
+                    {
+                        "name": "base_path",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "base_path__contains",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path__contains",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "base_path__icontains",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path__icontains",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "base_path__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_distribution_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "name",
+                        "required": false,
+                        "in": "query",
+                        "description": "name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "name__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Distributions: Cookbook"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Patchedcookbook.CookbookDistribution"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Patchedcookbook.CookbookDistribution"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Patchedcookbook.CookbookDistribution"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "distributions_cookbook_cookbook_delete",
+                "description": "Trigger an asynchronous delete task",
+                "summary": "Delete a cookbook distribution",
+                "parameters": [
+                    {
+                        "name": "base_path",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "base_path__contains",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path__contains",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "base_path__icontains",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path__icontains",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "base_path__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "base_path__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_distribution_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "name",
+                        "required": false,
+                        "in": "query",
+                        "description": "name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "name__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Distributions: Cookbook"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/pulp/api/v3/publications/cookbook/cookbook/": {
+            "get": {
+                "operationId": "publications_cookbook_cookbook_list",
+                "description": "File Publication Endpoint.\n\n<!-- User-facing documentation, rendered as html-->\nA CookbookPublication contains metadata about all the <a\nhref=\"#tag/content:-cookbooks\">Cookbook Content</a> in a particular <a\nhref=\"#tag/repositories:-cookbook-versions\">Cookbook Repository Version.</a>\nOnce a CookbookPublication has been created, it can be hosted using the <a\nhref=\"#tag/distributions:-cookbook\">Cookbook Distribution API.</a>",
+                "summary": "List cookbook publications",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "required": false,
+                        "in": "query",
+                        "description": "The initial index from which to return the results.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created__gt",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created__gt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created__gte",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created__gte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created__lt",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created__lt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created__lte",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created__lte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created__range",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created__range",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "repository_version",
+                        "required": false,
+                        "in": "query",
+                        "description": "repository_version",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to include in the response."
+                    },
+                    {
+                        "in": "query",
+                        "name": "exclude_fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to exclude from the response."
+                    }
+                ],
+                "tags": [
+                    "Publications: Cookbook"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer",
+                                            "example": 123
+                                        },
+                                        "next": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "previous": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "results": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/cookbook.CookbookPublicationResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "operationId": "publications_cookbook_cookbook_create",
+                "description": "Trigger an asynchronous task to publish cookbook content.",
+                "summary": "Create a cookbook publication",
+                "tags": [
+                    "Publications: Cookbook"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookPublication"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookPublication"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookPublication"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "{cookbook_cookbook_publication_href}": {
+            "get": {
+                "operationId": "publications_cookbook_cookbook_read",
+                "description": "File Publication Endpoint.\n\n<!-- User-facing documentation, rendered as html-->\nA CookbookPublication contains metadata about all the <a\nhref=\"#tag/content:-cookbooks\">Cookbook Content</a> in a particular <a\nhref=\"#tag/repositories:-cookbook-versions\">Cookbook Repository Version.</a>\nOnce a CookbookPublication has been created, it can be hosted using the <a\nhref=\"#tag/distributions:-cookbook\">Cookbook Distribution API.</a>",
+                "summary": "Inspect a cookbook publication",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_publication_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to include in the response."
+                    },
+                    {
+                        "in": "query",
+                        "name": "exclude_fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to exclude from the response."
+                    }
+                ],
+                "tags": [
+                    "Publications: Cookbook"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/cookbook.CookbookPublicationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "publications_cookbook_cookbook_delete",
+                "description": "File Publication Endpoint.\n\n<!-- User-facing documentation, rendered as html-->\nA CookbookPublication contains metadata about all the <a\nhref=\"#tag/content:-cookbooks\">Cookbook Content</a> in a particular <a\nhref=\"#tag/repositories:-cookbook-versions\">Cookbook Repository Version.</a>\nOnce a CookbookPublication has been created, it can be hosted using the <a\nhref=\"#tag/distributions:-cookbook\">Cookbook Distribution API.</a>",
+                "summary": "Delete a cookbook publication",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_publication_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Publications: Cookbook"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/pulp/api/v3/remotes/cookbook/cookbook/": {
+            "get": {
+                "operationId": "remotes_cookbook_cookbook_list",
+                "description": "Cookbook Remote Endpoint.\n\n<!-- User-facing documentation, rendered as html-->\nCookbookRemote represents an external source of <a\nhref=\"#tag/content:-cookbooks\">Cookbook Content</a>.  The target url of a\nCookbookRemote must point to a <a\nhref=\"https://docs.chef.io/supermarket_api.html\">universe API</a> endpont.",
+                "summary": "List cookbook remotes",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "required": false,
+                        "in": "query",
+                        "description": "name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "name__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "required": false,
+                        "in": "query",
+                        "description": "The initial index from which to return the results.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__gt",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__gt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__gte",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__gte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__lt",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__lt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__lte",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__lte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__range",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__range",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to include in the response."
+                    },
+                    {
+                        "in": "query",
+                        "name": "exclude_fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to exclude from the response."
+                    }
+                ],
+                "tags": [
+                    "Remotes: Cookbook"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer",
+                                            "example": 123
+                                        },
+                                        "next": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "previous": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "results": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/cookbook.CookbookRemoteResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "operationId": "remotes_cookbook_cookbook_create",
+                "description": "Cookbook Remote Endpoint.\n\n<!-- User-facing documentation, rendered as html-->\nCookbookRemote represents an external source of <a\nhref=\"#tag/content:-cookbooks\">Cookbook Content</a>.  The target url of a\nCookbookRemote must point to a <a\nhref=\"https://docs.chef.io/supermarket_api.html\">universe API</a> endpont.",
+                "summary": "Create a cookbook remote",
+                "tags": [
+                    "Remotes: Cookbook"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookRemote"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookRemote"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookRemote"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/cookbook.CookbookRemoteResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "{cookbook_cookbook_remote_href}": {
+            "get": {
+                "operationId": "remotes_cookbook_cookbook_read",
+                "description": "Cookbook Remote Endpoint.\n\n<!-- User-facing documentation, rendered as html-->\nCookbookRemote represents an external source of <a\nhref=\"#tag/content:-cookbooks\">Cookbook Content</a>.  The target url of a\nCookbookRemote must point to a <a\nhref=\"https://docs.chef.io/supermarket_api.html\">universe API</a> endpont.",
+                "summary": "Inspect a cookbook remote",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_remote_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to include in the response."
+                    },
+                    {
+                        "in": "query",
+                        "name": "exclude_fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to exclude from the response."
+                    }
+                ],
+                "tags": [
+                    "Remotes: Cookbook"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/cookbook.CookbookRemoteResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "operationId": "remotes_cookbook_cookbook_update",
+                "description": "Trigger an asynchronous update task",
+                "summary": "Update a cookbook remote",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_remote_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "name",
+                        "required": false,
+                        "in": "query",
+                        "description": "name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "name__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__gt",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__gt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__gte",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__gte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__lt",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__lt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__lte",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__lte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__range",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__range",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Remotes: Cookbook"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookRemote"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookRemote"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookRemote"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "remotes_cookbook_cookbook_partial_update",
+                "description": "Trigger an asynchronous partial update task",
+                "summary": "Update a cookbook remote",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_remote_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "name",
+                        "required": false,
+                        "in": "query",
+                        "description": "name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "name__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__gt",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__gt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__gte",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__gte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__lt",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__lt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__lte",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__lte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__range",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__range",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Remotes: Cookbook"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Patchedcookbook.CookbookRemote"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Patchedcookbook.CookbookRemote"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Patchedcookbook.CookbookRemote"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "remotes_cookbook_cookbook_delete",
+                "description": "Trigger an asynchronous delete task",
+                "summary": "Delete a cookbook remote",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_remote_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "name",
+                        "required": false,
+                        "in": "query",
+                        "description": "name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "name__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__gt",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__gt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__gte",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__gte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__lt",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__lt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__lte",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__lte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_last_updated__range",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_last_updated__range",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Remotes: Cookbook"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/pulp/api/v3/repositories/cookbook/cookbook/": {
+            "get": {
+                "operationId": "repositories_cookbook_cookbook_list",
+                "description": "Cookbook Repository Endpoint.\n\n<!-- User-facing documentation, rendered as html-->\nCookbookRepository represents a single cookbook repository, to which content can\nbe synced, added, or removed.",
+                "summary": "List cookbook repositorys",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "required": false,
+                        "in": "query",
+                        "description": "name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "name__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "required": false,
+                        "in": "query",
+                        "description": "The initial index from which to return the results.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to include in the response."
+                    },
+                    {
+                        "in": "query",
+                        "name": "exclude_fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to exclude from the response."
+                    }
+                ],
+                "tags": [
+                    "Repositories: Cookbook"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer",
+                                            "example": 123
+                                        },
+                                        "next": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "previous": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "results": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/cookbook.CookbookRepositoryResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "operationId": "repositories_cookbook_cookbook_create",
+                "description": "Cookbook Repository Endpoint.\n\n<!-- User-facing documentation, rendered as html-->\nCookbookRepository represents a single cookbook repository, to which content can\nbe synced, added, or removed.",
+                "summary": "Create a cookbook repository",
+                "tags": [
+                    "Repositories: Cookbook"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookRepository"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookRepository"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookRepository"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/cookbook.CookbookRepositoryResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "{cookbook_cookbook_repository_href}": {
+            "get": {
+                "operationId": "repositories_cookbook_cookbook_read",
+                "description": "Cookbook Repository Endpoint.\n\n<!-- User-facing documentation, rendered as html-->\nCookbookRepository represents a single cookbook repository, to which content can\nbe synced, added, or removed.",
+                "summary": "Inspect a cookbook repository",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_repository_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to include in the response."
+                    },
+                    {
+                        "in": "query",
+                        "name": "exclude_fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to exclude from the response."
+                    }
+                ],
+                "tags": [
+                    "Repositories: Cookbook"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/cookbook.CookbookRepositoryResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "operationId": "repositories_cookbook_cookbook_update",
+                "description": "Trigger an asynchronous update task",
+                "summary": "Update a cookbook repository",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_repository_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "name",
+                        "required": false,
+                        "in": "query",
+                        "description": "name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "name__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Repositories: Cookbook"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookRepository"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookRepository"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/cookbook.CookbookRepository"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "repositories_cookbook_cookbook_partial_update",
+                "description": "Trigger an asynchronous partial update task",
+                "summary": "Update a cookbook repository",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_repository_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "name",
+                        "required": false,
+                        "in": "query",
+                        "description": "name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "name__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Repositories: Cookbook"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Patchedcookbook.CookbookRepository"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Patchedcookbook.CookbookRepository"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Patchedcookbook.CookbookRepository"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "repositories_cookbook_cookbook_delete",
+                "description": "Trigger an asynchronous delete task",
+                "summary": "Delete a cookbook repository",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_repository_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "name",
+                        "required": false,
+                        "in": "query",
+                        "description": "name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "name__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Repositories: Cookbook"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "{cookbook_cookbook_repository_href}modify/": {
+            "post": {
+                "operationId": "repositories_cookbook_cookbook_modify",
+                "description": "Trigger an asynchronous task to create a new repository version.",
+                "summary": "Modify Repository Content",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_repository_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Repositories: Cookbook"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RepositoryAddRemoveContent"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RepositoryAddRemoveContent"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RepositoryAddRemoveContent"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "{cookbook_cookbook_repository_href}sync/": {
+            "post": {
+                "operationId": "repositories_cookbook_cookbook_sync",
+                "description": "Trigger an asynchronous task to sync cookbook content.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_repository_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Repositories: Cookbook"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RepositorySyncURL"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RepositorySyncURL"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RepositorySyncURL"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "{cookbook_cookbook_repository_href}versions/": {
+            "get": {
+                "operationId": "repositories_cookbook_cookbook_versions_list",
+                "description": "Cookbook Repository Version Endpoint.\n\n<!-- User-facing documentation, rendered as html-->\nCookbookRepositoryVersion represents a single cookbook repository version.",
+                "summary": "List repository versions",
+                "parameters": [
+                    {
+                        "name": "content",
+                        "required": false,
+                        "in": "query",
+                        "description": "content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "content__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "content__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_repository_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "number",
+                        "required": false,
+                        "in": "query",
+                        "description": "number",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "number__gt",
+                        "required": false,
+                        "in": "query",
+                        "description": "number__gt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "number__gte",
+                        "required": false,
+                        "in": "query",
+                        "description": "number__gte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "number__lt",
+                        "required": false,
+                        "in": "query",
+                        "description": "number__lt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "number__lte",
+                        "required": false,
+                        "in": "query",
+                        "description": "number__lte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "number__range",
+                        "required": false,
+                        "in": "query",
+                        "description": "number__range",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "required": false,
+                        "in": "query",
+                        "description": "The initial index from which to return the results.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created__gt",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created__gt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created__gte",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created__gte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created__lt",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created__lt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created__lte",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created__lte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created__range",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created__range",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to include in the response."
+                    },
+                    {
+                        "in": "query",
+                        "name": "exclude_fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to exclude from the response."
+                    }
+                ],
+                "tags": [
+                    "Repositories: Cookbook Versions"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer",
+                                            "example": 123
+                                        },
+                                        "next": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "previous": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "results": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/RepositoryVersionResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "{cookbook_cookbook_repository_version_href}": {
+            "get": {
+                "operationId": "repositories_cookbook_cookbook_versions_read",
+                "description": "Cookbook Repository Version Endpoint.\n\n<!-- User-facing documentation, rendered as html-->\nCookbookRepositoryVersion represents a single cookbook repository version.",
+                "summary": "Inspect a repository version",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_repository_version_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to include in the response."
+                    },
+                    {
+                        "in": "query",
+                        "name": "exclude_fields",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A list of fields to exclude from the response."
+                    }
+                ],
+                "tags": [
+                    "Repositories: Cookbook Versions"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RepositoryVersionResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "repositories_cookbook_cookbook_versions_delete",
+                "description": "Trigger an asynchronous task to delete a repositroy version.",
+                "summary": "Delete a repository version",
+                "parameters": [
+                    {
+                        "name": "content",
+                        "required": false,
+                        "in": "query",
+                        "description": "content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "content__in",
+                        "required": false,
+                        "in": "query",
+                        "description": "content__in",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_repository_version_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "number",
+                        "required": false,
+                        "in": "query",
+                        "description": "number",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "number__gt",
+                        "required": false,
+                        "in": "query",
+                        "description": "number__gt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "number__gte",
+                        "required": false,
+                        "in": "query",
+                        "description": "number__gte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "number__lt",
+                        "required": false,
+                        "in": "query",
+                        "description": "number__lt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "number__lte",
+                        "required": false,
+                        "in": "query",
+                        "description": "number__lte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "number__range",
+                        "required": false,
+                        "in": "query",
+                        "description": "number__range",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "ordering",
+                        "required": false,
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created__gt",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created__gt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created__gte",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created__gte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created__lt",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created__lt",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created__lte",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created__lte",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pulp_created__range",
+                        "required": false,
+                        "in": "query",
+                        "description": "pulp_created__range",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Repositories: Cookbook Versions"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "{cookbook_cookbook_repository_version_href}repair/": {
+            "post": {
+                "operationId": "repositories_cookbook_cookbook_versions_repair",
+                "description": "Trigger an asynchronous task to repair a repositroy version.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cookbook_cookbook_repository_version_href",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Repositories: Cookbook Versions"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RepositoryVersion"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RepositoryVersion"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RepositoryVersion"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncOperationResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AsyncOperationResponse": {
+                "type": "object",
+                "description": "Serializer for asynchronous operations.",
+                "properties": {
+                    "task": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "The href of the task."
+                    }
+                },
+                "required": [
+                    "task"
+                ]
+            },
+            "ContentSummary": {
+                "type": "object",
+                "description": "Serializer for the RepositoryVersion content summary",
+                "properties": {
+                    "added": {
+                        "type": "object"
+                    },
+                    "removed": {
+                        "type": "object"
+                    },
+                    "present": {
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "added",
+                    "present",
+                    "removed"
+                ]
+            },
+            "ContentSummaryResponse": {
+                "type": "object",
+                "description": "Serializer for the RepositoryVersion content summary",
+                "properties": {
+                    "added": {
+                        "type": "object"
+                    },
+                    "removed": {
+                        "type": "object"
+                    },
+                    "present": {
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "added",
+                    "present",
+                    "removed"
+                ]
+            },
+            "Patchedcookbook.CookbookDistribution": {
+                "type": "object",
+                "description": "Serializer for the Distribution.",
+                "properties": {
+                    "base_path": {
+                        "type": "string",
+                        "description": "The base (relative) path component of the published url. Avoid paths that                     overlap with other distribution base paths (e.g. \"foo\" and \"foo/bar\")"
+                    },
+                    "content_guard": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "description": "An optional content-guard."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "A unique name. Ex, `rawhide` and `stable`."
+                    },
+                    "publication": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "description": "Publication to be served"
+                    }
+                }
+            },
+            "Patchedcookbook.CookbookRemote": {
+                "type": "object",
+                "description": "Serializer for the remote pointing to a universe repo.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "A unique name for this remote."
+                    },
+                    "url": {
+                        "type": "string",
+                        "description": "The URL of an external content source."
+                    },
+                    "ca_cert": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "A PEM encoded CA certificate used to validate the server certificate presented by the remote server."
+                    },
+                    "client_cert": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "A PEM encoded client certificate used for authentication."
+                    },
+                    "client_key": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "A PEM encoded private key used for authentication."
+                    },
+                    "tls_validation": {
+                        "type": "boolean",
+                        "description": "If True, TLS peer validation must be performed."
+                    },
+                    "proxy_url": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The proxy URL. Format: scheme://user:password@host:port"
+                    },
+                    "username": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The username to be used for authentication when syncing."
+                    },
+                    "password": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The password to be used for authentication when syncing."
+                    },
+                    "download_concurrency": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Total number of simultaneous connections."
+                    },
+                    "policy": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PolicyEnum"
+                            }
+                        ],
+                        "default": "immediate",
+                        "description": "The policy to use when downloading content. The possible values include: 'immediate', 'on_demand', and 'streamed'. 'immediate' is the default."
+                    },
+                    "cookbooks": {
+                        "type": "object",
+                        "description": "An optional JSON object in the format {\"<cookbook name>\": \"<version_string>\" }. Used to limit the cookbooks to synchronize from the remote"
+                    }
+                }
+            },
+            "Patchedcookbook.CookbookRepository": {
+                "type": "object",
+                "description": "Serializer for Cookbook Repositories.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "A unique name for this repository."
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "An optional description."
+                    },
+                    "remote": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true
+                    }
+                }
+            },
+            "PolicyEnum": {
+                "enum": [
+                    "immediate",
+                    "on_demand",
+                    "streamed"
+                ],
+                "type": "string"
+            },
+            "RepositoryAddRemoveContent": {
+                "type": "object",
+                "description": "Base serializer for use with :class:`pulpcore.app.models.Model`\n\nThis ensures that all Serializers provide values for the 'pulp_href` field.\n\nThe class provides a default for the ``ref_name`` attribute in the\nModelSerializers's ``Meta`` class. This ensures that the OpenAPI definitions\nof plugins are namespaced properly.",
+                "properties": {
+                    "add_content_units": {
+                        "type": "array",
+                        "items": {},
+                        "description": "A list of content units to add to a new repository version. This content is added after remove_content_units are removed."
+                    },
+                    "remove_content_units": {
+                        "type": "array",
+                        "items": {},
+                        "description": "A list of content units to remove from the latest repository version. You may also specify '*' as an entry to remove all content. This content is removed before add_content_units are added."
+                    },
+                    "base_version": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "A repository version whose content will be used as the initial set of content for the new repository version"
+                    }
+                }
+            },
+            "RepositorySyncURL": {
+                "type": "object",
+                "description": "A mixin for validating unknown serializers' fields.",
+                "properties": {
+                    "remote": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "A remote to sync from. This will override a remote set on repository."
+                    },
+                    "mirror": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "If ``True``, synchronization will remove all content that is not present in the remote repository. If ``False``, sync will be additive only."
+                    }
+                }
+            },
+            "RepositoryVersion": {
+                "type": "object",
+                "description": "Base serializer for use with :class:`pulpcore.app.models.Model`\n\nThis ensures that all Serializers provide values for the 'pulp_href` field.\n\nThe class provides a default for the ``ref_name`` attribute in the\nModelSerializers's ``Meta`` class. This ensures that the OpenAPI definitions\nof plugins are namespaced properly.",
+                "properties": {
+                    "base_version": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "A repository version whose content was used as the initial set of content for this repository version"
+                    }
+                }
+            },
+            "RepositoryVersionResponse": {
+                "type": "object",
+                "description": "Base serializer for use with :class:`pulpcore.app.models.Model`\n\nThis ensures that all Serializers provide values for the 'pulp_href` field.\n\nThe class provides a default for the ``ref_name`` attribute in the\nModelSerializers's ``Meta`` class. This ensures that the OpenAPI definitions\nof plugins are namespaced properly.",
+                "properties": {
+                    "pulp_href": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "pulp_created": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "description": "Timestamp of creation."
+                    },
+                    "number": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "base_version": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "A repository version whose content was used as the initial set of content for this repository version"
+                    },
+                    "content_summary": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ContentSummaryResponse"
+                            }
+                        ],
+                        "readOnly": true,
+                        "description": "Various count summaries of the content in the version and the HREF to view them."
+                    }
+                }
+            },
+            "cookbook.CookbookDistribution": {
+                "type": "object",
+                "description": "Serializer for the Distribution.",
+                "properties": {
+                    "base_path": {
+                        "type": "string",
+                        "description": "The base (relative) path component of the published url. Avoid paths that                     overlap with other distribution base paths (e.g. \"foo\" and \"foo/bar\")"
+                    },
+                    "content_guard": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "description": "An optional content-guard."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "A unique name. Ex, `rawhide` and `stable`."
+                    },
+                    "publication": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "description": "Publication to be served"
+                    }
+                },
+                "required": [
+                    "base_path",
+                    "name"
+                ]
+            },
+            "cookbook.CookbookDistributionResponse": {
+                "type": "object",
+                "description": "Serializer for the Distribution.",
+                "properties": {
+                    "pulp_href": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "pulp_created": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "description": "Timestamp of creation."
+                    },
+                    "base_path": {
+                        "type": "string",
+                        "description": "The base (relative) path component of the published url. Avoid paths that                     overlap with other distribution base paths (e.g. \"foo\" and \"foo/bar\")"
+                    },
+                    "base_url": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The URL for accessing the universe API as defined by this distribution."
+                    },
+                    "content_guard": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "description": "An optional content-guard."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "A unique name. Ex, `rawhide` and `stable`."
+                    },
+                    "publication": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "description": "Publication to be served"
+                    }
+                },
+                "required": [
+                    "base_path",
+                    "name"
+                ]
+            },
+            "cookbook.CookbookPackageContent": {
+                "type": "object",
+                "description": "Serializer for the cookbook content.",
+                "properties": {
+                    "repository": {
+                        "type": "string",
+                        "format": "uri",
+                        "writeOnly": true,
+                        "description": "A URI of a repository the new content unit should be associated with."
+                    },
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "writeOnly": true,
+                        "description": "An uploaded file that may be turned into the artifact of the content unit."
+                    },
+                    "artifact": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Artifact file representing the physical content"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "name of the cookbook"
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "version of the cookbook"
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            },
+            "cookbook.CookbookPackageContentResponse": {
+                "type": "object",
+                "description": "Serializer for the cookbook content.",
+                "properties": {
+                    "pulp_created": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "description": "Timestamp of creation."
+                    },
+                    "pulp_href": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "artifact": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Artifact file representing the physical content"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "name of the cookbook"
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "version of the cookbook"
+                    },
+                    "dependencies": {
+                        "type": "object",
+                        "readOnly": true,
+                        "description": "dependencies of the cookbook"
+                    },
+                    "content_id": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "content_id of the cookbook (UUID (lazy download)/SHA256 (immediate download/import)"
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            },
+            "cookbook.CookbookPublication": {
+                "type": "object",
+                "description": "Serializer for Cookbook Publications.",
+                "properties": {
+                    "repository_version": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "repository": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "A URI of the repository to be published."
+                    }
+                }
+            },
+            "cookbook.CookbookPublicationResponse": {
+                "type": "object",
+                "description": "Serializer for Cookbook Publications.",
+                "properties": {
+                    "pulp_href": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "pulp_created": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "description": "Timestamp of creation."
+                    },
+                    "repository_version": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "repository": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "A URI of the repository to be published."
+                    },
+                    "distributions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "readOnly": true,
+                        "description": "This publication is currently being served as defined by these distributions."
+                    }
+                }
+            },
+            "cookbook.CookbookRemote": {
+                "type": "object",
+                "description": "Serializer for the remote pointing to a universe repo.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "A unique name for this remote."
+                    },
+                    "url": {
+                        "type": "string",
+                        "description": "The URL of an external content source."
+                    },
+                    "ca_cert": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "A PEM encoded CA certificate used to validate the server certificate presented by the remote server."
+                    },
+                    "client_cert": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "A PEM encoded client certificate used for authentication."
+                    },
+                    "client_key": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "A PEM encoded private key used for authentication."
+                    },
+                    "tls_validation": {
+                        "type": "boolean",
+                        "description": "If True, TLS peer validation must be performed."
+                    },
+                    "proxy_url": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The proxy URL. Format: scheme://user:password@host:port"
+                    },
+                    "username": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The username to be used for authentication when syncing."
+                    },
+                    "password": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The password to be used for authentication when syncing."
+                    },
+                    "download_concurrency": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Total number of simultaneous connections."
+                    },
+                    "policy": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PolicyEnum"
+                            }
+                        ],
+                        "default": "immediate",
+                        "description": "The policy to use when downloading content. The possible values include: 'immediate', 'on_demand', and 'streamed'. 'immediate' is the default."
+                    },
+                    "cookbooks": {
+                        "type": "object",
+                        "description": "An optional JSON object in the format {\"<cookbook name>\": \"<version_string>\" }. Used to limit the cookbooks to synchronize from the remote"
+                    }
+                },
+                "required": [
+                    "name",
+                    "url"
+                ]
+            },
+            "cookbook.CookbookRemoteResponse": {
+                "type": "object",
+                "description": "Serializer for the remote pointing to a universe repo.",
+                "properties": {
+                    "pulp_href": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "pulp_created": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "description": "Timestamp of creation."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "A unique name for this remote."
+                    },
+                    "url": {
+                        "type": "string",
+                        "description": "The URL of an external content source."
+                    },
+                    "ca_cert": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "A PEM encoded CA certificate used to validate the server certificate presented by the remote server."
+                    },
+                    "client_cert": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "A PEM encoded client certificate used for authentication."
+                    },
+                    "client_key": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "A PEM encoded private key used for authentication."
+                    },
+                    "tls_validation": {
+                        "type": "boolean",
+                        "description": "If True, TLS peer validation must be performed."
+                    },
+                    "proxy_url": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The proxy URL. Format: scheme://user:password@host:port"
+                    },
+                    "username": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The username to be used for authentication when syncing."
+                    },
+                    "password": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The password to be used for authentication when syncing."
+                    },
+                    "pulp_last_updated": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "description": "Timestamp of the most recent update of the remote."
+                    },
+                    "download_concurrency": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Total number of simultaneous connections."
+                    },
+                    "policy": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PolicyEnum"
+                            }
+                        ],
+                        "default": "immediate",
+                        "description": "The policy to use when downloading content. The possible values include: 'immediate', 'on_demand', and 'streamed'. 'immediate' is the default."
+                    },
+                    "cookbooks": {
+                        "type": "object",
+                        "description": "An optional JSON object in the format {\"<cookbook name>\": \"<version_string>\" }. Used to limit the cookbooks to synchronize from the remote"
+                    }
+                },
+                "required": [
+                    "name",
+                    "url"
+                ]
+            },
+            "cookbook.CookbookRepository": {
+                "type": "object",
+                "description": "Serializer for Cookbook Repositories.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "A unique name for this repository."
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "An optional description."
+                    },
+                    "remote": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            },
+            "cookbook.CookbookRepositoryResponse": {
+                "type": "object",
+                "description": "Serializer for Cookbook Repositories.",
+                "properties": {
+                    "pulp_href": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "pulp_created": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "description": "Timestamp of creation."
+                    },
+                    "versions_href": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "latest_version_href": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "A unique name for this repository."
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "An optional description."
+                    },
+                    "remote": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            }
+        },
+        "securitySchemes": {
+            "basicAuth": {
+                "type": "http",
+                "scheme": "basic"
+            },
+            "cookieAuth": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "Session"
+            }
+        }
+    },
+    "servers": [
+        {
+            "url": "http://localhost:24817/"
+        }
+    ]
+}

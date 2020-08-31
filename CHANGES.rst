@@ -148,14 +148,14 @@ Misc
 Features
 --------
 
-- - Migrations are checked in now.
+- Migrations are checked in now.
   `#39 <https://github.com/pulp/pulp_cookbook/issues/39>`_
 
 
 Bugfixes
 --------
 
-- - Fix breaking changes introduced by DRF 3.10
+- Fix breaking changes introduced by DRF 3.10
   `#36 <https://github.com/pulp/pulp_cookbook/issues/36>`_
 
 

@@ -1,0 +1,18 @@
+{
+    "ca_cert": null,
+    "client_cert": null,
+    "client_key": null,
+    "cookbooks": null,
+    "download_concurrency": 10,
+    "name": "supermarket",
+    "password": null,
+    "policy": "on_demand",
+    "proxy_url": null,
+    "pulp_created": "2020-08-31T18:56:18.826267Z",
+    "pulp_href": "/pulp/api/v3/remotes/cookbook/cookbook/5b43bd86-7c52-425c-a369-5693cdea68c2/",
+    "pulp_last_updated": "2020-08-31T18:56:18.826301Z",
+    "tls_validation": true,
+    "url": "https://supermarket.chef.io/",
+    "username": null
+}
+

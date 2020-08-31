@@ -1,0 +1,55 @@
+{
+    "child_tasks": [],
+    "created_resources": [
+        "/pulp/api/v3/repositories/cookbook/cookbook/cefae475-f693-4122-9b33-60b883b793c7/versions/1/"
+    ],
+    "error": null,
+    "finished_at": "2020-08-31T18:59:03.915029Z",
+    "name": "pulp_cookbook.app.tasks.synchronizing.synchronize",
+    "parent_task": null,
+    "progress_reports": [
+        {
+            "code": "downloading.metadata",
+            "done": 1,
+            "message": "Downloading Metadata",
+            "state": "completed",
+            "suffix": null,
+            "total": 1
+        },
+        {
+            "code": "parsing.metadata",
+            "done": 25910,
+            "message": "Parsing Metadata",
+            "state": "completed",
+            "suffix": null,
+            "total": null
+        },
+        {
+            "code": "associating.content",
+            "done": 25910,
+            "message": "Associating Content",
+            "state": "completed",
+            "suffix": null,
+            "total": null
+        },
+        {
+            "code": "unassociating.content",
+            "done": 0,
+            "message": "Un-Associating Content",
+            "state": "completed",
+            "suffix": null,
+            "total": null
+        }
+    ],
+    "pulp_created": "2020-08-31T18:56:20.899326Z",
+    "pulp_href": "/pulp/api/v3/tasks/165479ae-a05f-4d2b-bff8-a2500877f9d7/",
+    "reserved_resources_record": [
+        "/pulp/api/v3/repositories/cookbook/cookbook/cefae475-f693-4122-9b33-60b883b793c7/",
+        "/pulp/api/v3/remotes/cookbook/cookbook/5b43bd86-7c52-425c-a369-5693cdea68c2/"
+    ],
+    "started_at": "2020-08-31T18:56:21.075800Z",
+    "state": "completed",
+    "task_group": null,
+    "worker": "/pulp/api/v3/workers/714038d7-7077-43c5-b980-c9be814dcaa0/"
+}
+

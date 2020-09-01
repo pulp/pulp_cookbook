@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/gmbnomis/pulp_cookbook.svg?branch=master
-   :target: https://travis-ci.org/gmbnomis/pulp_cookbook
+.. image:: https://travis-ci.com/pulp/pulp_cookbook.svg?branch=master
+   :target: https://travis-ci.com/pulp/pulp_cookbook
    :alt: Travis (.org)
 .. image:: https://img.shields.io/pypi/v/pulp-cookbook.svg
    :target: https://pypi.python.org/pypi/pulp-cookbook
@@ -72,7 +72,7 @@ Install ``pulp_cookbook`` from source
 
    sudo -u pulp -i
    source ~/pulpvenv/bin/activate
-   git clone https://github.com/gmbnomis/pulp_cookbook.git
+   git clone https://github.com/pulp/pulp_cookbook.git
    cd pulp_cookbook
    pip install -e .
 

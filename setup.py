@@ -34,7 +34,7 @@ setup(
     long_description=long_description,
     author="Simon Baatz",
     author_email="gmbnomis@gmail.com",
-    url="https://github.com/gmbnomis/pulp_cookbook/",
+    url="https://github.com/pulp/pulp_cookbook/",
     install_requires=["pulpcore>=3.6.0"],
     include_package_data=True,
     packages=find_packages(exclude=["test"]),

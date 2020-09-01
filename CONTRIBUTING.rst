@@ -22,7 +22,7 @@ The CHANGES.rst file is managed using the `towncrier tool
 accompanied by an entry.
 
 To add an entry to the change log, you first need a pulp_cookbook `issue
-<https://github.com/gmbnomis/pulp_cookbook/issues>`_ describing the change you
+<https://github.com/pulp/pulp_cookbook/issues>`_ describing the change you
 want to make. Once you have an issue, take its number and create a file inside
 of the ``CHANGES/`` directory named after that issue number with an extension of
 ``.feature``, ``.bugfix``, ``.doc``, ``.removal``, or ``.misc``. So if your

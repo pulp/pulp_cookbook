@@ -18,7 +18,7 @@ Features
 --------
 
 - Added ability for users to add Remote to Repository and automatically use it when syncing.
-  `#84 <https://github.com/gmbnomis/pulp_cookbook/issues/84>`_
+  `#84 <https://github.com/pulp/pulp_cookbook/issues/84>`_
 
 
 ----
@@ -42,7 +42,7 @@ Features
 --------
 
 - Speed up "create publication". PublishedArtifacts were created one by one. Use prefetching and bulk creation to speed up publishing.
-  `#75 <https://github.com/gmbnomis/pulp_cookbook/issues/75>`_
+  `#75 <https://github.com/pulp/pulp_cookbook/issues/75>`_
 
 
 ----
@@ -56,7 +56,7 @@ Features
 --------
 
 - Adapt to pulpcore 3.0.0 release.
-  `#72 <https://github.com/gmbnomis/pulp_cookbook/issues/72>`_
+  `#72 <https://github.com/pulp/pulp_cookbook/issues/72>`_
 
 
 ----
@@ -75,24 +75,24 @@ Features
   ``{remote_href}/sync/ repository={repo_href}`` endpoint. Creating a new
   repository version (adding & removing content) is performed by POSTing to
   ``{repo_href}/modify/``
-  `#65 <https://github.com/gmbnomis/pulp_cookbook/issues/65>`_
+  `#65 <https://github.com/pulp/pulp_cookbook/issues/65>`_
 - Add validation to repository versions: A repository version must not have
   entries with duplicate repo_keys. Remove the current check done at publication
   time.
-  `#68 <https://github.com/gmbnomis/pulp_cookbook/issues/68>`_
+  `#68 <https://github.com/pulp/pulp_cookbook/issues/68>`_
 
 
 Deprecations and Removals
 -------------------------
 
 - Sync is no longer available at the ``{remote_href}/sync/ repository={repo_href}`` endpoint.
-  `#65 <https://github.com/gmbnomis/pulp_cookbook/issues/65>`_
+  `#65 <https://github.com/pulp/pulp_cookbook/issues/65>`_
 
 
 Misc
 ----
 
-- `#66 <https://github.com/gmbnomis/pulp_cookbook/issues/66>`_
+- `#66 <https://github.com/pulp/pulp_cookbook/issues/66>`_
 
 
 ----
@@ -106,9 +106,9 @@ Deprecations and Removals
 -------------------------
 
 - Change `_id`, `_created`, `_last_updated`, `_href` to `pulp_id`, `pulp_created`, `pulp_last_updated`, `pulp_href`. Remove `_type` field from content serializer.
-  `#56 <https://github.com/gmbnomis/pulp_cookbook/issues/56>`_
+  `#56 <https://github.com/pulp/pulp_cookbook/issues/56>`_
 - Remove "_" from `_versions_href`, `_latest_version_href`
-  `#58 <https://github.com/gmbnomis/pulp_cookbook/issues/58>`_
+  `#58 <https://github.com/pulp/pulp_cookbook/issues/58>`_
 
 
 ----
@@ -122,20 +122,20 @@ Features
 --------
 
 - Use the new SingleArtifactContentUploadSerializer to implement the content upload function (single shot upload).
-  `#18 <https://github.com/gmbnomis/pulp_cookbook/issues/18>`_
+  `#18 <https://github.com/pulp/pulp_cookbook/issues/18>`_
 
 
 Deprecations and Removals
 -------------------------
 
 - Change `_artifact` field to `artifact` for cookbook content.
-  `#46 <https://github.com/gmbnomis/pulp_cookbook/issues/46>`_
+  `#46 <https://github.com/pulp/pulp_cookbook/issues/46>`_
 
 
 Misc
 ----
 
-- `#48 <https://github.com/gmbnomis/pulp_cookbook/issues/48>`_
+- `#48 <https://github.com/pulp/pulp_cookbook/issues/48>`_
 
 
 ----
@@ -149,14 +149,14 @@ Features
 --------
 
 - - Migrations are checked in now.
-  `#39 <https://github.com/gmbnomis/pulp_cookbook/issues/39>`_
+  `#39 <https://github.com/pulp/pulp_cookbook/issues/39>`_
 
 
 Bugfixes
 --------
 
 - - Fix breaking changes introduced by DRF 3.10
-  `#36 <https://github.com/gmbnomis/pulp_cookbook/issues/36>`_
+  `#36 <https://github.com/pulp/pulp_cookbook/issues/36>`_
 
 
 ----

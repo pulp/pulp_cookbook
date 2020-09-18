@@ -47,6 +47,7 @@ pip install -r dev_requirements.txt
 
 
 # run black separately from flake8 to get a diff
+black --version
 black --check --diff .
 
 # Lint code.

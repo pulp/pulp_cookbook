@@ -1,0 +1,21 @@
+{
+    "child_tasks": [],
+    "created_resources": [
+        "/pulp/api/v3/content/cookbook/cookbooks/ba13f4e9-93fd-405e-aad2-dd37bf7c8f80/"
+    ],
+    "error": null,
+    "finished_at": "2020-08-31T18:55:46.846807Z",
+    "name": "pulpcore.app.tasks.base.general_create",
+    "parent_task": null,
+    "progress_reports": [],
+    "pulp_created": "2020-08-31T18:55:46.507982Z",
+    "pulp_href": "/pulp/api/v3/tasks/825345fc-e823-405a-8d0d-d970761fc99b/",
+    "reserved_resources_record": [
+        "/pulp/api/v3/artifacts/a91321d9-bd6f-408b-a094-f841925bf75b/"
+    ],
+    "started_at": "2020-08-31T18:55:46.747676Z",
+    "state": "completed",
+    "task_group": null,
+    "worker": "/pulp/api/v3/workers/714038d7-7077-43c5-b980-c9be814dcaa0/"
+}
+

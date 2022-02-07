@@ -1,4 +1,11 @@
-include LICENSE
 include CHANGES.rst
+include COMMITMENT
+include COPYRIGHT
+include README.md
+include functest_requirements.txt
+include LICENSE
+include requirements.txt
+include test_requirements.txt
+include unittest_requirements.txt
 include pulp_cookbook/app/webserver_snippets/*.conf
 include pyproject.toml

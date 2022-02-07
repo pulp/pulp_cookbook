@@ -12,7 +12,7 @@ from pulpcore.plugin.serializers import (
     RepositorySyncURLSerializer,
 )
 
-from pulpcore.plugin.tasking import enqueue_with_reservation
+from pulpcore.plugin.tasking import dispatch
 
 from pulpcore.plugin.viewsets import (
     BaseDistributionViewSet,
@@ -97,9 +97,9 @@ class CookbookRepositoryViewSet(ModifyRepositoryActionMixin, RepositoryViewSet):
         remote = serializer.validated_data.get("remote", repository.remote)
 
         mirror = serializer.validated_data.get("mirror", False)
-        result = enqueue_with_reservation(
+        result = dispatch(
             tasks.synchronize,
-            [repository, remote],
+            exclusive_resources=[repository, remote],
             kwargs={"remote_pk": remote.pk, "repository_pk": repository.pk, "mirror": mirror},
         )
         return OperationPostponedResponse(result, request)
@@ -161,9 +161,9 @@ class CookbookPublicationViewSet(PublicationViewSet):
         serializer.is_valid(raise_exception=True)
         repository_version = serializer.validated_data.get("repository_version")
 
-        result = enqueue_with_reservation(
+        result = dispatch(
             tasks.publish,
-            [repository_version.repository],
+            exclusive_resources=[repository_version.repository],
             kwargs={"repository_version_pk": str(repository_version.pk)},
         )
         return OperationPostponedResponse(result, request)

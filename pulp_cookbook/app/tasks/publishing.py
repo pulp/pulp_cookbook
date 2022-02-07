@@ -4,6 +4,7 @@
 
 import logging
 import os
+import tempfile
 
 from gettext import gettext as _
 
@@ -15,7 +16,6 @@ from pulpcore.plugin.models import (
     PublishedMetadata,
     RepositoryVersion,
 )
-from pulpcore.plugin.tasking import WorkingDirectory
 
 from pulp_cookbook.app.models import CookbookPackageContent, CookbookPublication
 from pulp_cookbook.metadata import Entry, Universe
@@ -51,7 +51,7 @@ def publish(repository_version_pk):
         {"repository": repository_version.repository.name, "version": repository_version.number},
     )
 
-    with WorkingDirectory():
+    with tempfile.TemporaryDirectory("."):
         with ProgressReport(
             message="Publishing Content", code="publishing.content"
         ) as progress_report:

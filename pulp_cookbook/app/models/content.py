@@ -6,8 +6,6 @@ import uuid
 
 from django.db import models
 
-from django.contrib.postgres.fields import JSONField
-
 from pulpcore.plugin.models import Content
 
 
@@ -44,7 +42,7 @@ class CookbookPackageContent(Content):
 
     name = models.TextField(blank=False, null=False)
     version = models.TextField(blank=False, null=False)
-    dependencies = JSONField(blank=False, null=False)
+    dependencies = models.JSONField(blank=False, null=False)
     content_id_type = models.CharField(
         max_length=10, choices=CONTENT_ID_TYPE_CHOICES, blank=False, null=False, default=UUID
     )

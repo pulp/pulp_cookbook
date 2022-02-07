@@ -2,9 +2,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-
-from django.contrib.postgres.fields import JSONField
-
+from django.db.models import JSONField
 from pulpcore.plugin.models import Remote, Repository
 
 from pulp_cookbook.app.models.content import CookbookPackageContent

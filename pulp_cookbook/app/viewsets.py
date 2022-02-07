@@ -15,7 +15,7 @@ from pulpcore.plugin.serializers import (
 from pulpcore.plugin.tasking import dispatch
 
 from pulpcore.plugin.viewsets import (
-    BaseDistributionViewSet,
+    DistributionViewSet,
     ContentFilter,
     OperationPostponedResponse,
     PublicationViewSet,
@@ -169,7 +169,7 @@ class CookbookPublicationViewSet(PublicationViewSet):
         return OperationPostponedResponse(result, request)
 
 
-class CookbookDistributionViewSet(BaseDistributionViewSet):
+class CookbookDistributionViewSet(DistributionViewSet):
     """Cookbook Distreibution Endpoint.
 
     <!-- User-facing documentation, rendered as html-->

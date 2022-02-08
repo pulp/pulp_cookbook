@@ -17,8 +17,6 @@ from pulpcore.plugin.models import Artifact, ContentArtifact
 
 from pulp_cookbook.app.models import CookbookPackageContent
 
-from pulp_cookbook.tests.functional.constants import COOKBOOK_CONTENT_PATH
-
 
 class CookbookPackageContentViewSetTestCase(TestCase):
     """Test the CookbookPackageContentViewSet."""
@@ -36,6 +34,7 @@ class CookbookPackageContentViewSetTestCase(TestCase):
             sha256 = hashlib.sha256(str(i).encode()).hexdigest()
             self.a1 = Artifact.objects.create(
                 size=0,
+                sha224=hashlib.sha224(str(i).encode()).hexdigest(),
                 sha256=sha256,
                 sha384=hashlib.sha384(str(i).encode()).hexdigest(),
                 sha512=hashlib.sha512(str(i).encode()).hexdigest(),
@@ -60,7 +59,7 @@ class CookbookPackageContentViewSetTestCase(TestCase):
             "HTTP_AUTHORIZATION": "Basic " + base64.b64encode(b"admin:admin").decode("ascii")
         }
         # Load all pages of the view
-        next_url = COOKBOOK_CONTENT_PATH
+        next_url = "/pulp/api/v3/content/cookbook/cookbooks/"
         number_cookbooks = 0
         while next_url:
             reset_queries()

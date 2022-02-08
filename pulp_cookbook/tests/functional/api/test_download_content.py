@@ -8,8 +8,8 @@ from random import choice
 from urllib.parse import urljoin
 
 from pulp_smash import api, config, exceptions
+from pulp_smash.pulp3.bindings import delete_orphans
 from pulp_smash.pulp3.utils import (
-    delete_orphans,
     gen_distribution,
     gen_remote,
     gen_repo,
@@ -126,7 +126,7 @@ class DownloadContentTestCase(unittest.TestCase):
         * `Pulp Smash #872 <https://github.com/PulpQE/pulp-smash/issues/872>`_
         """
         cfg = config.get_config()
-        delete_orphans(cfg)
+        delete_orphans()
         client = api.Client(cfg, api.json_handler)
         repo = self.create_and_sync_repo(cfg, client, policy)
         distribution = self.create_distribution(cfg, client, repo)
@@ -142,7 +142,7 @@ class DownloadContentTestCase(unittest.TestCase):
         4. Perform download check
         """
         cfg = config.get_config()
-        delete_orphans(cfg)
+        delete_orphans()
         client = api.Client(cfg, api.json_handler)
         repo = self.create_and_sync_repo(cfg, client, policy)
         repo2 = self.create_and_sync_repo(cfg, client, policy)

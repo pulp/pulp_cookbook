@@ -10,8 +10,9 @@ import unittest
 from requests.exceptions import HTTPError
 
 from pulp_smash import api, config, exceptions, utils
+from pulp_smash.pulp3.bindings import delete_orphans
 from pulp_smash.pulp3.constants import ARTIFACTS_PATH
-from pulp_smash.pulp3.utils import delete_orphans, gen_repo
+from pulp_smash.pulp3.utils import gen_repo
 
 from pulp_cookbook.tests.functional.constants import (
     fixture_u1,
@@ -45,7 +46,7 @@ class CommonsForContentTestCases(unittest.TestCase):
     def setUpClass(cls):
         """Create class-wide variable."""
         cls.cfg = config.get_config()
-        delete_orphans(cls.cfg)
+        delete_orphans()
         cls.content_unit = {}
         cls.client_task = api.Client(cls.cfg, api.task_handler)
         cls.client = api.Client(cls.cfg, api.json_handler)
@@ -63,7 +64,7 @@ class CommonsForContentTestCases(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         """Clean class-wide variable."""
-        delete_orphans(cls.cfg)
+        delete_orphans()
 
     def create_and_verify_content_unit_from_file(self, repo_href=None):
         """Create content unit from file."""

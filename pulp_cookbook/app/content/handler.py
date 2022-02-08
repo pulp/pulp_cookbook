@@ -5,6 +5,7 @@
 import aiohttp
 import logging
 
+from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.db import IntegrityError, transaction
 
@@ -37,13 +38,23 @@ class CookbookContentHandler(Handler):
         the content of '__universe__' on the fly.
         """
         path = request.match_info["path"] + "/universe"
-        distribution = Handler._match_distribution(path)
+        distribution = await sync_to_async(Handler._match_distribution)(path)
         Handler._permit(request, distribution)
         publication = distribution.publication
         if not publication:
             raise PathNotResolved(path)
-        pa = publication.published_artifact.get(relative_path="__universe__")
-        ca = pa.content_artifact
+
+        def get_contentartifact_blocking():
+            return (
+                publication.published_artifact.select_related(
+                    "content_artifact",
+                    "content_artifact__artifact",
+                )
+                .get(relative_path="__universe__")
+                .content_artifact
+            )
+
+        ca = await sync_to_async(get_contentartifact_blocking)()
         try:
             with ca.artifact.file.open("rb") as u:
                 content = u.read().decode("utf-8")

@@ -15,6 +15,7 @@ issue_format = "`#{issue} <https://github.com/pulp/pulp_cookbook/issues/{issue}>
 [tool.check-manifest]
 ignore = [
     ".bumpversion.cfg",
+    ".gitleaks.toml",
     "CHANGES/**",
     "CONTRIBUTING.rst",
     "CODEOWNERS",

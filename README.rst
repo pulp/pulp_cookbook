@@ -1,6 +1,6 @@
-.. image:: https://travis-ci.com/pulp/pulp_cookbook.svg?branch=master
-   :target: https://travis-ci.com/pulp/pulp_cookbook
-   :alt: Travis (.org)
+.. image:: https://github.com/pulp/pulp_cookbook/actions/workflows/nightly.yml/badge.svg
+   :target: https://github.com/pulp/pulp_cookbook/actions/workflows/nightly.yml
+   :alt: Cookbook Nightly CI/CD
 .. image:: https://img.shields.io/pypi/v/pulp-cookbook.svg
    :target: https://pypi.python.org/pypi/pulp-cookbook
    :alt: PyPI

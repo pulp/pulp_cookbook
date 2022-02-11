@@ -9,7 +9,8 @@ from rest_framework import serializers
 
 from pulpcore.plugin import models
 from pulpcore.plugin.serializers import (
-    PublicationDistributionSerializer,
+    DetailRelatedField,
+    DistributionSerializer,
     PublicationSerializer,
     RelatedField,
     RemoteSerializer,
@@ -159,7 +160,7 @@ class CookbookPublicationSerializer(PublicationSerializer):
         help_text=_(
             "This publication is currently being served as defined by these distributions."
         ),
-        source="cookbook_cookbookdistribution",
+        source="distribution_set",
         many=True,
         read_only=True,
         view_name="distributions-cookbook/cookbook-detail",
@@ -182,7 +183,7 @@ class CookbookBaseURLField(serializers.CharField):
         return "/".join((origin.strip("/"), prefix.strip("/"), base_path.lstrip("/")))
 
 
-class CookbookDistributionSerializer(PublicationDistributionSerializer):
+class CookbookDistributionSerializer(DistributionSerializer):
     """Serializer for the Distribution."""
 
     base_url = CookbookBaseURLField(
@@ -191,6 +192,14 @@ class CookbookDistributionSerializer(PublicationDistributionSerializer):
         help_text=_("The URL for accessing the universe API as defined by this distribution."),
     )
 
+    publication = DetailRelatedField(
+        required=False,
+        help_text=_("Publication to be served"),
+        view_name_pattern=r"publications(-.*/.*)?-detail",
+        queryset=models.Publication.objects.exclude(complete=False),
+        allow_null=True,
+    )
+
     class Meta:
-        fields = PublicationDistributionSerializer.Meta.fields
+        fields = DistributionSerializer.Meta.fields + ("publication",)
         model = CookbookDistribution

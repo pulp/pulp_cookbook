@@ -9,8 +9,8 @@ from random import choice
 from requests.exceptions import HTTPError
 
 from pulp_smash import api, config
+from pulp_smash.pulp3.bindings import delete_orphans
 from pulp_smash.pulp3.utils import (
-    delete_orphans,
     gen_remote,
     gen_repo,
     get_versions,
@@ -53,7 +53,7 @@ class PublishAnyRepoVersionTestCase(unittest.TestCase):
         """
         cfg = config.get_config()
 
-        delete_orphans(cfg)
+        delete_orphans()
 
         client = api.Client(cfg, api.json_handler)
         body = gen_remote(fixture_u1.url, cookbooks={fixture_u1.example1_name: ""})

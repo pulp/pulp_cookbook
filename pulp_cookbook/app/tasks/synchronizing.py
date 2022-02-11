@@ -7,6 +7,7 @@ import logging
 from collections import defaultdict
 from gettext import gettext as _
 from urllib.parse import urljoin
+from asgiref.sync import sync_to_async
 
 from django.db.models import Prefetch, Q
 
@@ -97,7 +98,7 @@ class QueryExistingRepoContentAndArtifacts(Stage):
 
     async def run(self):
         async for batch in self.batches():
-            self._process_batch(batch)
+            await sync_to_async(self._process_batch)(batch)
             for declarative_content in batch:
                 await self.put(declarative_content)
 
@@ -175,16 +176,16 @@ class CookbookFirstStage(Stage):
         using this specifier.
 
         """
-        with ProgressReport(
+        async with ProgressReport(
             message="Downloading Metadata", code="downloading.metadata", total=1
         ) as pb:
             downloader = self.remote.get_downloader(url=urljoin(self.remote.url + "/", "universe"))
             result = await downloader.run()
-            pb.increment()
+            await pb.aincrement()
 
         cookbook_names = self.remote.specifier_cookbook_names()
 
-        with ProgressReport(message="Parsing Metadata", code="parsing.metadata") as pb:
+        async with ProgressReport(message="Parsing Metadata", code="parsing.metadata") as pb:
             universe = Universe(result.path)
             for entry in universe.read():
                 if cookbook_names and entry.name not in cookbook_names:
@@ -201,7 +202,7 @@ class CookbookFirstStage(Stage):
                     deferred_download=not self.download_artifacts,
                 )
                 dc = DeclarativeContent(content=cookbook, d_artifacts=[da])
-                pb.increment()
+                await pb.aincrement()
                 await self.put(dc)
 
 

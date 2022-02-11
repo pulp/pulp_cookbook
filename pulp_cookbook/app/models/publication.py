@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 
-from pulpcore.plugin.models import PublicationDistribution, Publication
+from pulpcore.plugin.models import Distribution, Publication
 
 
 class CookbookPublication(Publication):
@@ -17,7 +17,7 @@ class CookbookPublication(Publication):
         default_related_name = "%(app_label)s_%(model_name)s"
 
 
-class CookbookDistribution(PublicationDistribution):
+class CookbookDistribution(Distribution):
     """
     Distribution for 'cookbook' content.
     """

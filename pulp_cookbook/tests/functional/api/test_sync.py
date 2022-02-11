@@ -7,8 +7,9 @@ import unittest
 
 from pulp_smash import api, config
 from pulp_smash.exceptions import TaskReportError
+from pulp_smash.pulp3.bindings import delete_orphans
 from pulp_smash.pulp3.constants import IMMEDIATE_DOWNLOAD_POLICIES, ON_DEMAND_DOWNLOAD_POLICIES
-from pulp_smash.pulp3.utils import delete_orphans, gen_remote, gen_repo, modify_repo, sync
+from pulp_smash.pulp3.utils import gen_remote, gen_repo, modify_repo, sync
 
 from pulp_cookbook.tests.functional.constants import (
     fixture_u1,
@@ -34,7 +35,7 @@ class SyncCookbookRepoTestCase(unittest.TestCase):
         cls.cfg = config.get_config()
 
     def setUp(self):
-        delete_orphans(self.cfg)
+        delete_orphans()
 
     def verify_counts(self, repo, all_count, added_count, removed_count):
         self.assertEqual(len(get_cookbook_content(repo)), all_count)
@@ -391,7 +392,7 @@ class RepoVersionConstraintValidationTestCase(unittest.TestCase):
     def test_publish_invalid_repo_version(self):
         """Repo version containing two units with the same name and version can't be created."""
         cfg = config.get_config()
-        delete_orphans(cfg)
+        delete_orphans()
         client = api.Client(cfg, api.json_handler)
 
         # Create repo u1 and sync partially

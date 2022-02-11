@@ -22,9 +22,10 @@ class QueryExistingRepoContentAndArtifactsTestCase(TestCase):
         # c1: Existing content unit with Artifact a1
         self.a1 = Artifact.objects.create(
             size=0,
-            sha256="1",
-            sha384="1",
-            sha512="1",
+            sha224="111111111111111111",
+            sha256="111111111111111111",
+            sha384="111111111111111111",
+            sha512="111111111111111111",
             file=SimpleUploadedFile("test_filename", b""),
         )
         self.c1 = CookbookPackageContent.objects.create(

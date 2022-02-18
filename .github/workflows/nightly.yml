@@ -26,6 +26,7 @@ jobs:
           - TEST: docs
           - TEST: azure
           - TEST: s3
+          - TEST: generate-bindings
 
     steps:
       - uses: actions/checkout@v2
@@ -259,7 +260,29 @@ jobs:
           SECRETS_CONTEXT: ${{ toJson(secrets) }}
 
       
+      - name: Download Ruby client
+        uses: actions/download-artifact@v2
+        with:
+          name: ruby-client.tar
 
+      - name: Untar Ruby client packages
+        run: tar -xvf ruby-client.tar
+
+      - name: Publish client to rubygems
+        run: bash .github/workflows/scripts/publish_client_gem.sh
+      
+
+      
+      - name: Download Python client
+        uses: actions/download-artifact@v2
+        with:
+          name: python-client.tar
+
+      - name: Untar python client packages
+        run: tar -xvf python-client.tar
+
+      - name: Publish client to pypi
+        run: bash .github/workflows/scripts/publish_client_pypi.sh
       
 
       

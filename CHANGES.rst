@@ -10,6 +10,26 @@ pulp-cookbook Changelog
 
 .. towncrier release notes start
 
+0.1.0b9 (2022-02-18)
+====================
+
+
+Improved Documentation
+----------------------
+
+- Follow documentation style of other Pulp plugins, documentation is available at https://pulp-cookbook.readthedocs.io/
+  `#87 <https://github.com/pulp/pulp_cookbook/issues/87>`_
+
+
+Misc
+----
+
+- `#94 <https://github.com/pulp/pulp_cookbook/issues/94>`_, `#95 <https://github.com/pulp/pulp_cookbook/issues/95>`_
+
+
+----
+
+
 0.1.0b8 (2020-08-29)
 ====================
 

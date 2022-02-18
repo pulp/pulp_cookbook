@@ -10,4 +10,4 @@ class PulpCookbookPluginAppConfig(PulpPluginAppConfig):
 
     name = "pulp_cookbook.app"
     label = "cookbook"
-    version = "0.1.0b9.dev"
+    version = "0.1.0b9"

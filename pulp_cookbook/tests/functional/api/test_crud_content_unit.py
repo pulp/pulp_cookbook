@@ -4,7 +4,7 @@
 
 """Tests that perform actions over content unit."""
 import hashlib
-
+import os
 import unittest
 
 from requests.exceptions import HTTPError
@@ -74,14 +74,15 @@ class CommonsForContentTestCases(unittest.TestCase):
         resources = self.client_task.post(
             COOKBOOK_CONTENT_PATH, data=attrs, files=self.cookbook_files
         )
+        api_root = os.environ.get("PULP_API_ROOT", "/pulp/")
         if repo_href:
             # We get back a list: the new content unit and the new repo version
             for resource in resources:
-                if resource["pulp_href"].startswith("/pulp/api/v3/content/"):
+                if resource["pulp_href"].startswith(f"{api_root}api/v3/content/"):
                     self.content_unit.update(resource)
                 else:
                     self.assertRegex(
-                        resource["pulp_href"], "^/pulp/api/v3/repositories/.*/versions/"
+                        resource["pulp_href"], f"^{api_root}api/v3/repositories/.*/versions/"
                     )
                     repo_version = resource
                     self.assertEqual(

@@ -6,6 +6,7 @@ import base64
 from django.contrib.auth.models import User
 import hashlib
 
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection, reset_queries
 from django.test import TestCase
@@ -59,7 +60,7 @@ class CookbookPackageContentViewSetTestCase(TestCase):
             "HTTP_AUTHORIZATION": "Basic " + base64.b64encode(b"admin:admin").decode("ascii")
         }
         # Load all pages of the view
-        next_url = "/pulp/api/v3/content/cookbook/cookbooks/"
+        next_url = f"{settings.V3_API_ROOT}content/cookbook/cookbooks/"
         number_cookbooks = 0
         while next_url:
             reset_queries()

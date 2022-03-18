@@ -31,3 +31,42 @@ eval "$(ssh-agent -s)" #start the ssh agent
 ssh-add ~/.ssh/pulp-infra
 
 python3 .github/workflows/scripts/docs-publisher.py --build-type $1 --branch $2
+
+if [[ "$GITHUB_WORKFLOW" == "Cookbook changelog update" ]]; then
+  # Do not build bindings docs on changelog update
+  exit
+fi
+
+# Building python bindings
+export PULP_URL="${PULP_URL:-https://pulp}"
+VERSION=$(http $PULP_URL/pulp/api/v3/status/ | jq --arg plugin cookbook --arg legacy_plugin pulp_cookbook -r '.versions[] | select(.component == $plugin or .component == $legacy_plugin) | .version')
+cd ../pulp-openapi-generator
+rm -rf pulp_cookbook-client
+./generate.sh pulp_cookbook python $VERSION
+cd pulp_cookbook-client
+
+# Adding mkdocs
+cp README.md docs/index.md
+sed -i 's/docs\///g' docs/index.md
+sed -i 's/\.md//g' docs/index.md
+cat >> mkdocs.yml << DOCSYAML
+---
+site_name: PulpCookbook Client
+site_description: Cookbook bindings
+site_author: Pulp Team
+site_url: https://docs.pulpproject.org/pulp_cookbook_client/
+repo_name: pulp/pulp_cookbook
+repo_url: https://github.com/pulp/pulp_cookbook
+theme: readthedocs
+DOCSYAML
+
+pip install mkdocs pymdown-extensions
+
+# Building the bindings docs
+mkdocs build
+
+# publish to docs.pulpproject.org/pulp_cookbook_client
+rsync -avzh site/ doc_builder_pulp_cookbook@docs.pulpproject.org:/var/www/docs.pulpproject.org/pulp_cookbook_client/
+
+# publish to docs.pulpproject.org/pulp_cookbook_client/en/{release}
+rsync -avzh site/ doc_builder_pulp_cookbook@docs.pulpproject.org:/var/www/docs.pulpproject.org/pulp_cookbook_client/en/"$1"

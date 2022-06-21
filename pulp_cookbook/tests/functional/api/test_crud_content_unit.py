@@ -4,12 +4,11 @@
 
 """Tests that perform actions over content unit."""
 import hashlib
-import os
 import unittest
 
 from requests.exceptions import HTTPError
 
-from pulp_smash import api, config, exceptions, utils
+from pulp_smash import api, cli, config, exceptions, utils
 from pulp_smash.pulp3.bindings import delete_orphans
 from pulp_smash.pulp3.constants import ARTIFACTS_PATH
 from pulp_smash.pulp3.utils import gen_repo
@@ -46,6 +45,7 @@ class CommonsForContentTestCases(unittest.TestCase):
     def setUpClass(cls):
         """Create class-wide variable."""
         cls.cfg = config.get_config()
+        cls.cli_client = cli.Client(cls.cfg)
         delete_orphans()
         cls.content_unit = {}
         cls.client_task = api.Client(cls.cfg, api.task_handler)
@@ -74,7 +74,7 @@ class CommonsForContentTestCases(unittest.TestCase):
         resources = self.client_task.post(
             COOKBOOK_CONTENT_PATH, data=attrs, files=self.cookbook_files
         )
-        api_root = os.environ.get("PULP_API_ROOT", "/pulp/")
+        api_root = utils.get_pulp_setting(self.cli_client, "API_ROOT")
         if repo_href:
             # We get back a list: the new content unit and the new repo version
             for resource in resources:

@@ -24,11 +24,11 @@ ignore = [
     "doc_requirements.txt",
     "docs/**",
     ".flake8",
-    "flake8.cfg",
     "template_config.yml",
     ".travis/**",
     ".travis.yml",
     ".pep8speaks.yml",
     ".ci/**",
-    ".github/**"
+    ".github/**",
+    "lint_requirements.txt",
 ]

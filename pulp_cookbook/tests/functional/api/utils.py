@@ -60,6 +60,7 @@ def get_content_and_unit_paths(repo):
     :returns: A list of tuples (content unit, publication path of the unit) present in a given
               repository.
     """
+
     # The "relative_path" is actually a file path and name
     def rel_path(content):
         path_format = "cookbook_files/{0}/{2}/{0}-{1}.tar.gz"

@@ -14,6 +14,10 @@ on:
     - cron: '00 3 * * *'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.ref_name }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -26,14 +30,14 @@ jobs:
           - TEST: docs
           - TEST: azure
           - TEST: s3
+          
           - TEST: generate-bindings
+          - TEST: lowerbounds
 
     steps:
       - uses: actions/checkout@v3
         with:
-          # by default, it uses a depth of 1
-          # this fetches all history so that we can read each commit
-          fetch-depth: 0
+          fetch-depth: 1
 
       - uses: actions/setup-python@v3
         with:
@@ -51,7 +55,6 @@ jobs:
           echo "TEST=${{ matrix.env.TEST }}" >> $GITHUB_ENV
 
       - name: Before Install
-        
         run: .github/workflows/scripts/before_install.sh
         shell: bash
         env:
@@ -70,7 +73,6 @@ jobs:
           ruby-version: "2.6"
 
       - name: Install
-        
         run: .github/workflows/scripts/install.sh
         shell: bash
         env:
@@ -84,7 +86,6 @@ jobs:
           GITHUB_CONTEXT: ${{ github.event.pull_request.commits_url }}
 
       - name: Before Script
-        
         run: .github/workflows/scripts/before_script.sh
         shell: bash
         env:
@@ -99,13 +100,11 @@ jobs:
           REDIS_DISABLED: ${{ contains('', matrix.env.TEST) }}
 
       - name: Setting secrets
-        
         run: python3 .github/workflows/scripts/secrets.py "$SECRETS_CONTEXT"
         env:
           SECRETS_CONTEXT: ${{ toJson(secrets) }}
 
       - name: Install Python client
-        
         run: .github/workflows/scripts/install_python_client.sh
         shell: bash
 
@@ -115,7 +114,6 @@ jobs:
         shell: bash
 
       - name: Script
-        
         run: .github/workflows/scripts/script.sh
         shell: bash
         env:
@@ -172,9 +170,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          # by default, it uses a depth of 1
-          # this fetches all history so that we can read each commit
-          fetch-depth: 0
+          fetch-depth: 1
 
       - uses: actions/setup-python@v3
         with:
@@ -220,16 +216,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          # by default, it uses a depth of 1
-          # this fetches all history so that we can read each commit
-          fetch-depth: 0
+          fetch-depth: 1
 
       - uses: actions/setup-python@v3
         with:
           python-version: "3.8"
 
       - uses: ruby/setup-ruby@v1
-        
         with:
           ruby-version: "2.6"
 
@@ -251,7 +244,6 @@ jobs:
           echo ::endgroup::
 
       - name: Before Install
-        
         run: .github/workflows/scripts/before_install.sh
         shell: bash
         env:
@@ -265,7 +257,6 @@ jobs:
           GITHUB_CONTEXT: ${{ github.event.pull_request.commits_url }}
 
       - name: Install
-        
         run: .github/workflows/scripts/install.sh
         shell: bash
         env:
@@ -279,17 +270,14 @@ jobs:
           GITHUB_CONTEXT: ${{ github.event.pull_request.commits_url }}
 
       - name: Install Python client
-        
         run: .github/workflows/scripts/install_python_client.sh
         shell: bash
 
       - name: Install Ruby client
-        
         run: .github/workflows/scripts/install_ruby_client.sh
         shell: bash
 
       - name: Before Script
-        
         run: .github/workflows/scripts/before_script.sh
         shell: bash
         env:
@@ -304,36 +292,9 @@ jobs:
           REDIS_DISABLED: ${{ contains('', matrix.env.TEST) }}
 
       - name: Setting secrets
-        
         run: python3 .github/workflows/scripts/secrets.py "$SECRETS_CONTEXT"
         env:
           SECRETS_CONTEXT: ${{ toJson(secrets) }}
-
-      
-      - name: Download Ruby client
-        uses: actions/download-artifact@v3
-        with:
-          name: ruby-client.tar
-
-      - name: Untar Ruby client packages
-        run: tar -xvf ruby-client.tar
-
-      - name: Publish client to rubygems
-        run: bash .github/workflows/scripts/publish_client_gem.sh
-      
-
-      
-      - name: Download Python client
-        uses: actions/download-artifact@v3
-        with:
-          name: python-client.tar
-
-      - name: Untar python client packages
-        run: tar -xvf python-client.tar
-
-      - name: Publish client to pypi
-        run: bash .github/workflows/scripts/publish_client_pypi.sh
-      
 
       
       - name: Download built docs

@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import pytest
-import uuid
 from unittest.mock import Mock
 
 from pulpcore.plugin.models import Artifact, ContentArtifact, RemoteArtifact

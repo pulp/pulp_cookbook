@@ -1,3 +1,4 @@
 asynctest
 coverage
 pytest-django
+pytest<8

@@ -7,37 +7,36 @@
 #
 # For more info visit https://github.com/pulp/plugin_template
 
-set -euv
+set -mveuo pipefail
 
 # make sure this script runs at the repo root
 cd "$(dirname "$(realpath -e "$0")")"/../../..
 
-export PULP_URL="${PULP_URL:-https://pulp}"
+source .github/workflows/scripts/utils.sh
 
-export REPORTED_VERSION=$(http $PULP_URL/pulp/api/v3/status/ | jq --arg plugin cookbook --arg legacy_plugin pulp_cookbook -r '.versions[] | select(.component == $plugin or .component == $legacy_plugin) | .version')
-export DESCRIPTION="$(git describe --all --exact-match `git rev-parse HEAD`)"
-if [[ $DESCRIPTION == 'tags/'$REPORTED_VERSION ]]; then
-  export VERSION=${REPORTED_VERSION}
-else
-  export EPOCH="$(date +%s)"
-  export VERSION=${REPORTED_VERSION}${EPOCH}
-fi
+PULP_URL="${PULP_URL:-https://pulp}"
+export PULP_URL
+PULP_API_ROOT="${PULP_API_ROOT:-/pulp/}"
+export PULP_API_ROOT
 
-export response=$(curl --write-out %{http_code} --silent --output /dev/null https://rubygems.org/gems/pulp_cookbook_client/versions/$VERSION)
+REPORTED_STATUS="$(pulp status)"
+REPORTED_VERSION="$(echo "$REPORTED_STATUS" | jq --arg plugin "cookbook" -r '.versions[] | select(.component == $plugin) | .version')"
+VERSION="$(echo "$REPORTED_VERSION" | python -c 'from packaging.version import Version; print(Version(input()))')"
 
-if [ "$response" == "200" ];
-then
-  echo "pulp_cookbook client $VERSION has already been released. Installing from RubyGems.org."
-  gem install pulp_cookbook_client -v $VERSION
-  touch pulp_cookbook_client-$VERSION.gem
-  tar cvf ruby-client.tar ./pulp_cookbook_client-$VERSION.gem
-  exit
-fi
-
-cd ../pulp-openapi-generator
+pushd ../pulp-openapi-generator
 rm -rf pulp_cookbook-client
-./generate.sh pulp_cookbook ruby $VERSION
-cd pulp_cookbook-client
+
+if pulp debug has-plugin --name "core" --specifier ">=3.44.0.dev"
+then
+  curl --fail-with-body -k -o api.json "${PULP_URL}${PULP_API_ROOT}api/v3/docs/api.json?bindings&component=cookbook"
+  USE_LOCAL_API_JSON=1 ./generate.sh pulp_cookbook ruby "$VERSION"
+else
+  ./generate.sh pulp_cookbook ruby "$VERSION"
+fi
+
+pushd pulp_cookbook-client
 gem build pulp_cookbook_client
-gem install --both ./pulp_cookbook_client-$VERSION.gem
-tar cvf ../../pulp_cookbook/ruby-client.tar ./pulp_cookbook_client-$VERSION.gem
+gem install --both "./pulp_cookbook_client-$VERSION.gem"
+tar cvf ../../pulp_cookbook/cookbook-ruby-client.tar "./pulp_cookbook_client-$VERSION.gem"
+popd
+popd

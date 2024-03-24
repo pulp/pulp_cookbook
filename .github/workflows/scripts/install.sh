@@ -15,58 +15,52 @@ set -euv
 
 source .github/workflows/scripts/utils.sh
 
+PLUGIN_VERSION="$(sed -n -e 's/^\s*current_version\s*=\s*//p' .bumpversion.cfg | python -c 'from packaging.version import Version; print(Version(input()))')"
+PLUGIN_SOURCE="./pulp_cookbook/dist/pulp_cookbook-${PLUGIN_VERSION}-py3-none-any.whl"
+
 export PULP_API_ROOT="/pulp/"
 
-if [[ "$TEST" = "docs" || "$TEST" = "publish" ]]; then
-  pip install -r ../pulpcore/doc_requirements.txt
-  pip install -r doc_requirements.txt
+PIP_REQUIREMENTS=("pulp-cli")
+if [[ "$TEST" = "docs" || "$TEST" = "publish" ]]
+then
+  PIP_REQUIREMENTS+=("-r" "doc_requirements.txt")
 fi
+
+pip install ${PIP_REQUIREMENTS[*]}
+
+
 
 cd .ci/ansible/
-
-TAG=ci_build
-PULPCORE=./pulpcore
-if [[ "$TEST" == "plugin-from-pypi" ]]; then
-  PLUGIN_NAME=pulp_cookbook
-elif [[ "${RELEASE_WORKFLOW:-false}" == "true" ]]; then
-  PLUGIN_NAME=./pulp_cookbook/dist/pulp_cookbook-$PLUGIN_VERSION-py3-none-any.whl
-else
-  PLUGIN_NAME=./pulp_cookbook
+if [ "$TEST" = "s3" ]; then
+  PLUGIN_SOURCE="${PLUGIN_SOURCE} pulpcore[s3]"
 fi
-if [[ "${RELEASE_WORKFLOW:-false}" == "true" ]]; then
-  # Install the plugin only and use published PyPI packages for the rest
-  # Quoting ${TAG} ensures Ansible casts the tag as a string.
-  cat >> vars/main.yaml << VARSYAML
+if [ "$TEST" = "azure" ]; then
+  PLUGIN_SOURCE="${PLUGIN_SOURCE} pulpcore[azure]"
+fi
+
+cat >> vars/main.yaml << VARSYAML
 image:
   name: pulp
-  tag: "${TAG}"
+  tag: "ci_build"
 plugins:
-  - name: pulpcore
-    source: pulpcore
   - name: pulp_cookbook
-    source:  "${PLUGIN_NAME}"
-  - name: pulp-smash
-    source: ./pulp-smash
+    source: "${PLUGIN_SOURCE}"
 VARSYAML
-else
+if [[ -f ../../ci_requirements.txt ]]; then
   cat >> vars/main.yaml << VARSYAML
-image:
-  name: pulp
-  tag: "${TAG}"
-plugins:
-  - name: pulp_cookbook
-    source: "${PLUGIN_NAME}"
-  - name: pulpcore
-    source: "${PULPCORE}"
-  - name: pulp-smash
-    source: ./pulp-smash
+    ci_requirements: true
+VARSYAML
+fi
+if [ "$TEST" = "lowerbounds" ]; then
+  cat >> vars/main.yaml << VARSYAML
+    lowerbounds: true
 VARSYAML
 fi
 
 cat >> vars/main.yaml << VARSYAML
 services:
   - name: pulp
-    image: "pulp:${TAG}"
+    image: "pulp:ci_build"
     volumes:
       - ./settings:/etc/pulp
       - ./ssh:/keys/
@@ -74,14 +68,14 @@ services:
       - ../../../pulp-openapi-generator:/root/pulp-openapi-generator
     env:
       PULP_WORKERS: "4"
+      PULP_HTTPS: "true"
 VARSYAML
 
 cat >> vars/main.yaml << VARSYAML
+pulp_env: {}
 pulp_settings: null
 pulp_scheme: https
-
-pulp_container_tag: https
-
+pulp_default_container: ghcr.io/pulp/pulp-ci-centos9:latest
 VARSYAML
 
 if [ "$TEST" = "s3" ]; then
@@ -98,6 +92,7 @@ if [ "$TEST" = "s3" ]; then
 minio_access_key: "'$MINIO_ACCESS_KEY'"\
 minio_secret_key: "'$MINIO_SECRET_KEY'"\
 pulp_scenario_settings: null\
+pulp_scenario_env: {}\
 ' vars/main.yaml
   export PULP_API_ROOT="/rerouted/djnd/"
 fi
@@ -117,6 +112,7 @@ if [ "$TEST" = "azure" ]; then
     command: "azurite-blob --blobHost 0.0.0.0 --cert /etc/pulp/azcert.pem --key /etc/pulp/azkey.pem"' vars/main.yaml
   sed -i -e '$a azure_test: true\
 pulp_scenario_settings: null\
+pulp_scenario_env: {}\
 ' vars/main.yaml
 fi
 
@@ -126,6 +122,9 @@ if [ "${PULP_API_ROOT:-}" ]; then
   sed -i -e '$a api_root: "'"$PULP_API_ROOT"'"' vars/main.yaml
 fi
 
+pulp config create --base-url https://pulp --api-root "$PULP_API_ROOT" --username "admin" --password "password"
+
+
 ansible-playbook build_container.yaml
 ansible-playbook start_container.yaml
 
@@ -133,7 +132,8 @@ ansible-playbook start_container.yaml
 # files will likely be modified on the host by post/pre scripts.
 chmod 777 ~/.config/pulp_smash/
 chmod 666 ~/.config/pulp_smash/settings.json
-sudo chown -R 700:700 ~runner/.config
+
+sudo chown -R 700:700 ~/.config
 echo ::group::SSL
 # Copy pulp CA
 sudo docker cp pulp:/etc/pulp/certs/pulp_webserver.crt /usr/local/share/ca-certificates/pulp_webserver.crt
@@ -153,10 +153,17 @@ cat "$CERTIFI" | sudo tee -a "$CERT" > /dev/null
 sudo update-ca-certificates
 echo ::endgroup::
 
+# Add our azcert.crt certificate to the container image along with the certificates from certifi
+# so that we can use HTTPS with our fake Azure CI. certifi is self-contained and doesn't allow
+# extension or modification of the trust store, so we do a weird and hacky thing (above) where we just
+# overwrite or append to certifi's trust store behind it's back.
+#
+# We do this for both the CI host and the CI image.
 if [[ "$TEST" = "azure" ]]; then
   AZCERTIFI=$(/opt/az/bin/python3 -c 'import certifi; print(certifi.where())')
+  PULPCERTIFI=$(cmd_prefix python3 -c 'import certifi; print(certifi.where())')
   cat /usr/local/share/ca-certificates/azcert.crt >> $AZCERTIFI
-  cat /usr/local/share/ca-certificates/azcert.crt | cmd_stdin_prefix tee -a /usr/local/lib/python3.8/site-packages/certifi/cacert.pem > /dev/null
+  cat /usr/local/share/ca-certificates/azcert.crt | cmd_stdin_prefix tee -a "$PULPCERTIFI" > /dev/null
   cat /usr/local/share/ca-certificates/azcert.crt | cmd_stdin_prefix tee -a /etc/pki/tls/cert.pem > /dev/null
   AZURE_STORAGE_CONNECTION_STRING='DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=https://ci-azurite:10000/devstoreaccount1;'
   az storage container create --name pulp-test --connection-string $AZURE_STORAGE_CONNECTION_STRING
